@@ -1,5 +1,7 @@
 package model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import java.util.List;
 import java.util.Objects;
@@ -27,6 +29,7 @@ public class User {
 
     private Long chatId;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "animals")
     List<Animal> adoptedAnimals;
 

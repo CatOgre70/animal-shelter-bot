@@ -1,5 +1,7 @@
 package model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -38,6 +40,7 @@ public class Animal {
     @JoinColumn(name = "users_id")
     private User owner;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "reports")
     List<DailyReport> reports;
 
