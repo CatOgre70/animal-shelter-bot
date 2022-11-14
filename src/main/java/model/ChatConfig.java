@@ -14,7 +14,7 @@ import java.util.Objects;
 public class ChatConfig {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     Long id;
 
     Long chatId;
