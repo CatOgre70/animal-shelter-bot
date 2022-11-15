@@ -9,7 +9,6 @@ import org.springframework.stereotype.Repository;
  * Corresponds to the daily_reports table in PostgreSQL. Extends {@link JpaRepository}
  * @see dev.pro.animalshelterbot.model.DailyReport DailyReport
  */
-
 @Repository
 public interface DailyReportRepository extends JpaRepository<DailyReport, Long> {
 }
