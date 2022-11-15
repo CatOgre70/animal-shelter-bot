@@ -1,4 +1,4 @@
-package model;
+package dev.pro.animalshelterbot.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -15,11 +15,11 @@ public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long userId;
 
     private String firstName;
 
-    private String lastName;
+    private String secondName;
 
     private String nickName;
 
@@ -29,13 +29,12 @@ public class User {
 
     private Long chatId;
 
-    @JsonIgnore
-    @OneToMany(mappedBy = "animals")
+    @OneToMany
     List<Animal> adoptedAnimals;
 
     public User() {
         this.firstName = null;
-        this.lastName = null;
+        this.secondName = null;
         this.nickName = null;
         this.address = null;
         this.mobilePhone = null;
@@ -44,7 +43,7 @@ public class User {
 
     public User(String firstName, String lastName, String nickName, String address, String mobilePhone, Long chatId) {
         this.firstName = firstName;
-        this.lastName = lastName;
+        this.secondName = lastName;
         this.nickName = nickName;
         this.address = address;
         this.mobilePhone = mobilePhone;
@@ -60,11 +59,11 @@ public class User {
     }
 
     public String getLastName() {
-        return lastName;
+        return secondName;
     }
 
     public void setLastName(String lastName) {
-        this.lastName = lastName;
+        this.secondName = lastName;
     }
 
     public String getNickName() {
@@ -112,11 +111,11 @@ public class User {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         User user = (User) o;
-        return Objects.equals(id, user.id) && Objects.equals(firstName, user.firstName) && Objects.equals(lastName, user.lastName) && Objects.equals(nickName, user.nickName) && Objects.equals(address, user.address) && Objects.equals(mobilePhone, user.mobilePhone) && Objects.equals(chatId, user.chatId);
+        return Objects.equals(userId, user.userId) && Objects.equals(firstName, user.firstName) && Objects.equals(secondName, user.secondName) && Objects.equals(nickName, user.nickName) && Objects.equals(address, user.address) && Objects.equals(mobilePhone, user.mobilePhone) && Objects.equals(chatId, user.chatId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, firstName, lastName, nickName, address, mobilePhone, chatId);
+        return Objects.hash(userId, firstName, secondName, nickName, address, mobilePhone, chatId);
     }
 }

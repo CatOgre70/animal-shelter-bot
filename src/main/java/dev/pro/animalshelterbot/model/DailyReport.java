@@ -1,4 +1,4 @@
-package model;
+package dev.pro.animalshelterbot.model;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -15,7 +15,7 @@ public class DailyReport {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long dailyReportId;
 
     private LocalDateTime dateTime;
 
@@ -32,7 +32,6 @@ public class DailyReport {
     private String changeInBehavior;
 
     @ManyToOne
-    @JoinColumn(name = "animal_id")
     private Animal animal;
 
     public DailyReport() {
@@ -124,12 +123,12 @@ public class DailyReport {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         DailyReport report = (DailyReport) o;
-        return fileSize == report.fileSize && Objects.equals(id, report.id) && Objects.equals(dateTime, report.dateTime) && Objects.equals(filePath, report.filePath) && Arrays.equals(smallPicture, report.smallPicture) && Objects.equals(diet, report.diet) && Objects.equals(generalWellBeing, report.generalWellBeing) && Objects.equals(changeInBehavior, report.changeInBehavior) && Objects.equals(animal, report.animal);
+        return fileSize == report.fileSize && Objects.equals(dailyReportId, report.dailyReportId) && Objects.equals(dateTime, report.dateTime) && Objects.equals(filePath, report.filePath) && Arrays.equals(smallPicture, report.smallPicture) && Objects.equals(diet, report.diet) && Objects.equals(generalWellBeing, report.generalWellBeing) && Objects.equals(changeInBehavior, report.changeInBehavior) && Objects.equals(animal, report.animal);
     }
 
     @Override
     public int hashCode() {
-        int result = Objects.hash(id, dateTime, filePath, fileSize, diet, generalWellBeing, changeInBehavior, animal);
+        int result = Objects.hash(dailyReportId, dateTime, filePath, fileSize, diet, generalWellBeing, changeInBehavior, animal);
         result = 31 * result + Arrays.hashCode(smallPicture);
         return result;
     }

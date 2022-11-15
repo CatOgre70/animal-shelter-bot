@@ -2,20 +2,21 @@
 
 -- changeset vasilydemin:1
 CREATE TABLE bot_config(
-    id serial primary key,
+    bot_config_id serial primary key,
     bot_name text,
     access_token text,
     telegram_callback_answer_temp text
 );
 
 CREATE TABLE chat_config(
-    id serial primary key,
+    chat_config_id serial primary key,
     chat_id integer,
     chat_state integer
 );
 
+-- changeset vasilydemin:2
 CREATE TABLE users(
-    id serial primary key,
+    user_id serial primary key,
     first_name text,
     second_name text,
     nick_name text,
@@ -25,7 +26,7 @@ CREATE TABLE users(
 );
 
 CREATE TABLE animals(
-    id serial primary key,
+    animal_id serial primary key,
     "name" text,
     kind text,
     breed text,
@@ -34,12 +35,12 @@ CREATE TABLE animals(
     file_path text,
     file_size integer,
     avatar_picture bytea,
-    "owner" integer references users (id),
+    "owner" integer references users (user_id),
     adoption_date timestamp
 );
 
 CREATE TABLE daily_reports(
-    id serial primary key,
+    daily_report_id serial primary key,
     datetime timestamp,
     file_path text,
     file_size integer,
@@ -47,5 +48,5 @@ CREATE TABLE daily_reports(
     diet text,
     general_well_being text,
     change_in_behavior text,
-    animal integer references animals (id)
+    animal integer references animals (animal_id)
 );

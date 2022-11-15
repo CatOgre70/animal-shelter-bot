@@ -1,4 +1,4 @@
-package model;
+package dev.pro.animalshelterbot.model;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -14,8 +14,8 @@ import java.util.Objects;
 public class ChatConfig {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    Long id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    Long chatConfigId;
 
     Long chatId;
 
@@ -52,11 +52,11 @@ public class ChatConfig {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ChatConfig that = (ChatConfig) o;
-        return Objects.equals(id, that.id) && Objects.equals(chatId, that.chatId) && Objects.equals(chatState, that.chatState);
+        return Objects.equals(chatConfigId, that.chatConfigId) && Objects.equals(chatId, that.chatId) && Objects.equals(chatState, that.chatState);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, chatId, chatState);
+        return Objects.hash(chatConfigId, chatId, chatState);
     }
 }

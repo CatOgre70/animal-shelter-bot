@@ -1,4 +1,4 @@
-package model;
+package dev.pro.animalshelterbot.model;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -15,7 +15,7 @@ public class BotConfig {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+    private Long botConfigId;
 
     private String botName;
 
@@ -24,7 +24,7 @@ public class BotConfig {
     private String telegramCallbackAnswerTemp;
 
     public BotConfig() {
-        this.id = 0L;
+        this.botConfigId = 0L;
         this.botName = null;
         this.accessToken = null;
         this.telegramCallbackAnswerTemp = null;
@@ -65,11 +65,11 @@ public class BotConfig {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         BotConfig botConfig = (BotConfig) o;
-        return Objects.equals(id, botConfig.id) && Objects.equals(botName, botConfig.botName) && Objects.equals(accessToken, botConfig.accessToken) && Objects.equals(telegramCallbackAnswerTemp, botConfig.telegramCallbackAnswerTemp);
+        return Objects.equals(botConfigId, botConfig.botConfigId) && Objects.equals(botName, botConfig.botName) && Objects.equals(accessToken, botConfig.accessToken) && Objects.equals(telegramCallbackAnswerTemp, botConfig.telegramCallbackAnswerTemp);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, botName, accessToken, telegramCallbackAnswerTemp);
+        return Objects.hash(botConfigId, botName, accessToken, telegramCallbackAnswerTemp);
     }
 }

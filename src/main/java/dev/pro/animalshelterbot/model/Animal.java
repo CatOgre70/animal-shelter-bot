@@ -1,6 +1,4 @@
-package model;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
+package dev.pro.animalshelterbot.model;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -16,7 +14,7 @@ public class Animal {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long animalId;
 
     private String name;
 
@@ -37,12 +35,10 @@ public class Animal {
     private LocalDateTime adoptionDate;
 
     @ManyToOne
-    @JoinColumn(name = "users_id")
     private User owner;
 
-    @JsonIgnore
-    @OneToMany(mappedBy = "reports")
-    List<DailyReport> reports;
+    @OneToMany(mappedBy = "dailyReportId")
+    List<DailyReport> dailyReports;
 
     public Animal() {
         this.name = null;
@@ -150,11 +146,11 @@ public class Animal {
     }
 
     public List<DailyReport> getReports() {
-        return reports;
+        return dailyReports;
     }
 
-    public void setReports(List<DailyReport> reports) {
-        this.reports = reports;
+    public void setReports(List<DailyReport> dailyReports) {
+        this.dailyReports = dailyReports;
     }
 
     @Override
@@ -162,11 +158,22 @@ public class Animal {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Animal animal = (Animal) o;
-        return Objects.equals(id, animal.id) && Objects.equals(name, animal.name) && Objects.equals(kind, animal.kind) && Objects.equals(breed, animal.breed) && Objects.equals(color, animal.color) && Objects.equals(features, animal.features);
+        return Objects.equals(animalId, animal.animalId) && Objects.equals(name, animal.name) && Objects.equals(kind, animal.kind) && Objects.equals(breed, animal.breed) && Objects.equals(color, animal.color) && Objects.equals(features, animal.features);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, kind, breed, color, features);
+        return Objects.hash(animalId, name, kind, breed, color, features);
+    }
+
+    @ManyToOne(optional = false)
+    private User users;
+
+    public User getUsers() {
+        return users;
+    }
+
+    public void setUsers(User users) {
+        this.users = users;
     }
 }
