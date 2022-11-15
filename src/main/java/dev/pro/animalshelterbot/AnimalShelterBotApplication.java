@@ -6,10 +6,10 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
 @EnableScheduling
-public class TelegramBotApplication {
+public class AnimalShelterBotApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(TelegramBotApplication.class, args);
+		SpringApplication.run(AnimalShelterBotApplication.class, args);
 	}
 
 }
