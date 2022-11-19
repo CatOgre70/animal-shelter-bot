@@ -13,22 +13,44 @@ import java.util.Objects;
 @Entity(name = "chat_config")
 public class ChatConfig {
 
+    /**
+     * ChatConfigId - Chat configuration identifier, primary key of the chat_config table in PostgreSQL
+     */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long chatConfigId;
 
+    /**
+     * chatId - Chat with user identifier from Telegram
+     */
     Long chatId;
 
+    /**
+     * chatState - State of chat with user: enum BotStatus
+     * { DEFAULT, CONSULT_NEW_USER, CONSULT_POTENTIAL_OWNER, KEEPING_a_PET, CHAT_WITH_VOLUNTEER }
+     */
     Long chatState;
 
+    /**
+     * ChatConfig class empty constructor for Spring JPA and Hibernate
+     */
     public ChatConfig() {
+        this.chatConfigId = 0L;
         this.chatId = 0L;
         this.chatState = 0L;
     }
 
+    /**
+     * ChatConfig class constructor for using in the AnimalShelterBotApplication
+     */
     public ChatConfig(Long chatId, Long chatState) {
+        this.chatConfigId = 0L;
         this.chatId = chatId;
         this.chatState = chatState;
+    }
+
+    public Long getChatConfigId() {
+        return chatConfigId;
     }
 
     public Long getChatId() {

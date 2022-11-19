@@ -12,35 +12,75 @@ import java.util.Objects;
 @Entity(name = "animals")
 public class Animal {
 
+    /**
+     * animalId - Animal identifier, primary key of the animals table in PostgreSQL
+     */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long animalId;
 
+    /**
+     * Animal name/nickname
+     */
     private String name;
 
+    /**
+     * Animal kind (dog, cat, bird, snake...)
+     */
     private String kind;
 
+    /**
+     * Animal breed (dog breeds, for example: shepherd dog, bulldog, etc.)
+     */
     private String breed;
 
+    /**
+     * Animal natural color, like color of fur, skin, ect.
+     */
     private String color;
 
+    /**
+     * Animal features and peculiarities, like special food requirements, vaccinations, absence of limbs, illnesses, etc.
+     */
     private String features;
 
+    /**
+     * Relative path to the animal photo file
+     */
     private String filePath;
 
+    /**
+     * Size of the animal photo file in bytes
+     */
     private int fileSize;
 
+    /**
+     * Animal photo file thumbnail
+     */
     private byte[] avatarPicture;
 
+    /**
+     * Animal adoption date by the current owner
+     */
     private LocalDateTime adoptionDate;
 
+    /**
+     * Animal owner
+     */
     @ManyToOne
     private User owner;
 
+    /**
+     * List of submitted daily reports
+     */
     @OneToMany(mappedBy = "dailyReportId")
     List<DailyReport> dailyReports;
 
+    /**
+     * Animal class empty constructor for Spring JPA and Hibernate
+     */
     public Animal() {
+        this.animalId = 0L;
         this.name = null;
         this.kind = null;
         this.breed = null;
@@ -52,8 +92,12 @@ public class Animal {
         this.adoptionDate = null;
     }
 
+    /**
+     * Animal class constructor for using in the AnimalShelterBotApplication
+     */
     public Animal(String name, String kind, String breed, String color, String features, String filePath,
                   int fileSize, byte[] avatarPicture, LocalDateTime adoptionDate) {
+        this.animalId = 0L;
         this.name = name;
         this.kind = kind;
         this.breed = breed;
@@ -63,6 +107,10 @@ public class Animal {
         this.fileSize = fileSize;
         this.avatarPicture = avatarPicture;
         this.adoptionDate = adoptionDate;
+    }
+
+    public Long getAnimalId() {
+        return animalId;
     }
 
     public String getName() {

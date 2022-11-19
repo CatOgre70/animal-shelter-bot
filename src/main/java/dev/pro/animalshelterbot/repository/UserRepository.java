@@ -1,6 +1,5 @@
 package dev.pro.animalshelterbot.repository;
 
-import dev.pro.animalshelterbot.model.BotConfig;
 import dev.pro.animalshelterbot.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

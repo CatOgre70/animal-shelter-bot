@@ -1,7 +1,5 @@
 package dev.pro.animalshelterbot.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import javax.persistence.*;
 import java.util.List;
 import java.util.Objects;
@@ -13,26 +11,54 @@ import java.util.Objects;
 @Entity(name = "users")
 public class User {
 
+    /**
+     * userId - User identifier, primary key of the users table in PostgreSQL
+     */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long userId;
 
+    /**
+     * User first name
+     */
     private String firstName;
 
+    /**
+     * User second name
+     */
     private String secondName;
 
+    /**
+     * User nickname
+     */
     private String nickName;
 
+    /**
+     * User home address where animal will live after adoption
+     */
     private String address;
 
+    /**
+     * User mobile phone number
+     */
     private String mobilePhone;
 
+    /**
+     * User chatId from Telegram
+     */
     private Long chatId;
 
+    /**
+     * List of this user adopted animals
+     */
     @OneToMany
     List<Animal> adoptedAnimals;
 
+    /**
+     * User class empty constructor for Spring JPA and Hibernate
+     */
     public User() {
+        this.userId = 0L;
         this.firstName = null;
         this.secondName = null;
         this.nickName = null;
@@ -41,13 +67,21 @@ public class User {
         this.chatId = 0L;
     }
 
+    /**
+     * ChatConfig class constructor for using in the AnimalShelterBotApplication
+     */
     public User(String firstName, String lastName, String nickName, String address, String mobilePhone, Long chatId) {
+        this.userId = 0L;
         this.firstName = firstName;
         this.secondName = lastName;
         this.nickName = nickName;
         this.address = address;
         this.mobilePhone = mobilePhone;
         this.chatId = chatId;
+    }
+
+    public Long getUserId() {
+        return userId;
     }
 
     public String getFirstName() {
@@ -58,11 +92,11 @@ public class User {
         this.firstName = firstName;
     }
 
-    public String getLastName() {
+    public String getSecondName() {
         return secondName;
     }
 
-    public void setLastName(String lastName) {
+    public void setSecondName(String lastName) {
         this.secondName = lastName;
     }
 
