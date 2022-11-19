@@ -13,28 +13,59 @@ import java.util.Objects;
 @Entity(name = "daily_reports")
 public class DailyReport {
 
+    /**
+     * dailyReportId - DailyReport identifier, primary key of the daily_reports table in PostgreSQL
+     */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long dailyReportId;
 
+    /**
+     * Date and time of the last report update
+     */
     private LocalDateTime dateTime;
 
+    /**
+     * Relative path to the animal photo file for DailyReport record/class
+     */
     private String filePath;
 
+    /**
+     * Size of the animal photo file in bytes
+     */
     private int fileSize;
 
+    /**
+     * Animal photo file thumbnail
+     */
     private byte[] smallPicture;
 
+    /**
+     * Description of the current day food consumption and/or plan
+     */
     private String diet;
 
+    /**
+     * Description of the animal general well-being
+     */
     private String generalWellBeing;
 
+    /**
+     * Description of the animal changes in behavior
+     */
     private String changeInBehavior;
 
+    /**
+     * Daily report is about this animal
+     */
     @ManyToOne
     private Animal animal;
 
+    /**
+     * DailyReport class empty constructor for Spring JPA and Hibernate
+     */
     public DailyReport() {
+        this.dailyReportId = 0L;
         this.dateTime = null;
         this.filePath = null;
         this.fileSize = 0;
@@ -44,7 +75,11 @@ public class DailyReport {
         this.changeInBehavior = null;
     }
 
+    /**
+     * DailyReport class constructor for using in the AnimalShelterBotApplication
+     */
     public DailyReport(LocalDateTime dateTime, String filePath, int fileSize, byte[] smallPicture, String diet, String generalWellBeing, String changeInBehavior) {
+        this.dailyReportId = 0L;
         this.dateTime = dateTime;
         this.filePath = filePath;
         this.fileSize = fileSize;
@@ -52,6 +87,10 @@ public class DailyReport {
         this.diet = diet;
         this.generalWellBeing = generalWellBeing;
         this.changeInBehavior = changeInBehavior;
+    }
+
+    public Long getDailyReportId() {
+        return dailyReportId;
     }
 
     public LocalDateTime getDateTime() {
