@@ -42,6 +42,7 @@ public class AnimalService {
      * @param id animal, must not be null
      * @return found animal
      */
+
     public Animal findAnimal(long id) {
         logger.info("Metod \"UserService.findAnimal()\" was called");
         return animalRepository.findById(id).orElse(null);
