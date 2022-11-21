@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,6 +25,7 @@ public class AnimalController {
     public AnimalController (AnimalService animalService) {
         this.animalService = animalService;
     }
+
     @Operation (
             summary = "get information about the animal",
             responses = {
@@ -48,6 +50,7 @@ public class AnimalController {
         }
         return ResponseEntity.ok(animal);
     }
+
     @Operation (
             summary = "animal creation",
             responses = {
@@ -63,7 +66,6 @@ public class AnimalController {
     },
             tags = "Animals"
 )
-
     @PostMapping
         public Animal createAnimal(@RequestBody Animal animal) {
         return animalService.addAnimal(animal);
@@ -84,6 +86,12 @@ public class AnimalController {
             tags = "Animals"
     )
 
+    @PostMapping
+    public Animal createAnimals(@RequestBody Animal animal) {
+        return animalService.addAnimal(animal);
+    }
+
+
     @PutMapping
     public ResponseEntity<Animal> editAnimal(@RequestBody Animal animal) {
         Animal animal1 = animalService.editAnimal(animal);
@@ -92,6 +100,7 @@ public class AnimalController {
         }
         return ResponseEntity.ok(animal1);
     }
+
     @Operation (
             summary = "deleting an animal from the db",
             responses = {
@@ -106,6 +115,7 @@ public class AnimalController {
             },
             tags = "Animals"
     )
+
 
     @DeleteMapping("{id}")
     public ResponseEntity deleteAnimal(@PathVariable Long id) {

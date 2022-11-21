@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,6 +23,7 @@ public class UserController {
     public UserController(UserService userService) {
         this.userService = userService;
     }
+
     @Operation (
             summary = "get information about the user",
             responses = {
@@ -37,6 +39,7 @@ public class UserController {
             },
             tags = "Animals"
     )
+
     @GetMapping("{id}")
     public ResponseEntity<User> getUserInfo(@PathVariable Long id) {
         User user = userService.findUser(id);
@@ -45,6 +48,7 @@ public class UserController {
         }
         return ResponseEntity.ok(user);
     }
+
     @Operation (
             summary = "user creation",
             responses = {
@@ -60,10 +64,12 @@ public class UserController {
             },
             tags = "User"
     )
+
     @PostMapping
     public User createUser(@RequestBody User user) {
         return userService.addUser(user);
     }
+
     @Operation (
             summary = "editing user parameters",
             responses = {
@@ -88,6 +94,7 @@ public class UserController {
         }
         return ResponseEntity.ok(user);
     }
+
     @Operation(
             summary = "deleting an user from the db",
             responses = {
@@ -102,6 +109,7 @@ public class UserController {
             },
             tags = "User"
     )
+
     @DeleteMapping("{id}")
     public ResponseEntity deleteUser(@PathVariable Long id) {
         userService.deleteUser(id);
