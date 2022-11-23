@@ -24,7 +24,7 @@ public class UserService {
     private final Logger logger = LoggerFactory.getLogger(UserService.class);
 
     /**
-     * saving the animal in the database
+     * saving the user in the database
      * the repository method is used {@link JpaRepository#save(Object)}
      * event recording process
      * @param user, must not be null
@@ -35,18 +35,18 @@ public class UserService {
         return userRepository.save(user);
     }
     /**
-     * find for an user by ID in the database
+     * find for a user by ID in the database
      * the repository method is used {@link JpaRepository#findById(Object)}
      * event recording process
      * @param id user, must not be null
      * @return found user
      */
     public User findUser(long id) {
-        logger.info("Metod \"UserService.findUser()\" was called");
+        logger.info("Method \"UserService.findUser()\" was called");
         return userRepository.findById(id).orElse(null);
     }
     /**
-     * edit for an animal by ID in the database
+     * edit user in the database
      * the repository method is used {@link JpaRepository#findById(Object)}
      * fetching data from the database and modifying it
      * @param user
@@ -68,13 +68,13 @@ public class UserService {
         }
     }
     /**
-     * delete for an animal by ID in the database
+     * delete user from the database
      * the repository method is used {@link JpaRepository#deleteById(Object)}
      * event recording process
      * @param id, must not be null
      */
     public void deleteUser(long id) {
-        logger.info("Metod \"UserService.deleteStudent()\" was called");
+        logger.info("Method \"UserService.deleteStudent()\" was called");
         userRepository.deleteById(id);
     }
 }
