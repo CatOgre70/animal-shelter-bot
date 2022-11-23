@@ -1,13 +1,6 @@
 -- liquibase formatted sql
 
 -- changeset vasilydemin:1
-CREATE TABLE bot_config(
-    bot_config_id serial primary key,
-    bot_name text,
-    access_token text,
-    telegram_callback_answer_temp text
-);
-
 CREATE TABLE chat_config(
     chat_config_id serial primary key,
     chat_id integer,
