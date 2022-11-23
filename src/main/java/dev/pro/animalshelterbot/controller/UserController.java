@@ -32,15 +32,15 @@ public class UserController {
                             description = "information about the user from the db",
                             content = @Content(
                                     mediaType  = MediaType.APPLICATION_JSON_VALUE,
-                                    array = @ArraySchema(schema = @Schema(implementation = Animal.class))
+                                    array = @ArraySchema(schema = @Schema(implementation = User.class))
 
                             )
                     )
             },
-            tags = "Animals"
+            tags = "User"
     )
 
-    @GetMapping("{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<User> getUserInfo(@PathVariable Long id) {
         User user = userService.findUser(id);
         if (user == null) {
@@ -110,7 +110,7 @@ public class UserController {
             tags = "User"
     )
 
-    @DeleteMapping("{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity deleteUser(@PathVariable Long id) {
         userService.deleteUser(id);
         return ResponseEntity.ok().build();

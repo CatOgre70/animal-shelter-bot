@@ -42,7 +42,7 @@ public class AnimalController {
             tags = "Animals"
     )
 
-    @GetMapping("{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<Animal> getAnimalInfo(@PathVariable Long id) {
         Animal animal = animalService.findAnimal(id);
         if (animal == null) {
@@ -67,8 +67,10 @@ public class AnimalController {
             tags = "Animals"
 )
     @PostMapping
-        public Animal createAnimal(@RequestBody Animal animal) {
+    public Animal createAnimal(@RequestBody Animal animal) {
+
         return animalService.addAnimal(animal);
+
     }
     @Operation (
             summary = "editing animal parameters",
@@ -85,12 +87,6 @@ public class AnimalController {
             },
             tags = "Animals"
     )
-
-    @PostMapping
-    public Animal createAnimals(@RequestBody Animal animal) {
-        return animalService.addAnimal(animal);
-    }
-
 
     @PutMapping
     public ResponseEntity<Animal> editAnimal(@RequestBody Animal animal) {
@@ -117,7 +113,7 @@ public class AnimalController {
     )
 
 
-    @DeleteMapping("{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity deleteAnimal(@PathVariable Long id) {
         animalService.deleteAnimal(id);
         return ResponseEntity.ok().build();
