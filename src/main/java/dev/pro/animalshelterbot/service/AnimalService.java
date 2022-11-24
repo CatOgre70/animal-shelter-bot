@@ -1,10 +1,8 @@
 package dev.pro.animalshelterbot.service;
 import dev.pro.animalshelterbot.model.Animal;
-import dev.pro.animalshelterbot.model.User;
 import dev.pro.animalshelterbot.repository.AnimalRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
@@ -57,7 +55,7 @@ public class AnimalService {
      */
     public Animal editAnimal(Animal animal) {
         logger.info("Metod \"AnimalService.editAnimal()\" was called");
-        Optional<Animal> optional = animalRepository.findById(animal.getAnimalId());
+        Optional<Animal> optional = animalRepository.findById(animal.getId());
         if(!optional.isPresent()) {
             return null;
         }

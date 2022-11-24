@@ -9,7 +9,8 @@ import java.util.Objects;
  * Represents animal of the shelter. Animal class corresponds to the @Entity(name = "animals") in PostgreSQL.
  * Model for the AnimalsRepository interface
  */
-@Entity(name = "animals")
+@Entity
+@Table(name = "animals")
 public class Animal {
 
     /**
@@ -17,7 +18,7 @@ public class Animal {
      */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long animalId;
+    private Long id;
 
     /**
      * Animal name/nickname
@@ -52,7 +53,7 @@ public class Animal {
     /**
      * Size of the animal photo file in bytes
      */
-    private int fileSize;
+    private Long fileSize;
 
     /**
      * Animal photo file thumbnail
@@ -68,26 +69,27 @@ public class Animal {
      * Animal owner
      */
     @ManyToOne
+    // @JoinColumn(name = "owner_id")
     private User owner;
 
     /**
      * List of submitted daily reports
      */
-    @OneToMany(mappedBy = "dailyReportId")
+    @OneToMany(mappedBy = "animal")
     List<DailyReport> dailyReports;
 
     /**
      * Animal class empty constructor for Spring JPA and Hibernate
      */
     public Animal() {
-        this.animalId = 0L;
+        this.id = 0L;
         this.name = null;
         this.kind = null;
         this.breed = null;
         this.color = null;
         this.features = null;
         this.filePath = null;
-        this.fileSize = 0;
+        this.fileSize = 0L;
         this.avatarPicture = null;
         this.adoptionDate = null;
     }
@@ -96,8 +98,8 @@ public class Animal {
      * Animal class constructor for using in the AnimalShelterBotApplication
      */
     public Animal(String name, String kind, String breed, String color, String features, String filePath,
-                  int fileSize, byte[] avatarPicture, LocalDateTime adoptionDate) {
-        this.animalId = 0L;
+                  Long fileSize, byte[] avatarPicture, LocalDateTime adoptionDate) {
+        this.id = 0L;
         this.name = name;
         this.kind = kind;
         this.breed = breed;
@@ -109,8 +111,8 @@ public class Animal {
         this.adoptionDate = adoptionDate;
     }
 
-    public Long getAnimalId() {
-        return animalId;
+    public Long getId() {
+        return id;
     }
 
     public String getName() {
@@ -161,11 +163,11 @@ public class Animal {
         this.filePath = filePath;
     }
 
-    public int getFileSize() {
+    public Long getFileSize() {
         return fileSize;
     }
 
-    public void setFileSize(int fileSize) {
+    public void setFileSize(Long fileSize) {
         this.fileSize = fileSize;
     }
 
@@ -206,12 +208,12 @@ public class Animal {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Animal animal = (Animal) o;
-        return Objects.equals(animalId, animal.animalId) && Objects.equals(name, animal.name) && Objects.equals(kind, animal.kind) && Objects.equals(breed, animal.breed) && Objects.equals(color, animal.color) && Objects.equals(features, animal.features);
+        return Objects.equals(id, animal.id) && Objects.equals(name, animal.name) && Objects.equals(kind, animal.kind) && Objects.equals(breed, animal.breed) && Objects.equals(color, animal.color) && Objects.equals(features, animal.features);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(animalId, name, kind, breed, color, features);
+        return Objects.hash(id, name, kind, breed, color, features);
     }
 
 }
