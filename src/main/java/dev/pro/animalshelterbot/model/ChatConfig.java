@@ -10,7 +10,7 @@ import java.util.Objects;
  * Chat state class corresponds to the @Entity(name = "chat_config") in PostgreSQL.
  * Model for the ChatConfigsRepository interface
  */
-@Entity(name = "chat_config")
+@Entity
 public class ChatConfig {
 
     /**
@@ -18,11 +18,12 @@ public class ChatConfig {
      */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long chatConfigId;
+    Long id;
 
     /**
      * chatId - Chat with user identifier from Telegram
      */
+
     Long chatId;
 
     /**
@@ -35,7 +36,7 @@ public class ChatConfig {
      * ChatConfig class empty constructor for Spring JPA and Hibernate
      */
     public ChatConfig() {
-        this.chatConfigId = 0L;
+        this.id = 0L;
         this.chatId = 0L;
         this.chatState = 0L;
     }
@@ -44,13 +45,13 @@ public class ChatConfig {
      * ChatConfig class constructor for using in the AnimalShelterBotApplication
      */
     public ChatConfig(Long chatId, Long chatState) {
-        this.chatConfigId = 0L;
+        this.id = 0L;
         this.chatId = chatId;
         this.chatState = chatState;
     }
 
-    public Long getChatConfigId() {
-        return chatConfigId;
+    public Long getId() {
+        return id;
     }
 
     public Long getChatId() {
@@ -74,11 +75,11 @@ public class ChatConfig {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ChatConfig that = (ChatConfig) o;
-        return Objects.equals(chatConfigId, that.chatConfigId) && Objects.equals(chatId, that.chatId) && Objects.equals(chatState, that.chatState);
+        return Objects.equals(id, that.id) && Objects.equals(chatId, that.chatId) && Objects.equals(chatState, that.chatState);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(chatConfigId, chatId, chatState);
+        return Objects.hash(id, chatId, chatState);
     }
 }

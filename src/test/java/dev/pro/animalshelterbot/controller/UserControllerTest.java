@@ -9,14 +9,13 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
 
 @ActiveProfiles("test")
-@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
+//@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class UserControllerTest {
 
@@ -33,7 +32,7 @@ public class UserControllerTest {
         ResponseEntity<User> response = addUserInTheDatabase(getURIBuilder().build().toUri(), user);
         Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         Assertions.assertThat(response.getBody()).isNotNull();
-        Assertions.assertThat(response.getBody().getUserId()).isNotNull();
+        Assertions.assertThat(response.getBody().getId()).isNotNull();
     }
 
     private ResponseEntity<User> addUserInTheDatabase(URI uri, User user) {

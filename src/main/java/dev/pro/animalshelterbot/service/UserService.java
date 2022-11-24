@@ -54,7 +54,7 @@ public class UserService {
      */
     public User editUser(User user) {
         logger.info("Metod \"UserService.editUser()\" was called");
-        Optional<User> optional = userRepository.findById(user.getUserId());
+        Optional<User> optional = userRepository.findById(user.getId());
         if(!optional.isPresent()) {
             return null;
         }
