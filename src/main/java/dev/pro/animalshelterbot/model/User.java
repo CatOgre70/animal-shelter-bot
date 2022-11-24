@@ -8,7 +8,8 @@ import java.util.Objects;
  * Represents client of the animal shelter. User class corresponds to the @Entity(name = "users") in PostgreSQL.
  * Model for the UsersRepository interface
  */
-@Entity(name = "users")
+@Entity
+@Table(name = "users")
 public class User {
 
     /**
@@ -16,7 +17,7 @@ public class User {
      */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long userId;
+    private Long id;
 
     /**
      * User first name
@@ -51,14 +52,14 @@ public class User {
     /**
      * List of this user adopted animals
      */
-    @OneToMany
+    @OneToMany(mappedBy = "owner")
     List<Animal> adoptedAnimals;
 
     /**
      * User class empty constructor for Spring JPA and Hibernate
      */
     public User() {
-        this.userId = 0L;
+        this.id = 0L;
         this.firstName = null;
         this.secondName = null;
         this.nickName = null;
@@ -71,7 +72,7 @@ public class User {
      * ChatConfig class constructor for using in the AnimalShelterBotApplication
      */
     public User(String firstName, String lastName, String nickName, String address, String mobilePhone, Long chatId) {
-        this.userId = 0L;
+        this.id = 0L;
         this.firstName = firstName;
         this.secondName = lastName;
         this.nickName = nickName;
@@ -80,8 +81,8 @@ public class User {
         this.chatId = chatId;
     }
 
-    public Long getUserId() {
-        return userId;
+    public Long getId() {
+        return id;
     }
 
     public String getFirstName() {
@@ -145,11 +146,11 @@ public class User {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         User user = (User) o;
-        return Objects.equals(userId, user.userId) && Objects.equals(firstName, user.firstName) && Objects.equals(secondName, user.secondName) && Objects.equals(nickName, user.nickName) && Objects.equals(address, user.address) && Objects.equals(mobilePhone, user.mobilePhone) && Objects.equals(chatId, user.chatId);
+        return Objects.equals(id, user.id) && Objects.equals(firstName, user.firstName) && Objects.equals(secondName, user.secondName) && Objects.equals(nickName, user.nickName) && Objects.equals(address, user.address) && Objects.equals(mobilePhone, user.mobilePhone) && Objects.equals(chatId, user.chatId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(userId, firstName, secondName, nickName, address, mobilePhone, chatId);
+        return Objects.hash(id, firstName, secondName, nickName, address, mobilePhone, chatId);
     }
 }

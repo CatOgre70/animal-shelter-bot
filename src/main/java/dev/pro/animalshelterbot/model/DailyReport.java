@@ -10,7 +10,8 @@ import java.util.Objects;
  * Represents daily report about adopted animal. DailyReport class corresponds to the @Entity(name = "daily_reports") in PostgreSQL.
  * Model for the DailyReportsRepository interface
  */
-@Entity(name = "daily_reports")
+@Entity
+@Table(name = "daily_reports")
 public class DailyReport {
 
     /**
@@ -18,7 +19,7 @@ public class DailyReport {
      */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long dailyReportId;
+    private Long id;
 
     /**
      * Date and time of the last report update
@@ -65,7 +66,7 @@ public class DailyReport {
      * DailyReport class empty constructor for Spring JPA and Hibernate
      */
     public DailyReport() {
-        this.dailyReportId = 0L;
+        this.id = 0L;
         this.dateTime = null;
         this.filePath = null;
         this.fileSize = 0;
@@ -79,7 +80,7 @@ public class DailyReport {
      * DailyReport class constructor for using in the AnimalShelterBotApplication
      */
     public DailyReport(LocalDateTime dateTime, String filePath, int fileSize, byte[] smallPicture, String diet, String generalWellBeing, String changeInBehavior) {
-        this.dailyReportId = 0L;
+        this.id = 0L;
         this.dateTime = dateTime;
         this.filePath = filePath;
         this.fileSize = fileSize;
@@ -89,8 +90,8 @@ public class DailyReport {
         this.changeInBehavior = changeInBehavior;
     }
 
-    public Long getDailyReportId() {
-        return dailyReportId;
+    public Long getId() {
+        return id;
     }
 
     public LocalDateTime getDateTime() {
@@ -162,12 +163,12 @@ public class DailyReport {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         DailyReport report = (DailyReport) o;
-        return fileSize == report.fileSize && Objects.equals(dailyReportId, report.dailyReportId) && Objects.equals(dateTime, report.dateTime) && Objects.equals(filePath, report.filePath) && Arrays.equals(smallPicture, report.smallPicture) && Objects.equals(diet, report.diet) && Objects.equals(generalWellBeing, report.generalWellBeing) && Objects.equals(changeInBehavior, report.changeInBehavior) && Objects.equals(animal, report.animal);
+        return fileSize == report.fileSize && Objects.equals(id, report.id) && Objects.equals(dateTime, report.dateTime) && Objects.equals(filePath, report.filePath) && Arrays.equals(smallPicture, report.smallPicture) && Objects.equals(diet, report.diet) && Objects.equals(generalWellBeing, report.generalWellBeing) && Objects.equals(changeInBehavior, report.changeInBehavior) && Objects.equals(animal, report.animal);
     }
 
     @Override
     public int hashCode() {
-        int result = Objects.hash(dailyReportId, dateTime, filePath, fileSize, diet, generalWellBeing, changeInBehavior, animal);
+        int result = Objects.hash(id, dateTime, filePath, fileSize, diet, generalWellBeing, changeInBehavior, animal);
         result = 31 * result + Arrays.hashCode(smallPicture);
         return result;
     }
