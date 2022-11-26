@@ -29,7 +29,7 @@ public class ChatConfig {
      * chatState - State of chat with user: enum BotStatus
      * { DEFAULT, CONSULT_NEW_USER, CONSULT_POTENTIAL_OWNER, KEEPING_a_PET, CHAT_WITH_VOLUNTEER }
      */
-    Long chatState;
+    String chatState;
 
     /**
      * ChatConfig class empty constructor for Spring JPA and Hibernate
@@ -37,13 +37,13 @@ public class ChatConfig {
     public ChatConfig() {
         this.chatConfigId = 0L;
         this.chatId = 0L;
-        this.chatState = 0L;
+        this.chatState = "";
     }
 
     /**
      * ChatConfig class constructor for using in the AnimalShelterBotApplication
      */
-    public ChatConfig(Long chatId, Long chatState) {
+    public ChatConfig(Long chatId, String chatState) {
         this.chatConfigId = 0L;
         this.chatId = chatId;
         this.chatState = chatState;
@@ -61,11 +61,11 @@ public class ChatConfig {
         this.chatId = chatId;
     }
 
-    public Long getChatState() {
+    public String getChatState() {
         return chatState;
     }
 
-    public void setChatState(Long chatState) {
+    public void setChatState(String chatState) {
         this.chatState = chatState;
     }
 
