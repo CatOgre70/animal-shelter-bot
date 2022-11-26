@@ -181,6 +181,14 @@ public class Animal {
         this.avatarPicture = avatarPicture;
     }
 
+    public String getMediaType() {
+        return mediaType;
+    }
+
+    public void setMediaType(String mediaType) {
+        this.mediaType = mediaType;
+    }
+
     public LocalDateTime getAdoptionDate() {
         return adoptionDate;
     }
