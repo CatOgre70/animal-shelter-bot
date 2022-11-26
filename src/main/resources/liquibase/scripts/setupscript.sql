@@ -43,3 +43,6 @@ CREATE TABLE daily_reports(
     change_in_behavior text,
     animal_id bigserial references animals (id)
 );
+
+-- changeset vasilydemin:3
+ALTER TABLE animals ADD COLUMN media_type text;

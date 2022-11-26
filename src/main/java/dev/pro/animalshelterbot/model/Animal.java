@@ -60,6 +60,8 @@ public class Animal {
      */
     private byte[] avatarPicture;
 
+    private String mediaType;
+
     /**
      * Animal adoption date by the current owner
      */
