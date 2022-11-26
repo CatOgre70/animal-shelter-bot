@@ -1,7 +1,6 @@
 package dev.pro.animalshelterbot.service;
 
 import dev.pro.animalshelterbot.model.DailyReport;
-import dev.pro.animalshelterbot.model.User;
 import dev.pro.animalshelterbot.repository.DailyReportRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,7 +54,7 @@ public class DailyReportService {
      */
     public DailyReport editDailyReport(DailyReport dailyReport) {
         logger.info("Metod \"DailyReportService.DailyReport()\" was called");
-        Optional<DailyReport> optional = dailyReportRepository.findById(dailyReport.getDailyReportId());
+        Optional<DailyReport> optional = dailyReportRepository.findById(dailyReport.getId());
         if(!optional.isPresent()) {
             return null;
         }
