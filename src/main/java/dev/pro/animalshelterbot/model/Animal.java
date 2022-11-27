@@ -2,6 +2,7 @@ package dev.pro.animalshelterbot.model;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -53,7 +54,7 @@ public class Animal {
     /**
      * Size of the animal photo file in bytes
      */
-    private Long fileSize;
+    private long fileSize;
 
     /**
      * Animal photo file thumbnail
@@ -94,13 +95,14 @@ public class Animal {
         this.fileSize = 0L;
         this.avatarPicture = null;
         this.adoptionDate = null;
+        this.mediaType = null;
     }
 
     /**
      * Animal class constructor for using in the AnimalShelterBotApplication
      */
     public Animal(String name, String kind, String breed, String color, String features, String filePath,
-                  Long fileSize, byte[] avatarPicture, LocalDateTime adoptionDate) {
+                  long fileSize, byte[] avatarPicture, LocalDateTime adoptionDate, String mediaType) {
         this.id = 0L;
         this.name = name;
         this.kind = kind;
@@ -111,6 +113,7 @@ public class Animal {
         this.fileSize = fileSize;
         this.avatarPicture = avatarPicture;
         this.adoptionDate = adoptionDate;
+        this.mediaType = mediaType;
     }
 
     public Long getId() {
@@ -165,7 +168,7 @@ public class Animal {
         this.filePath = filePath;
     }
 
-    public Long getFileSize() {
+    public long getFileSize() {
         return fileSize;
     }
 
@@ -218,12 +221,16 @@ public class Animal {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Animal animal = (Animal) o;
-        return Objects.equals(id, animal.id) && Objects.equals(name, animal.name) && Objects.equals(kind, animal.kind) && Objects.equals(breed, animal.breed) && Objects.equals(color, animal.color) && Objects.equals(features, animal.features);
+        return Objects.equals(id, animal.id) && Objects.equals(name, animal.name) && Objects.equals(kind, animal.kind) && Objects.equals(breed, animal.breed) && Objects.equals(color, animal.color) && Objects.equals(features, animal.features)
+                && Objects.equals(fileSize, animal.fileSize) && Objects.equals(filePath, animal.filePath)
+                && Objects.equals(mediaType, animal.mediaType) && Arrays.equals(avatarPicture, animal.avatarPicture);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, kind, breed, color, features);
+        int result = Objects.hash(id, name, kind, breed, color, features, filePath, fileSize, mediaType);
+        result = 31 * result + Arrays.hashCode(avatarPicture);
+        return result;
     }
 
 }
