@@ -5,6 +5,7 @@ import dev.pro.animalshelterbot.model.Animal;
 import dev.pro.animalshelterbot.model.User;
 import dev.pro.animalshelterbot.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -14,6 +15,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Collection;
 
 @RestController
 @RequestMapping("/user")
@@ -48,7 +51,40 @@ public class UserController {
         }
         return ResponseEntity.ok(user);
     }
+    @Operation (
+            summary = "get users by parameters",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "information about the user from the db",
+                            content = @Content(
+                                    mediaType  = MediaType.APPLICATION_JSON_VALUE,
+                                    array = @ArraySchema(schema = @Schema(implementation = User.class))
 
+                            )
+                    )
+            },
+            tags = "User"
+    )
+    @GetMapping
+    public ResponseEntity<Collection<User>> getUser(@Parameter(description = "first name User", example = "Aleksandr")@RequestParam  (required = false) String firstName,
+                                                    @Parameter(description = "second name User", example = "Tsygulev")@RequestParam  (required = false) String secondName,
+                                                    @Parameter(description = "nickname User", example = "MaloyTS")@RequestParam  (required = false) String nickName,
+                                                    @Parameter(description = "chatId User", example = "1221")@RequestParam  (required = true) Long chatId) {
+        if (firstName !=null && !firstName.isBlank()) {
+            return ResponseEntity.ok(userService.findByFirstName(firstName));
+        }
+        if (secondName !=null && !secondName.isBlank()) {
+            return ResponseEntity.ok(userService.findBySecondName(secondName));
+        }
+        if (nickName !=null && !nickName.isBlank()) {
+            return ResponseEntity.ok(userService.findByNickName(nickName));
+        }
+        if (chatId == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(userService.getAllUser());
+    }
     @Operation (
             summary = "user creation",
             responses = {
@@ -61,12 +97,12 @@ public class UserController {
 
                             )
                     )
-            },
-            tags = "User"
+            },tags = "User"
+
     )
 
-    @PostMapping
-    public User createUser(@RequestBody User user) {
+    @PostMapping // с помощью hidden = false в сваггере не отображается
+    public User createUser(@Parameter(hidden = false) @RequestBody User user) {
         return userService.addUser(user);
     }
 
@@ -79,7 +115,6 @@ public class UserController {
                             content = @Content(
                                     mediaType  = MediaType.APPLICATION_JSON_VALUE,
                                     array = @ArraySchema(schema = @Schema(implementation = User.class))
-
                             )
                     )
             },
@@ -103,7 +138,6 @@ public class UserController {
                             content = @Content(
                                     mediaType  = MediaType.APPLICATION_JSON_VALUE,
                                     array = @ArraySchema(schema = @Schema(implementation = User.class))
-
                             )
                     )
             },
