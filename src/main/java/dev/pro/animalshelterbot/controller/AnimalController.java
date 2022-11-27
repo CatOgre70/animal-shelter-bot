@@ -10,11 +10,19 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import org.springframework.http.*;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Collection;
+import java.util.List;
 
 @RestController
 @RequestMapping("/animal")
@@ -42,16 +50,26 @@ public class AnimalController {
             tags = "Animals"
     )
 
-    @GetMapping("/{id}")
-    public ResponseEntity<Animal> getAnimalInfo(@PathVariable Long id) {
-        Animal animal = animalService.findAnimal(id);
-        if (animal == null) {
-            return ResponseEntity.notFound().build();
+    @GetMapping
+    public ResponseEntity <Collection<Animal>> getAnimal(
+                                                         @Parameter(description = "name animal", example = "Motroskin")  @RequestParam  (required = false) String name,
+                                                         @Parameter(description = "kind animal", example = "cat")        @RequestParam  (required = false) String kind,
+                                                         @Parameter(description = "breed animal", example = "Maine Coon")@RequestParam  (required = false) String breed) {
+
+        if (name !=null && !name.isBlank()) {
+            return ResponseEntity.ok(animalService.getName(name));
         }
-        return ResponseEntity.ok(animal);
+        if (kind !=null && !kind.isBlank()) {
+            return ResponseEntity.ok(animalService.getKind(kind));
+        }
+        if (breed !=null && !breed.isBlank()) {
+            return ResponseEntity.ok(animalService.getBreed(breed));
+        }
+
+        return ResponseEntity.ok(animalService.getAllAnimal());
     }
 
-    @Operation (
+        @Operation (
             summary = "animal creation",
             responses = {
             @ApiResponse(
@@ -67,10 +85,8 @@ public class AnimalController {
             tags = "Animals"
 )
     @PostMapping
-    public Animal createAnimal(@RequestBody Animal animal) {
-
+    public Animal createAnimal(@PathVariable Animal animal) {
         return animalService.addAnimal(animal);
-
     }
     @Operation (
             summary = "editing animal parameters",
@@ -87,7 +103,6 @@ public class AnimalController {
             },
             tags = "Animals"
     )
-
     @PutMapping
     public ResponseEntity<Animal> editAnimal(@RequestBody Animal animal) {
         Animal animal1 = animalService.editAnimal(animal);
@@ -112,10 +127,60 @@ public class AnimalController {
             tags = "Animals"
     )
 
-
     @DeleteMapping("/{id}")
     public ResponseEntity deleteAnimal(@PathVariable Long id) {
         animalService.deleteAnimal(id);
         return ResponseEntity.ok().build();
+    }
+
+    @Operation (
+            summary = "animal avatar creation",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "return animal with avatar",
+                            content = @Content(
+                                    mediaType  = MediaType.MULTIPART_FORM_DATA_VALUE,
+                                    array = @ArraySchema(schema = @Schema(implementation = Animal.class))
+
+                            )
+                    )
+            },
+            tags = "Animals"
+    )
+    @PostMapping(value = "/avatar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity <String> uploadAvatar(@PathVariable Long id,
+                                                @RequestParam MultipartFile avatar) throws IOException {
+        if (avatar.getSize() > 1024 * 300) {
+            return ResponseEntity.badRequest().body("File is too big");
+        }
+        animalService.uploadAvatar(id, avatar);
+        return ResponseEntity.ok().build();
+    }
+    @Operation (
+            summary = "get animal avatar",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "return avatar animal",
+                            content = @Content(
+                                    mediaType  = MediaType.MULTIPART_FORM_DATA_VALUE,
+                                    array = @ArraySchema(schema = @Schema(implementation = Animal.class))
+
+                            )
+                    )
+            },
+            tags = "Animals"
+    )
+    @GetMapping(value = "/{id}/avatar/preview")
+    public ResponseEntity <byte[]> downloadAvatar(@PathVariable Long id) {
+
+        Animal animal = animalService.findAvatar(id);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.parseMediaType(animal.getMediaType()));
+        headers.setContentLength(animal.getAvatarPicture().length);
+
+        return ResponseEntity.status(HttpStatus.OK).headers(headers).body(animal.getAvatarPicture());
     }
 }
