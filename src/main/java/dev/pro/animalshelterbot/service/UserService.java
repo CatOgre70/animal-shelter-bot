@@ -7,11 +7,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.Collection;
 import java.util.Optional;
 
 @Service
 public class UserService {
     private final UserRepository userRepository;
+
 
 
     public UserService(UserRepository userRepository) {
@@ -76,5 +78,45 @@ public class UserService {
     public void deleteUser(long id) {
         logger.info("Method \"UserService.deleteStudent()\" was called");
         userRepository.deleteById(id);
+    }
+    /**
+     * find for an user  in the database
+     * the repository method is used {@link JpaRepository#findAll}
+     * event recording process
+     * @return found user
+     */
+    public Collection<User> getAllUser() {
+        logger.info("Metod \"UserService.getAllUser()\" was called");
+        return userRepository.findAll();
+    }
+    /**
+     * find for an user  in the database
+     * the repository method is used {@link JpaRepository#findAll}
+     * event recording process
+     * @return found user
+     */
+    public Collection<User> findByFirstName(String firstName) {
+        logger.info("Metod \"UserService.findByFirstName()\" was called");
+        return  userRepository.findByFirstName(firstName);
+    }
+    /**
+     * find for an user  in the database
+     * the repository method is used {@link JpaRepository#findAll}
+     * event recording process
+     * @return found user
+     */
+    public Collection<User> findBySecondName(String secondName) {
+        logger.info("Metod \"UserService.findBySecondName()\" was called");
+        return userRepository.findBySecondName(secondName);
+    }
+    /**
+     * find for an user  in the database
+     * the repository method is used {@link  JpaRepository}
+     * event recording process
+     * @return found NickName
+     */
+    public Collection<User> findByNickName(String nickName) {
+        logger.info("Metod \"UserService.findByNickName()\" was called");
+        return  userRepository.findByNickName(nickName);
     }
 }

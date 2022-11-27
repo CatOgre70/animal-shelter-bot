@@ -15,19 +15,19 @@ import java.util.List;
 
 
 public class Sheduler {
-    @Scheduled(cron = "0 0/1 * * * *")
-    public void sendNotification() {
-        List<NotificationTask> sentNotifications = notificationTaskRepository
-                .findAllByDateTime(LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES));
-        sentNotifications.forEach(notificationTask -> {
-            long chatId = notificationTask.getChatId();
-            String message = notificationTask.getNotification();
-            if (!message.isEmpty()) {
-                SendResponse sendNotification = telegramBot.execute(new SendMessage(chatId,
-                        "new notification - " + message));
-                logger.info("notification - {}, chatId - {}", message, chatId);
-                answer(sendNotification);
-            }
-        });
-    }
+//    @Scheduled(cron = "0 0/1 * * * *")
+//    public void sendNotification() {
+//        List<NotificationTask> sentNotifications = notificationTaskRepository
+//                .findAllByDateTime(LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES));
+//        sentNotifications.forEach(notificationTask -> {
+//            long chatId = notificationTask.getChatId();
+//            String message = notificationTask.getNotification();
+//            if (!message.isEmpty()) {
+//                SendResponse sendNotification = telegramBot.execute(new SendMessage(chatId,
+//                        "new notification - " + message));
+//                logger.info("notification - {}, chatId - {}", message, chatId);
+//                answer(sendNotification);
+//            }
+//        });
+//    }
 }
