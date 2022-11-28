@@ -28,7 +28,7 @@ CREATE TABLE animals(
     file_path text,
     file_size bigint,
     avatar_picture bytea,
-    owner_id bigserial references users (id),
+    owner_id bigint references users (id),
     adoption_date timestamp
 );
 
@@ -41,7 +41,7 @@ CREATE TABLE daily_reports(
     diet text,
     general_well_being text,
     change_in_behavior text,
-    animal_id bigserial references animals (id)
+    animal_id bigint references animals (id)
 );
 
 -- changeset vasilydemin:3
