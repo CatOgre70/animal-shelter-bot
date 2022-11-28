@@ -1,1 +1,0 @@
-UPDATE databasechangelog SET MD5SUM = NULL;
