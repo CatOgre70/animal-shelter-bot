@@ -72,7 +72,6 @@ public class Animal {
      * Animal owner
      */
     @ManyToOne
-    // @JoinColumn(name = "owner_id")
     private User owner;
 
     /**
