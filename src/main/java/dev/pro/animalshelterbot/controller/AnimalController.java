@@ -85,9 +85,12 @@ public class AnimalController {
             tags = "Animals"
 )
     @PostMapping
-    public Animal createAnimal(@PathVariable Animal animal) {
+    public Animal createAnimal(@RequestBody Animal animal) {
+
         return animalService.addAnimal(animal);
+
     }
+
     @Operation (
             summary = "editing animal parameters",
             responses = {
