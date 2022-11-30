@@ -10,7 +10,7 @@ import java.util.Objects;
  * Chat state class corresponds to the @Entity(name = "chat_config") in PostgreSQL.
  * Model for the ChatConfigsRepository interface
  */
-@Entity
+@Entity(name = "chat_config")
 public class ChatConfig {
 
     /**
@@ -23,7 +23,6 @@ public class ChatConfig {
     /**
      * chatId - Chat with user identifier from Telegram
      */
-
     Long chatId;
 
     /**
@@ -35,7 +34,7 @@ public class ChatConfig {
     /**
      * ChatConfig class empty constructor for Spring JPA and Hibernate
      */
-    public ChatConfig() {
+    public ChatConfig(Long chatId, long l) {
         this.id = 0L;
         this.chatId = 0L;
         this.chatState = 0L;
@@ -50,7 +49,12 @@ public class ChatConfig {
         this.chatState = chatState;
     }
 
-    public Long getId() {
+    public ChatConfig() {
+
+    }
+
+
+    public Long getChatConfigId() {
         return id;
     }
 
