@@ -1,7 +1,9 @@
 package dev.pro.animalshelterbot.repository;
 
+import dev.pro.animalshelterbot.constants.BotStatus;
 import dev.pro.animalshelterbot.model.ChatConfig;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -11,4 +13,9 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface ChatConfigRepository extends JpaRepository<ChatConfig, Long> {
+    @Query(value = "SELECT (chat_id) FROM chat_config", nativeQuery = true)
+    BotStatus findByChatId(Long chatId);
+
+    @Query(value = "SELECT (chat_id) FROM chat_config", nativeQuery = true)
+    boolean checkByChatId(Long chatId);
 }
