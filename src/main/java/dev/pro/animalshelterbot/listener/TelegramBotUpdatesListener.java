@@ -223,4 +223,27 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
 //        logger.info("Notification save {}", notificationTask);
 //    }
 
+    public List<String> requestParsing(String text) throws DataFormatException {
+        Matcher matcher = pattern.matcher(text);
+        if (matcher.matches()) {
+            String dateTime = matcher.group(1);
+            String notification = matcher.group(3);
+            return List.of(dateTime, notification);
+        } else {
+            logger.warn("Incorrect data format");
+            throw new DataFormatException("Incorrect data format");
+        }
+    }
 
+    public void createNotification(Update update) throws DataFormatException {
+        String message = update.message().text();
+        Long chatId = update.message().chat().id();
+        List<String> timeAndText = new ArrayList<>(requestParsing(message));
+        String time = timeAndText.get(0);
+        String text = timeAndText.get(1);
+        LocalDateTime localDateTime = LocalDateTime.parse(time, DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm"));
+        NotificationTask notificationTask = new NotificationTask(chatId, text, localDateTime);
+        notificationTaskRepository.save(notificationTask);
+        logger.info("Notification save {}", notificationTask);
+    }
+}
