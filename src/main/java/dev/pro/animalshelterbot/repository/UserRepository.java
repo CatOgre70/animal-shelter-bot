@@ -23,4 +23,10 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     @Query(value = "SELECT  (nick_name) FROM users", nativeQuery = true)
     Collection<User> findByNickName(String nickName);
+
+//    @Query(value = "SELECT  (chat_id) FROM users", nativeQuery = true)
+//    Collection<User> findByChatId(Long chatId);
+
+    @Query(value = "SELECT  (chat_id) FROM users", nativeQuery = true)
+    boolean checkByChatId(Long chatId);
 }

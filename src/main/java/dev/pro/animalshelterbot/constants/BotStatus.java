@@ -6,6 +6,8 @@ package dev.pro.animalshelterbot.constants;
  */
 
 public enum BotStatus {
-    DEFAULT, CONSULT_NEW_USER, CONSULT_POTENTIAL_OWNER, KEEPING_a_PET, CHAT_WITH_VOLUNTEER
+    DEFAULT(0L), CONSULT_NEW_USER(1L), CONSULT_POTENTIAL_OWNER(2L), KEEPING_a_PET(3L), CHAT_WITH_VOLUNTEER(4L);
+
+    BotStatus(Long State) {}
 }
 
