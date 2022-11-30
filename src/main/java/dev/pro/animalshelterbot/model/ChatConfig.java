@@ -18,7 +18,7 @@ public class ChatConfig {
      */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long chatConfigId;
+    Long id;
 
     /**
      * chatId - Chat with user identifier from Telegram
@@ -29,28 +29,33 @@ public class ChatConfig {
      * chatState - State of chat with user: enum BotStatus
      * { DEFAULT, CONSULT_NEW_USER, CONSULT_POTENTIAL_OWNER, KEEPING_a_PET, CHAT_WITH_VOLUNTEER }
      */
-    String chatState;
+    Long chatState;
 
     /**
      * ChatConfig class empty constructor for Spring JPA and Hibernate
      */
-    public ChatConfig() {
-        this.chatConfigId = 0L;
+    public ChatConfig(Long chatId, long l) {
+        this.id = 0L;
         this.chatId = 0L;
-        this.chatState = "";
+        this.chatState = 0L;
     }
 
     /**
      * ChatConfig class constructor for using in the AnimalShelterBotApplication
      */
-    public ChatConfig(Long chatId, String chatState) {
-        this.chatConfigId = 0L;
+    public ChatConfig(Long chatId, Long chatState) {
+        this.id = 0L;
         this.chatId = chatId;
         this.chatState = chatState;
     }
 
+    public ChatConfig() {
+
+    }
+
+
     public Long getChatConfigId() {
-        return chatConfigId;
+        return id;
     }
 
     public Long getChatId() {
@@ -61,11 +66,11 @@ public class ChatConfig {
         this.chatId = chatId;
     }
 
-    public String getChatState() {
+    public Long getChatState() {
         return chatState;
     }
 
-    public void setChatState(String chatState) {
+    public void setChatState(Long chatState) {
         this.chatState = chatState;
     }
 
@@ -74,11 +79,11 @@ public class ChatConfig {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ChatConfig that = (ChatConfig) o;
-        return Objects.equals(chatConfigId, that.chatConfigId) && Objects.equals(chatId, that.chatId) && Objects.equals(chatState, that.chatState);
+        return Objects.equals(id, that.id) && Objects.equals(chatId, that.chatId) && Objects.equals(chatState, that.chatState);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(chatConfigId, chatId, chatState);
+        return Objects.hash(id, chatId, chatState);
     }
 }
