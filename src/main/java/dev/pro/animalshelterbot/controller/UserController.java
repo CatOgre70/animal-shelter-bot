@@ -1,7 +1,6 @@
 package dev.pro.animalshelterbot.controller;
 
 
-import dev.pro.animalshelterbot.model.Animal;
 import dev.pro.animalshelterbot.model.User;
 import dev.pro.animalshelterbot.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -12,7 +11,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -42,9 +40,8 @@ public class UserController {
             },
             tags = "User"
     )
-
     @GetMapping("/{id}")
-    public ResponseEntity<User> getUserInfo(@PathVariable Long id) {
+    public ResponseEntity<User> getUserInfo(@Parameter(description = "user id", example = "123")@PathVariable Long id) {
         User user = userService.findUser(id);
         if (user == null) {
             return ResponseEntity.notFound().build();
@@ -70,21 +67,35 @@ public class UserController {
     public ResponseEntity<Collection<User>> getUser(@Parameter(description = "first name User", example = "Aleksandr")@RequestParam  (required = false) String firstName,
                                                     @Parameter(description = "second name User", example = "Tsygulev")@RequestParam  (required = false) String secondName,
                                                     @Parameter(description = "nickname User", example = "MaloyTS")@RequestParam  (required = false) String nickName,
-                                                    @Parameter(description = "chatId User", example = "1221")@RequestParam  (required = true) Long chatId) {
-        if (firstName !=null && !firstName.isBlank()) {
-            return ResponseEntity.ok(userService.findByFirstName(firstName));
-        }
-        if (secondName !=null && !secondName.isBlank()) {
-            return ResponseEntity.ok(userService.findBySecondName(secondName));
-        }
-        if (nickName !=null && !nickName.isBlank()) {
-            return ResponseEntity.ok(userService.findByNickName(nickName));
-        }
-        if (chatId == null) {
+                                                    @Parameter(description = "chatId User", example = "1221")@RequestParam  (required = false) Long chatId) {
+        boolean firstNameIsNotEmpty = firstName != null && !firstName.isBlank();
+        boolean secondNameIsNotEmpty = secondName != null && !secondName.isBlank();
+        boolean nickNameIsNotEmpty = nickName != null && !nickName.isBlank();
+        if ((firstNameIsNotEmpty || secondNameIsNotEmpty || nickNameIsNotEmpty) && chatId == null) {
+            if(firstNameIsNotEmpty && secondNameIsNotEmpty && nickNameIsNotEmpty) {
+                return ResponseEntity.ok(userService.findByThreeSubstrings(firstName, secondName, nickName));
+            } else if(firstNameIsNotEmpty && secondNameIsNotEmpty && !nickNameIsNotEmpty) {
+                return ResponseEntity.ok(userService.findByFirstAndSecondNameSubstrings(firstName, secondName));
+            } else if(firstNameIsNotEmpty && !secondNameIsNotEmpty && nickNameIsNotEmpty){
+                return ResponseEntity.ok(userService.findByFirstAndNickNameSubstrings(firstName, nickName));
+            } else if(!firstNameIsNotEmpty && secondNameIsNotEmpty && nickNameIsNotEmpty){
+                return ResponseEntity.ok(userService.findBySecondAndNickNameSubstrings(secondName, nickName));
+            } else if(firstNameIsNotEmpty) {
+                return ResponseEntity.ok(userService.findByFirstName(firstName));
+            } else if(secondNameIsNotEmpty) {
+                return ResponseEntity.ok(userService.findBySecondName(secondName));
+            } else {
+                return ResponseEntity.ok(userService.findByNickName(nickName));
+            }
+        } else if((firstNameIsNotEmpty || secondNameIsNotEmpty || nickNameIsNotEmpty) && chatId != null) {
+            return ResponseEntity.badRequest().build();
+        } else if (chatId == null){
             return ResponseEntity.notFound().build();
+        } else {
+            return ResponseEntity.ok(userService.findByChatId(chatId));
         }
-        return ResponseEntity.ok(userService.getAllUser());
     }
+
     @Operation (
             summary = "user creation",
             responses = {
@@ -100,7 +111,6 @@ public class UserController {
             },tags = "User"
 
     )
-
     @PostMapping // с помощью hidden = false в сваггере не отображается
     public User createUser(@Parameter(hidden = false) @RequestBody User user) {
         return userService.addUser(user);
@@ -143,7 +153,6 @@ public class UserController {
             },
             tags = "User"
     )
-
     @DeleteMapping("/{id}")
     public ResponseEntity deleteUser(@PathVariable Long id) {
         userService.deleteUser(id);

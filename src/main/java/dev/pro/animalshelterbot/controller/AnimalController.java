@@ -23,6 +23,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/animal")
@@ -34,8 +35,9 @@ public class AnimalController {
         this.animalService = animalService;
     }
 
+
     @Operation (
-            summary = "get information about the animal",
+            summary = "get information about the animal by id",
             responses = {
                     @ApiResponse(
                             responseCode = "200",
@@ -49,41 +51,61 @@ public class AnimalController {
             },
             tags = "Animals"
     )
-
-    @GetMapping
-    public ResponseEntity <Collection<Animal>> getAnimal(
-                                                         @Parameter(description = "name animal", example = "Motroskin")  @RequestParam  (required = false) String name,
-                                                         @Parameter(description = "kind animal", example = "cat")        @RequestParam  (required = false) String kind,
-                                                         @Parameter(description = "breed animal", example = "Maine Coon")@RequestParam  (required = false) String breed) {
-
-        if (name !=null && !name.isBlank()) {
-            return ResponseEntity.ok(animalService.getName(name));
+    @GetMapping("/{id}")
+    ResponseEntity<Animal> getAnimalById(@Parameter(description = "animal id", example = "123")@PathVariable Long id) {
+        Optional<Animal> animal = animalService.getAnimalById(id);
+        if(animal.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        } else {
+            return ResponseEntity.ok(animal.get());
         }
-        if (kind !=null && !kind.isBlank()) {
-            return ResponseEntity.ok(animalService.getKind(kind));
-        }
-        if (breed !=null && !breed.isBlank()) {
-            return ResponseEntity.ok(animalService.getBreed(breed));
-        }
-
-        return ResponseEntity.ok(animalService.getAllAnimal());
     }
 
-        @Operation (
-            summary = "animal creation",
+    @Operation (
+            summary = "get information about the animal by substrings in name, kind, breed and color",
             responses = {
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "return created animals",
-                    content = @Content(
-                            mediaType  = MediaType.APPLICATION_JSON_VALUE,
-                            array = @ArraySchema(schema = @Schema(implementation = Animal.class))
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "information about the animal from the db",
+                            content = @Content(
+                                    mediaType  = MediaType.APPLICATION_JSON_VALUE,
+                                    array = @ArraySchema(schema = @Schema(implementation = Animal.class))
 
+                            )
                     )
-            )
-    },
+            },
             tags = "Animals"
-)
+    )
+    @GetMapping
+    public ResponseEntity <Collection<Animal>> getAnimal(@Parameter(description = "animal name", example = "Matroskin")   @RequestParam(required = false) String name,
+                                                         @Parameter(description = "animal kind", example = "Сat")         @RequestParam(required = false) String kind,
+                                                         @Parameter(description = "animal breed", example = "Maine Coon") @RequestParam(required = false) String breed,
+                                                         @Parameter(description = "animal color", example = "Gray")       @RequestParam(required = false) String color) {
+        boolean nameIsNotEmpty = name != null && !name.isBlank();
+        boolean kindIsNotEmpty = kind != null && !kind.isBlank();
+        boolean breedIsNotEmpty = breed != null && !breed.isBlank();
+        boolean colorIsNotEmpty = color != null && !color.isBlank();
+
+        if(!nameIsNotEmpty && !kindIsNotEmpty && !breedIsNotEmpty && !colorIsNotEmpty) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(animalService.getAnimalBySubstrings(name, kind, breed, color));
+    }
+
+    @Operation (
+        summary = "animal creation",
+        responses = {
+        @ApiResponse(
+                responseCode = "200",
+                description = "return created animals",
+                content = @Content(
+                       mediaType  = MediaType.APPLICATION_JSON_VALUE,
+                       array = @ArraySchema(schema = @Schema(implementation = Animal.class))
+                )
+        )
+        },
+        tags = "Animals"
+    )
     @PostMapping
     public Animal createAnimal(@RequestBody Animal animal) {
 
