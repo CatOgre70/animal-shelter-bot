@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.Collection;
+import java.util.List;
 
 /**
  * UserRepository is the interface for storing Animal Shelter users (clients) information
@@ -15,18 +16,22 @@ import java.util.Collection;
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
 
-    @Query(value = "SELECT  (first_name) FROM users", nativeQuery = true)
-    Collection<User> findByFirstName(String firstName);
+    Collection<User> findByFirstNameContainsIgnoreCaseAndSecondNameContainsIgnoreCaseAndNickNameContainsIgnoreCase(
+            String firstNameSubstring,
+            String lastNameSubstring,
+            String nickNameSubstring);
 
-    @Query(value = "SELECT  (second_name) FROM users", nativeQuery = true)
-    Collection<User> findBySecondName(String secondName);
+    Collection<User> findByFirstNameContainsIgnoreCase(String firstNameSubstring);
+    Collection<User> findBySecondNameContainsIgnoreCase(String secondNameSubstring);
+    Collection<User> findByNickNameContainsIgnoreCase(String nickNameSubstring);
+    Collection<User> findByFirstNameContainsIgnoreCaseAndSecondNameContainsIgnoreCase(String firstNameSubstring,
+                                                                                      String secondNameSubstring);
+    Collection<User> findByFirstNameContainsIgnoreCaseAndNickNameContainsIgnoreCase(String firstNameSubstring,
+                                                                                    String nickNameSubstring);
+    Collection<User> findBySecondNameContainsIgnoreCaseAndNickNameContainsIgnoreCase(String secondNameSubstring,
+                                                                                       String nickNameSubstring);
 
-    @Query(value = "SELECT  (nick_name) FROM users", nativeQuery = true)
-    Collection<User> findByNickName(String nickName);
+    Collection<User> findByChatId(Long chatId);
 
-//    @Query(value = "SELECT  (chat_id) FROM users", nativeQuery = true)
-//    Collection<User> findByChatId(Long chatId);
-
-    @Query(value = "SELECT  (chat_id) FROM users", nativeQuery = true)
-    boolean checkByChatId(Long chatId);
+    boolean existsByChatId(Long chatId);
 }

@@ -4,6 +4,8 @@ import dev.pro.animalshelterbot.repository.AnimalRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Example;
+import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
@@ -75,7 +77,7 @@ public class AnimalService {
             Animal fromDb = optional.get();
             fromDb.setReports(animal.getReports());
             fromDb.setAdoptionDate(animal.getAdoptionDate());
-            fromDb.setAdoptionDate(animal.getAdoptionDate());
+            fromDb.setFeatures(animal.getFeatures());
             fromDb.setOwner(animal.getOwner());
             return animalRepository.save(fromDb);
         }
@@ -162,5 +164,13 @@ public class AnimalService {
     public Collection<Animal> getAvatarPage(int page, int size) {
         PageRequest pageRequest = PageRequest.of(page - 1, size);
         return animalRepository.findAll(pageRequest).getContent();
+    }
+
+    public Collection<Animal> getAnimalBySubstrings(String name, String kind, String breed, String color) {
+        return animalRepository.getAnimalsBySubstrings(name, kind, breed, color);
+    }
+
+    public Optional<Animal> getAnimalById(Long id) {
+        return animalRepository.findById(id);
     }
 }
