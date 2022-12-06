@@ -80,53 +80,102 @@ public class UserService {
         userRepository.deleteById(id);
     }
     /**
-     * find for an user  in the database
+     * find all users in the database
      * the repository method is used {@link JpaRepository#findAll}
-     * event recording process
-     * @return found user
+     * @return Collection of found users
      */
     public Collection<User> getAllUser() {
         logger.info("Metod \"UserService.getAllUser()\" was called");
         return userRepository.findAll();
     }
+
+
     /**
-     * find for an user  in the database
-     * the repository method is used {@link JpaRepository#findAll}
-     * event recording process
-     * @return found user
+     * find users in the database contains substrings in the firstName, secondName and nickName
+     * @return Collection of found users
+     */
+    public Collection<User> findByThreeSubstrings(String firstNameSubstring,
+                                                  String secondNameSubstring,
+                                                  String nickNameSubstring){
+        return userRepository.findByFirstNameContainsIgnoreCaseAndSecondNameContainsIgnoreCaseAndNickNameContainsIgnoreCase(
+                firstNameSubstring,
+                secondNameSubstring,
+                nickNameSubstring);
+
+    }
+
+    /**
+     * find users in the database contains substrings in the firstName and secondName
+     * @return Collection of found users
+     */
+    public Collection<User> findByFirstAndSecondNameSubstrings(String firstNameSubstring,
+                                                               String secondNameSubstring){
+        return userRepository.findByFirstNameContainsIgnoreCaseAndSecondNameContainsIgnoreCase(firstNameSubstring,
+                secondNameSubstring);
+    }
+
+    /**
+     * find users in the database contains substrings in the firstName and nickName
+     * @return Collection of found users
+     */
+    public Collection<User> findByFirstAndNickNameSubstrings(String firstNameSubstring,
+                                                               String nickNameSubstring){
+        return userRepository.findByFirstNameContainsIgnoreCaseAndNickNameContainsIgnoreCase(firstNameSubstring,
+                nickNameSubstring);
+    }
+
+    /**
+     * find users in the database contains substrings in the secondName and nickName
+     * @return Collection of found users
+     */
+    public Collection<User> findBySecondAndNickNameSubstrings(String secondNameSubstring,
+                                                             String nickNameSubstring){
+        return userRepository.findBySecondNameContainsIgnoreCaseAndNickNameContainsIgnoreCase(secondNameSubstring,
+                nickNameSubstring);
+    }
+
+    /**
+     * find users in the database contains substrings in the firstName
+     * @return Collection of found users
      */
     public Collection<User> findByFirstName(String firstName) {
         logger.info("Metod \"UserService.findByFirstName()\" was called");
-        return  userRepository.findByFirstName(firstName);
+        return  userRepository.findByFirstNameContainsIgnoreCase(firstName);
     }
     /**
-     * find for an user  in the database
-     * the repository method is used {@link JpaRepository#findAll}
-     * event recording process
-     * @return found user
+     * find users in the database contains substrings in the secondName
+     * @return Collection of found users
      */
     public Collection<User> findBySecondName(String secondName) {
         logger.info("Metod \"UserService.findBySecondName()\" was called");
-        return userRepository.findBySecondName(secondName);
+        return userRepository.findBySecondNameContainsIgnoreCase(secondName);
     }
     /**
-     * find for an user  in the database
-     * the repository method is used {@link  JpaRepository}
-     * event recording process
-     * @return found NickName
+     * find users in the database contains substrings in the nickName
+     * @return Collection of found users
      */
     public Collection<User> findByNickName(String nickName) {
         logger.info("Metod \"UserService.findByNickName()\" was called");
-        return  userRepository.findByNickName(nickName);
+        return  userRepository.findByNickNameContainsIgnoreCase(nickName);
     }
 
-//    public Collection<User> findByChatId(Long chatId) {
-//        logger.info("Method \"UserService.findByChatId()\" was called");
-//        return userRepository.findByChatId(chatId);
-//    }
+    /**
+     * find users in the database by chatId
+     * @return Collection of found users
+     * There should be only one User in the Collection!!!
+     */
+    public Collection<User> findByChatId(Long chatId) {
+        logger.info("Method \"UserService.findByChatId()\" was called");
+        return userRepository.findByChatId(chatId);
+    }
 
+    /**
+     * Checks if user with selected chatId already exists in the database
+     * @return boolean (true - if user exists, false - if user is not found)
+     */
     public boolean checkByChatId(Long chatId) {
         logger.info("Method \"UserService.checkByChatId()\" was called");
-        return userRepository.checkByChatId(chatId);
+        return userRepository.existsByChatId(chatId);
     }
+
 }
