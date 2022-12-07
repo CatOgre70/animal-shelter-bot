@@ -2,6 +2,7 @@ package dev.pro.animalshelterbot.service;
 
 import dev.pro.animalshelterbot.constants.BotStatus;
 import dev.pro.animalshelterbot.model.ChatConfig;
+import dev.pro.animalshelterbot.model.User;
 import dev.pro.animalshelterbot.repository.ChatConfigRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,8 +28,9 @@ public class ChatConfigService {
 
     public ChatConfig editChatConfig(ChatConfig chatConfig) {
         logger.info("Method \"ChatConfigService.editChatConfig()\" was called");
-        BotStatus botStatus = chatConfigRepository.findByChatId(chatConfig.getChatId());
-        if(!checkByChatId(chatConfig.getChatId())) {
+        BotStatus botStatus = chatConfigRepository.findByChatId(chatConfig.getChatState());
+        Optional<ChatConfig> optional = chatConfigRepository.findById(chatConfig.getChatId());
+        if(!optional.isPresent()) {
             return null;
         }
         else {
@@ -43,8 +45,4 @@ public class ChatConfigService {
         return chatConfigRepository.findByChatId(chatId);
     }
 
-    public boolean checkByChatId(Long chatId) {
-        logger.info("Method \"ChatConfigService.checkByChatId()\" was called");
-        return chatConfigRepository.checkByChatId(chatId);
-    }
 }

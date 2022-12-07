@@ -177,5 +177,4 @@ public class UserService {
         logger.info("Method \"UserService.checkByChatId()\" was called");
         return userRepository.existsByChatId(chatId);
     }
-
 }

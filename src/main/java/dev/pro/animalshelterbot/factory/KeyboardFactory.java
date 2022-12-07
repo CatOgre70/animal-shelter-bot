@@ -2,7 +2,10 @@ package dev.pro.animalshelterbot.factory;
 
 import com.pengrad.telegrambot.model.request.InlineKeyboardButton;
 import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
+import dev.pro.animalshelterbot.constants.Commands;
 import dev.pro.animalshelterbot.constants.Constants;
+
+import java.util.Collection;
 
 /**
  Class that implements the built-in keyboard in the start menu
@@ -13,7 +16,8 @@ public class KeyboardFactory {
                 new InlineKeyboardButton("Узнать информацию о приюте").callbackData(Constants.CONSULT_NEW_USER),
                 new InlineKeyboardButton("Как взять собаку из приюта").callbackData(Constants.CONSULT_POTENTIAL_OWNER),
                 new InlineKeyboardButton("Прислать отчёт о питомце").callbackData(Constants.DAILY_REPORT),
-                new InlineKeyboardButton("Позвать волонтера").callbackData(Constants.CALL_VOLUNTEER)
+                new InlineKeyboardButton("Позвать волонтера").callbackData("/volunteer"),
+                new InlineKeyboardButton("Вернуться в меню").callbackData("/menu")
         );
         return inlineKeyboard;
     }
@@ -25,7 +29,8 @@ public class KeyboardFactory {
                 new InlineKeyboardButton("Получить адрес приюта и схему проезда").callbackData(Constants.ADDRESS),
                 new InlineKeyboardButton("Получить рекомендации по технике безопасности").callbackData(Constants.PRECAUTIONS),
                 new InlineKeyboardButton("Передать нам ваши контактные данные").callbackData(Constants.LEAVE_CONTACTS),
-                new InlineKeyboardButton("Позвать волонтёра").callbackData(Constants.CALL_VOLUNTEER)
+                new InlineKeyboardButton("Позвать волонтёра").callbackData("/volunteer"),
+                new InlineKeyboardButton("Вернуться в меню").callbackData("/menu")
         );
 
         return inlineKeyboard;
@@ -43,7 +48,16 @@ public class KeyboardFactory {
                 new InlineKeyboardButton("Проверенные кинологи для самостоятельного обращения").callbackData(Constants.PROVEN_DOG_HANDLERS),
                 new InlineKeyboardButton("Причины для отказа").callbackData(Constants.REASONS_FOR_REFUSAL),
                 new InlineKeyboardButton("Передать нам ваши контактные данные").callbackData(Constants.LEAVE_CONTACTS),
-                new InlineKeyboardButton("Позвать волонтёра").callbackData(Constants.CALL_VOLUNTEER)
+                new InlineKeyboardButton("Позвать волонтёра").callbackData("/volunteer"),
+                new InlineKeyboardButton("Вернуться в меню").callbackData("/menu")
+        );
+        return inlineKeyboard;
+    }
+
+    public static InlineKeyboardMarkup stageThree() {
+        InlineKeyboardMarkup inlineKeyboard = new InlineKeyboardMarkup(
+                new InlineKeyboardButton("Прикрепить фото животного").callbackData("Прикрепите фотографию животного размером не более..."),
+                new InlineKeyboardButton("Сообщить о рационе, самочувствии и изменениях в поведении питомца").callbackData("Напишите информацию о дневном рационе, самочувствии и изменениях в поведении питомца одним сообщением ниже: ")
         );
         return inlineKeyboard;
     }
