@@ -120,13 +120,9 @@ public class UserService {
         return  userRepository.findByNickName(nickName);
     }
 
-//    public Collection<User> findByChatId(Long chatId) {
-//        logger.info("Method \"UserService.findByChatId()\" was called");
-//        return userRepository.findByChatId(chatId);
-//    }
-
-    public boolean checkByChatId(Long chatId) {
-        logger.info("Method \"UserService.checkByChatId()\" was called");
-        return userRepository.checkByChatId(chatId);
+    public Collection<User> findByChatId(Long chatId) {
+        logger.info("Method \"UserService.findByChatId()\" was called");
+        return userRepository.findByChatId(chatId);
     }
+
 }
