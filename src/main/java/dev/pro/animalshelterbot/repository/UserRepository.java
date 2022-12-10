@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.Collection;
+import java.util.List;
 
 /**
  * UserRepository is the interface for storing Animal Shelter users (clients) information
@@ -15,16 +16,12 @@ import java.util.Collection;
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
 
-    @Query(value = "SELECT  (first_name) FROM users", nativeQuery = true)
-    Collection<User> findByFirstName(String firstName);
+    @Query(value = "SELECT * FROM users WHERE (users.first_name ILIKE CONCAT('%',:firstNameSub,'%') " +
+            "AND users.second_name ILIKE CONCAT('%',:secondNameSub,'%') " +
+            "AND users.nick_name ILIKE CONCAT('%',:nickNameSub,'%'))", nativeQuery = true)
+    public List<User> findByThreeSubstrings(String firstNameSub, String secondNameSub, String nickNameSub);
 
-    @Query(value = "SELECT  (second_name) FROM users", nativeQuery = true)
-    Collection<User> findBySecondName(String secondName);
-
-    @Query(value = "SELECT  (nick_name) FROM users", nativeQuery = true)
-    Collection<User> findByNickName(String nickName);
-
-    Collection<User> findByChatId(Long chatId);
+    List<User> findByChatId(Long chatId);
 
     boolean existsByChatId(Long chatId);
 }
