@@ -72,21 +72,7 @@ public class UserController {
         boolean secondNameIsNotEmpty = secondName != null && !secondName.isBlank();
         boolean nickNameIsNotEmpty = nickName != null && !nickName.isBlank();
         if ((firstNameIsNotEmpty || secondNameIsNotEmpty || nickNameIsNotEmpty) && chatId == null) {
-            if(firstNameIsNotEmpty && secondNameIsNotEmpty && nickNameIsNotEmpty) {
-                return ResponseEntity.ok(userService.findByThreeSubstrings(firstName, secondName, nickName));
-            } else if(firstNameIsNotEmpty && secondNameIsNotEmpty && !nickNameIsNotEmpty) {
-                return ResponseEntity.ok(userService.findByFirstAndSecondNameSubstrings(firstName, secondName));
-            } else if(firstNameIsNotEmpty && !secondNameIsNotEmpty && nickNameIsNotEmpty){
-                return ResponseEntity.ok(userService.findByFirstAndNickNameSubstrings(firstName, nickName));
-            } else if(!firstNameIsNotEmpty && secondNameIsNotEmpty && nickNameIsNotEmpty){
-                return ResponseEntity.ok(userService.findBySecondAndNickNameSubstrings(secondName, nickName));
-            } else if(firstNameIsNotEmpty) {
-                return ResponseEntity.ok(userService.findByFirstName(firstName));
-            } else if(secondNameIsNotEmpty) {
-                return ResponseEntity.ok(userService.findBySecondName(secondName));
-            } else {
-                return ResponseEntity.ok(userService.findByNickName(nickName));
-            }
+            return ResponseEntity.ok(userService.findByThreeSubstrings(firstName, secondName, nickName));
         } else if((firstNameIsNotEmpty || secondNameIsNotEmpty || nickNameIsNotEmpty) && chatId != null) {
             return ResponseEntity.badRequest().build();
         } else if (chatId == null){
