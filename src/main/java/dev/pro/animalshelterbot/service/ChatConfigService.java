@@ -27,8 +27,9 @@ public class ChatConfigService {
 
     public ChatConfig editChatConfig(ChatConfig chatConfig) {
         logger.info("Method \"ChatConfigService.editChatConfig()\" was called");
-        BotStatus botStatus = chatConfigRepository.findByChatId(chatConfig.getChatId());
-        if(!checkByChatId(chatConfig.getChatId())) {
+        Long botStatus = chatConfigRepository.findByChatId(chatConfig.getChatState());
+        Optional<ChatConfig> optional = chatConfigRepository.findById(chatConfig.getChatId());
+        if(!optional.isPresent()) {
             return null;
         }
         else {
@@ -38,13 +39,9 @@ public class ChatConfigService {
         }
     }
 
-    public BotStatus findByChatId(Long chatId) {
+    public Long findByChatId(Long chatId) {
         logger.info("Method \"ChatConfigService.findByChatId()\" was called");
         return chatConfigRepository.findByChatId(chatId);
     }
 
-    public boolean checkByChatId(Long chatId) {
-        logger.info("Method \"ChatConfigService.checkByChatId()\" was called");
-        return chatConfigRepository.checkByChatId(chatId);
-    }
 }

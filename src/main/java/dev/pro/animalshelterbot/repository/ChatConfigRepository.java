@@ -13,9 +13,7 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface ChatConfigRepository extends JpaRepository<ChatConfig, Long> {
-    @Query(value = "SELECT (chat_id) FROM chat_config", nativeQuery = true)
-    BotStatus findByChatId(Long chatId);
 
-    @Query(value = "SELECT (chat_id) FROM chat_config", nativeQuery = true)
-    boolean checkByChatId(Long chatId);
+    Long findByChatId(Long chatId);
+
 }
