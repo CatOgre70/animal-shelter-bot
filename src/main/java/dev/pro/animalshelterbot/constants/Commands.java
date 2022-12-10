@@ -9,13 +9,11 @@ package dev.pro.animalshelterbot.constants;
 
 public enum Commands{
 
-    START("/start", "Начать работу с ботом"),
-    HELP("/help", "Получить список команд"),
-    MENU("/menu", "Вызвать меню"),
+    START("/start"),
+    HELP("/help"),
+    MENU("/menu");
 
-    ;
-
-    Commands (String s, String description) {
+    Commands (String s) {
 
     }
 
