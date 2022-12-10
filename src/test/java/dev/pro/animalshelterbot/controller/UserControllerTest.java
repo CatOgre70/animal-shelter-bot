@@ -166,6 +166,8 @@ public class UserControllerTest {
 
     }
 
+
+
     private void userHasBeenUpdated(User user, String newAddress, String newMobilePhone) {
         URI uri = getURIBuilder().path("/{id}").buildAndExpand(user.getId()).toUri();
         ResponseEntity<User> response = restTemplate.getForEntity(uri, User.class);
