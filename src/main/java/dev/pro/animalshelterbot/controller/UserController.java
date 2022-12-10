@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collection;
+import java.util.List;
 
 @RestController
 @RequestMapping("/user")
@@ -64,10 +65,10 @@ public class UserController {
             tags = "User"
     )
     @GetMapping
-    public ResponseEntity<Collection<User>> getUser(@Parameter(description = "first name User", example = "Aleksandr")@RequestParam  (required = false) String firstName,
-                                                    @Parameter(description = "second name User", example = "Tsygulev")@RequestParam  (required = false) String secondName,
-                                                    @Parameter(description = "nickname User", example = "MaloyTS")@RequestParam  (required = false) String nickName,
-                                                    @Parameter(description = "chatId User", example = "1221")@RequestParam  (required = false) Long chatId) {
+    public ResponseEntity<List<User>> getUser(@Parameter(description = "first name User", example = "Aleksandr")@RequestParam  (required = false) String firstName,
+                                              @Parameter(description = "second name User", example = "Tsygulev")@RequestParam  (required = false) String secondName,
+                                              @Parameter(description = "nickname User", example = "MaloyTS")@RequestParam  (required = false) String nickName,
+                                              @Parameter(description = "chatId User", example = "1221")@RequestParam  (required = false) Long chatId) {
         boolean firstNameIsNotEmpty = firstName != null && !firstName.isBlank();
         boolean secondNameIsNotEmpty = secondName != null && !secondName.isBlank();
         boolean nickNameIsNotEmpty = nickName != null && !nickName.isBlank();
