@@ -4,6 +4,7 @@ import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.UpdatesListener;
 import com.pengrad.telegrambot.model.PhotoSize;
 import com.pengrad.telegrambot.model.Update;
+import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
 import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.response.SendResponse;
 import dev.pro.animalshelterbot.constants.BotStatus;
@@ -11,6 +12,7 @@ import dev.pro.animalshelterbot.constants.Commands;
 import dev.pro.animalshelterbot.constants.Constants;
 import dev.pro.animalshelterbot.factory.KeyboardFactory;
 import dev.pro.animalshelterbot.model.ChatConfig;
+import dev.pro.animalshelterbot.model.User;
 import dev.pro.animalshelterbot.service.ChatConfigService;
 import dev.pro.animalshelterbot.service.UserService;
 import org.slf4j.Logger;
@@ -56,8 +58,10 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
 
                     // Process your updates here
 
+
             checkingUpdate(update);
             checkStartMessage(update);
+            statusDeterminant(update.message().chat().id(), update);
 
         });
         return UpdatesListener.CONFIRMED_UPDATES_ALL;
@@ -65,25 +69,26 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
 
 
     private void checkStartMessage(Update update) {
-        String incomingMessage = update.message().text();
+        String message = Constants.REQUEST_START;
         Long chatId = update.message().chat().id();
+        String incomingMessage = update.message().text();
+
         if (!userService.findByChatId(chatId).contains(chatId)) {
-            SendMessage message = new SendMessage(chatId, Constants.REQUEST_START);
-            SendResponse response = telegramBot.execute(message);
             if (incomingMessage.equalsIgnoreCase(String.valueOf(Commands.START))) {
-                userService.addUser(new dev.pro.animalshelterbot.model.User());
+//                message = new SendMessage(chatId, Constants.REQUEST_START);
+                userService.addUser(new User(update.message().chat().firstName(), update.message().chat().lastName(), update.message().chat().username(), null, null, update.message().chat().id()));
                 chatConfigService.addChatConfig(new ChatConfig(chatId, 0L));
                 SendMessage sendMessage = new SendMessage(chatId, Constants.START_DESCRIPTION);
                 SendResponse sendResponse = telegramBot.execute(sendMessage);
-                SendMessage keys = new SendMessage(update.message().chat().id(), Constants.CHOOSE_OPTION);
-                message.replyMarkup(KeyboardFactory.startButtons());
-                SendResponse response1 = telegramBot.execute(keys);
-            } else if (!incomingMessage.equalsIgnoreCase(String.valueOf(Commands.START))) {
+ // это кинуть в отдельный метод, т.к. в этом не вызывается или порешать с ошибкой
+                // SendMessage keys = new SendMessage(update.message().chat().id(), Constants.CHOOSE_OPTION);
+ //               keys.replyMarkup(KeyboardFactory.startButtons());
+ //               SendResponse response1 = telegramBot.execute(keys);
+            } else if (!incomingMessage.equalsIgnoreCase("/start")) {
                 SendMessage sendMessage = new SendMessage(chatId, "Вы ошиблись с вводом команды. " + Constants.REQUEST_START);
-                SendResponse sendResponse = telegramBot.execute(message);
+                SendResponse sendResponse = telegramBot.execute(sendMessage);
             }
-    }
-        else statusDeterminant(chatId, update);
+        } else statusDeterminant(chatId, update);
     }
 
     private void checkingUpdate(Update update) {
@@ -112,24 +117,25 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
 
 
     private SendResponse statusDeterminant(Long chatId, Update update) {
-        BotStatus botStatus = chatConfigService.findByChatId(chatId);
+        Long botStatus = chatConfigService.findByChatId(chatId);
         SendMessage message = new SendMessage(chatId, Constants.CHOOSE_OPTION);
         SendResponse response = telegramBot.execute(message);
-        switch (botStatus) {
-            case DEFAULT:
+        BotStatus(bStatus) = getBotStatusByLong(botStatus);
+        switch (b) {
+            case BotStatus.DEFAULT:
                 startButtons(update);
                 break;
-            case CONSULT_NEW_USER:
+            case BotStatus.CONSULT_NEW_USER:
                 consultNewUser(update);
                 break;
-            case CONSULT_POTENTIAL_OWNER:
+            case BotStatus.CONSULT_POTENTIAL_OWNER:
                 consultPotentialOwner(update);
                 break;
-            case KEEPING_a_PET:
+            case BotStatus.KEEPING_a_PET:
                 keepingPet(update);
                 break;
             // Не реализовано
-            case CHAT_WITH_VOLUNTEER://либо создать метод
+            case BotStatus.CHAT_WITH_VOLUNTEER://либо создать метод
                 message = new SendMessage(chatId, Constants.CALL_VOLUNTEER);
                 response = telegramBot.execute(message);
                 break;
@@ -155,13 +161,36 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
         KeyboardFactory.startButtons();
     }
 
-    private void answer(SendResponse response) {
-        if (!response.isOk()) {
-            logger.warn("Response error code is: {}", response.errorCode());
+    private void sendMessage(Update update, String message) {
+        Long chatId = update.message().chat().id();
+        SendMessage sendMessage = new SendMessage(chatId, message);
+        SendResponse response = telegramBot.execute(sendMessage);
+        if (response.isOk()) {
+            logger.info("message: {} is sent ", message);
         } else {
-            logger.info("Response is: {}", response.isOk());
+            logger.warn("Message was not sent. Error code:  " + response.errorCode());
         }
     }
+
+    private void sendMessageWithKeyboard(Update update, String message, InlineKeyboardMarkup keyboardMarkup) {
+        Long chatId = update.message().chat().id();
+        SendResponse response = telegramBot.execute(new SendMessage(chatId, message).replyMarkup(keyboardMarkup));
+        if (response.isOk()) {
+            logger.info("message: {} is sent ", message);
+        } else {
+            logger.warn("Message was not sent. Error code:  " + response.errorCode());
+        }
+    }
+
+    private BotStatus getBotStatusByLong(Long longStatus) {
+        for (BotStatus s : BotStatus.values()) {
+            if (s.equals(longStatus)) {
+                return s;
+            }
+        }
+        return BotStatus.DEFAULT;
+    }
+
 }
 
 
