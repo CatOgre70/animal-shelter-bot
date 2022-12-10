@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -89,26 +90,7 @@ public class UserService {
         logger.info("Metod \"UserService.getAllUser()\" was called");
         return userRepository.findAll();
     }
-    /**
-     * find for an user  in the database
-     * the repository method is used {@link JpaRepository#findAll}
-     * event recording process
-     * @return found user
-     */
-    public Collection<User> findByFirstName(String firstName) {
-        logger.info("Metod \"UserService.findByFirstName()\" was called");
-        return  userRepository.findByFirstName(firstName);
-    }
-    /**
-     * find for an user  in the database
-     * the repository method is used {@link JpaRepository#findAll}
-     * event recording process
-     * @return found user
-     */
-    public Collection<User> findBySecondName(String secondName) {
-        logger.info("Metod \"UserService.findBySecondName()\" was called");
-        return userRepository.findBySecondName(secondName);
-    }
+
     /**
      * find for an user  in the database
      * the repository method is used {@link  JpaRepository}
@@ -118,5 +100,13 @@ public class UserService {
     public boolean checkByChatId(Long chatId) {
         logger.info("Method \"UserService.checkByChatId()\" was called");
         return userRepository.existsByChatId(chatId);
+    }
+
+    public List<User> findByChatId(Long chatId) {
+        return userRepository.findByChatId(chatId);
+    }
+
+    public List<User> findByThreeSubstrings(String firstName, String secondName, String nickName) {
+        return userRepository.findByThreeSubstrings(firstName, secondName, nickName);
     }
 }
