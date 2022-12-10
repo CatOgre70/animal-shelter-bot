@@ -31,6 +31,11 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Collection<User> findBySecondNameContainsIgnoreCaseAndNickNameContainsIgnoreCase(String secondNameSubstring,
                                                                                        String nickNameSubstring);
 
+    @Query(value = "SELECT * FROM users WHERE (users.first_name ILIKE CONCAT('%',:firstNameSubstring,'%') " +
+            "AND users.second_name ILIKE CONCAT('%',:secondNameSubstring,'%') " +
+            "AND users.nick_name ILIKE CONCAT('%',:nickNameSubstring,'%'))", nativeQuery = true)
+    Collection<User> findByThreeSubstrings(String firstNameSubstring, String secondNameSubstring, String nickNameSubstring);
+
     Collection<User> findByChatId(Long chatId);
 
     boolean existsByChatId(Long chatId);

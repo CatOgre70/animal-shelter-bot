@@ -97,66 +97,8 @@ public class UserService {
     public Collection<User> findByThreeSubstrings(String firstNameSubstring,
                                                   String secondNameSubstring,
                                                   String nickNameSubstring){
-        return userRepository.findByFirstNameContainsIgnoreCaseAndSecondNameContainsIgnoreCaseAndNickNameContainsIgnoreCase(
-                firstNameSubstring,
-                secondNameSubstring,
-                nickNameSubstring);
+        return userRepository.findByThreeSubstrings(firstNameSubstring, secondNameSubstring, nickNameSubstring);
 
-    }
-
-    /**
-     * find users in the database contains substrings in the firstName and secondName
-     * @return Collection of found users
-     */
-    public Collection<User> findByFirstAndSecondNameSubstrings(String firstNameSubstring,
-                                                               String secondNameSubstring){
-        return userRepository.findByFirstNameContainsIgnoreCaseAndSecondNameContainsIgnoreCase(firstNameSubstring,
-                secondNameSubstring);
-    }
-
-    /**
-     * find users in the database contains substrings in the firstName and nickName
-     * @return Collection of found users
-     */
-    public Collection<User> findByFirstAndNickNameSubstrings(String firstNameSubstring,
-                                                               String nickNameSubstring){
-        return userRepository.findByFirstNameContainsIgnoreCaseAndNickNameContainsIgnoreCase(firstNameSubstring,
-                nickNameSubstring);
-    }
-
-    /**
-     * find users in the database contains substrings in the secondName and nickName
-     * @return Collection of found users
-     */
-    public Collection<User> findBySecondAndNickNameSubstrings(String secondNameSubstring,
-                                                             String nickNameSubstring){
-        return userRepository.findBySecondNameContainsIgnoreCaseAndNickNameContainsIgnoreCase(secondNameSubstring,
-                nickNameSubstring);
-    }
-
-    /**
-     * find users in the database contains substrings in the firstName
-     * @return Collection of found users
-     */
-    public Collection<User> findByFirstName(String firstName) {
-        logger.info("Metod \"UserService.findByFirstName()\" was called");
-        return  userRepository.findByFirstNameContainsIgnoreCase(firstName);
-    }
-    /**
-     * find users in the database contains substrings in the secondName
-     * @return Collection of found users
-     */
-    public Collection<User> findBySecondName(String secondName) {
-        logger.info("Metod \"UserService.findBySecondName()\" was called");
-        return userRepository.findBySecondNameContainsIgnoreCase(secondName);
-    }
-    /**
-     * find users in the database contains substrings in the nickName
-     * @return Collection of found users
-     */
-    public Collection<User> findByNickName(String nickName) {
-        logger.info("Metod \"UserService.findByNickName()\" was called");
-        return  userRepository.findByNickNameContainsIgnoreCase(nickName);
     }
 
     /**
