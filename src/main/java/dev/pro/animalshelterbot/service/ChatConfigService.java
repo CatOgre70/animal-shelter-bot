@@ -2,7 +2,6 @@ package dev.pro.animalshelterbot.service;
 
 import dev.pro.animalshelterbot.constants.BotStatus;
 import dev.pro.animalshelterbot.model.ChatConfig;
-import dev.pro.animalshelterbot.model.User;
 import dev.pro.animalshelterbot.repository.ChatConfigRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

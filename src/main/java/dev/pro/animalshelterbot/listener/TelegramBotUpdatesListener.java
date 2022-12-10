@@ -8,11 +8,10 @@ import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
 import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.response.SendResponse;
 import dev.pro.animalshelterbot.constants.BotStatus;
-import dev.pro.animalshelterbot.constants.Commands;
 import dev.pro.animalshelterbot.constants.Constants;
 import dev.pro.animalshelterbot.factory.KeyboardFactory;
+import dev.pro.animalshelterbot.constants.Commands;
 import dev.pro.animalshelterbot.model.ChatConfig;
-import dev.pro.animalshelterbot.model.User;
 import dev.pro.animalshelterbot.service.ChatConfigService;
 import dev.pro.animalshelterbot.service.UserService;
 import org.slf4j.Logger;
@@ -21,8 +20,6 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import java.util.List;
-
-import static dev.pro.animalshelterbot.constants.BotStatus.KEEPING_a_PET;
 
 /**
  * The main service of the bot containing the logic of processing incoming updates
@@ -112,7 +109,10 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
             SendMessage message = new SendMessage(chatId, "Вы ошиблись с вводом команды. " + Constants.REQUEST_START);
             SendResponse response = telegramBot.execute(message);
 
-        }
+                    }
+
+                });
+        return UpdatesListener.CONFIRMED_UPDATES_ALL;
     }
 
 
@@ -178,19 +178,9 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
         if (response.isOk()) {
             logger.info("message: {} is sent ", message);
         } else {
-            logger.warn("Message was not sent. Error code:  " + response.errorCode());
+            logger.info("Response is: {}", response.isOk());
         }
     }
-
-    private BotStatus getBotStatusByLong(Long longStatus) {
-        for (BotStatus s : BotStatus.values()) {
-            if (s.equals(longStatus)) {
-                return s;
-            }
-        }
-        return BotStatus.DEFAULT;
-    }
-
 }
 
 

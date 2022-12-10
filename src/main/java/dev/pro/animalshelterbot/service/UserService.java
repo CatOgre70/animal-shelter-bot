@@ -80,40 +80,40 @@ public class UserService {
         userRepository.deleteById(id);
     }
     /**
-     * find all users in the database
+     * find for an user  in the database
      * the repository method is used {@link JpaRepository#findAll}
-     * @return Collection of found users
+     * event recording process
+     * @return found user
      */
     public Collection<User> getAllUser() {
         logger.info("Metod \"UserService.getAllUser()\" was called");
         return userRepository.findAll();
     }
-
-
     /**
-     * find users in the database contains substrings in the firstName, secondName and nickName
-     * @return Collection of found users
+     * find for an user  in the database
+     * the repository method is used {@link JpaRepository#findAll}
+     * event recording process
+     * @return found user
      */
-    public Collection<User> findByThreeSubstrings(String firstNameSubstring,
-                                                  String secondNameSubstring,
-                                                  String nickNameSubstring){
-        return userRepository.findByThreeSubstrings(firstNameSubstring, secondNameSubstring, nickNameSubstring);
-
+    public Collection<User> findByFirstName(String firstName) {
+        logger.info("Metod \"UserService.findByFirstName()\" was called");
+        return  userRepository.findByFirstName(firstName);
     }
-
     /**
-     * find users in the database by chatId
-     * @return Collection of found users
-     * There should be only one User in the Collection!!!
+     * find for an user  in the database
+     * the repository method is used {@link JpaRepository#findAll}
+     * event recording process
+     * @return found user
      */
-    public Collection<User> findByChatId(Long chatId) {
-        logger.info("Method \"UserService.findByChatId()\" was called");
-        return userRepository.findByChatId(chatId);
+    public Collection<User> findBySecondName(String secondName) {
+        logger.info("Metod \"UserService.findBySecondName()\" was called");
+        return userRepository.findBySecondName(secondName);
     }
-
     /**
-     * Checks if user with selected chatId already exists in the database
-     * @return boolean (true - if user exists, false - if user is not found)
+     * find for an user  in the database
+     * the repository method is used {@link  JpaRepository}
+     * event recording process
+     * @return found NickName
      */
     public boolean checkByChatId(Long chatId) {
         logger.info("Method \"UserService.checkByChatId()\" was called");
