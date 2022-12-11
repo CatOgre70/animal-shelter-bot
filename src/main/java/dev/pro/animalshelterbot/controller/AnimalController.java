@@ -180,6 +180,7 @@ public class AnimalController {
             return ResponseEntity.notFound().build();
         }
     }
+
     @Operation (
             summary = "get animal avatar",
             responses = {
@@ -195,8 +196,6 @@ public class AnimalController {
             },
             tags = "Animals"
     )
-
-
     @GetMapping(value = "/{id}/avatar/preview")
     public ResponseEntity <byte[]> downloadAvatar(@PathVariable Long id) {
 

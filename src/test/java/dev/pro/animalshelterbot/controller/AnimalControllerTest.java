@@ -156,6 +156,44 @@ public class AnimalControllerTest {
         Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
     }
 
+/*
+    @Test
+    public void uploadAvatarTest() {
+        Animal animal = givenAnimalWith("Matroskin", "Cat", "Maine Coon", "Gray");
+        ResponseEntity<Animal> response = addAnimalInTheDatabase(getURIBuilder().build().toUri(), animal);
+        Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        Assertions.assertThat(response.getBody()).isNotNull();
+        Assertions.assertThat(response.getBody().getId()).isNotNull();
+
+        animal = response.getBody();
+
+        Path path = Paths.get("D:\\Users\\Vasily\\Downloads\\maine-coon-2.jpg");
+        String name = "maine-coon-2.jpg";
+        String originalFileName = "maine-coon-2.jpg";
+        String contentType = "image/jpeg";
+        byte[] content = null;
+        try {
+            content = Files.readAllBytes(path);
+        } catch (IOException e) {
+
+        }
+        MultipartFile multipartFile = new MockMultipartFile(name, originalFileName, contentType, content);
+        MultiValueMap<String, String> queryParams = new LinkedMultiValueMap<>();
+        queryParams.add("avatar", multipartFile.toString());
+        URI uri = getURIBuilder().path("/id/avatar").queryParams(queryParams).buildAndExpand(animal.getId()).toUri();
+        ResponseEntity<Set<Animal>> response1 = restTemplate.exchange(
+                uri,
+                HttpMethod.POST,
+                null,
+                new ParameterizedTypeReference<Set<Animal>>() {
+                });
+        Assertions.assertThat(response1.getStatusCode()).isEqualTo(HttpStatus.OK);
+        Assertions.assertThat(response.getBody()).isNotNull();
+    }
+ */
+
+
+
     private void animalHasBeenUpdated(Animal animal, String features, LocalDateTime localDateTime) {
         URI uri = getURIBuilder().path("/{id}").buildAndExpand(animal.getId()).toUri();
         ResponseEntity<Animal> response = restTemplate.getForEntity(uri, Animal.class);
