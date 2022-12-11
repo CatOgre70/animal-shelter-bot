@@ -29,7 +29,7 @@ public class DailyReportService {
      * @return the user stored in the database
      */
     public DailyReport addDailyReport(DailyReport dailyReport) {
-        logger.info("Metod \"UserService.addDailyReport()\" was called");
+        logger.info("Method \"UserService.addDailyReport()\" was called");
         return dailyReportRepository.save(dailyReport);
     }
 
@@ -49,10 +49,11 @@ public class DailyReportService {
      * the repository method is used {@link JpaRepository#findById(Object)}
      * event recording process
      * fetching data from the database and modifying it
+     *
      * @param dailyReport
      * @return making changes to the database
      */
-    public DailyReport editDailyReport(DailyReport dailyReport) {
+    public Optional<DailyReport> editDailyReport(DailyReport dailyReport) {
         logger.info("Metod \"DailyReportService.DailyReport()\" was called");
         Optional<DailyReport> optional = dailyReportRepository.findById(dailyReport.getId());
         if(!optional.isPresent()) {
@@ -65,7 +66,7 @@ public class DailyReportService {
             fromDb.setDiet(dailyReport.getDiet());
             fromDb.setGeneralWellBeing(dailyReport.getGeneralWellBeing());
             fromDb.setChangeInBehavior(dailyReport.getChangeInBehavior());
-            return dailyReportRepository.save(fromDb);
+            return Optional.of(dailyReportRepository.save(fromDb));
         }
     }
     /**
@@ -74,8 +75,12 @@ public class DailyReportService {
      * event recording process
      * @param id, must not be null
      */
-    public void deleteDailyReport(long id) {
+    public Optional<DailyReport> deleteDailyReport(long id) {
         logger.info("Metod \"UserService.deleteDailyRepor()\" was called");
-        dailyReportRepository.deleteById(id);
+        Optional<DailyReport> result = dailyReportRepository.findById(id);
+        if(result.isPresent()) {
+            dailyReportRepository.deleteById(id);
+        }
+        return result;
     }
 }
