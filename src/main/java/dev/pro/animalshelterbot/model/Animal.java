@@ -54,12 +54,12 @@ public class Animal {
     /**
      * Size of the animal photo file in bytes
      */
-    private long fileSize;
+    private Long fileSize;
 
     /**
      * Animal photo file thumbnail
      */
-    private byte[] avatarPicture;
+    private byte[] avatarPreview;
 
     private String mediaType;
 
@@ -92,7 +92,7 @@ public class Animal {
         this.features = null;
         this.filePath = null;
         this.fileSize = 0L;
-        this.avatarPicture = null;
+        this.avatarPreview = null;
         this.adoptionDate = null;
         this.mediaType = null;
     }
@@ -110,7 +110,7 @@ public class Animal {
         this.features = features;
         this.filePath = filePath;
         this.fileSize = fileSize;
-        this.avatarPicture = avatarPicture;
+        this.avatarPreview = avatarPicture;
         this.adoptionDate = adoptionDate;
         this.mediaType = mediaType;
     }
@@ -179,12 +179,12 @@ public class Animal {
         this.fileSize = fileSize;
     }
 
-    public byte[] getAvatarPicture() {
-        return avatarPicture;
+    public byte[] getAvatarPreview() {
+        return avatarPreview;
     }
 
-    public void setAvatarPicture(byte[] avatarPicture) {
-        this.avatarPicture = avatarPicture;
+    public void setAvatarPreview(byte[] avatarPicture) {
+        this.avatarPreview = avatarPicture;
     }
 
     public String getMediaType() {
@@ -226,13 +226,13 @@ public class Animal {
         Animal animal = (Animal) o;
         return Objects.equals(id, animal.id) && Objects.equals(name, animal.name) && Objects.equals(kind, animal.kind) && Objects.equals(breed, animal.breed) && Objects.equals(color, animal.color) && Objects.equals(features, animal.features)
                 && Objects.equals(fileSize, animal.fileSize) && Objects.equals(filePath, animal.filePath)
-                && Objects.equals(mediaType, animal.mediaType) && Arrays.equals(avatarPicture, animal.avatarPicture);
+                && Objects.equals(mediaType, animal.mediaType) && Arrays.equals(avatarPreview, animal.avatarPreview);
     }
 
     @Override
     public int hashCode() {
         int result = Objects.hash(id, name, kind, breed, color, features, filePath, fileSize, mediaType);
-        result = 31 * result + Arrays.hashCode(avatarPicture);
+        result = 31 * result + Arrays.hashCode(avatarPreview);
         return result;
     }
 

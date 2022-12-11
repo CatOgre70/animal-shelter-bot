@@ -1,13 +1,10 @@
 package dev.pro.animalshelterbot.repository;
 
 import dev.pro.animalshelterbot.model.Animal;
-import dev.pro.animalshelterbot.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
-
-import java.util.Collection;
-import java.util.Optional;
+import java.util.List;
 
 /**
  * AnimalRepository is the interface for storing Animal Shelter animals information
@@ -17,20 +14,9 @@ import java.util.Optional;
 @Repository
 public interface AnimalRepository extends JpaRepository<Animal, Long> {
 
-    Optional <Animal> findById(Long id);
-
-    @Query(value = "SELECT (name) FROM animals", nativeQuery = true)
-    Collection <Animal> getName(String name);
-
-    @Query(value = "SELECT (kind) FROM animals", nativeQuery = true)
-    Collection <Animal> getKind(String kind);
-
-    @Query(value = "SELECT (breed) FROM animals", nativeQuery = true)
-    Collection <Animal> getBreed(String breed);
-
     @Query(value = "SELECT * FROM animals WHERE (animals.name ILIKE CONCAT('%',:nameSub,'%') " +
             "AND animals.kind ILIKE CONCAT('%',:kindSub,'%') " +
             "AND animals.breed ILIKE CONCAT('%',:breedSub,'%') " +
             "AND animals.color ILIKE CONCAT('%',:colorSub,'%'))", nativeQuery = true)
-    Collection<Animal> getAnimalsBySubstrings(String nameSub, String kindSub, String breedSub, String colorSub);
+    List<Animal> getAnimalsBySubstrings(String nameSub, String kindSub, String breedSub, String colorSub);
 }
