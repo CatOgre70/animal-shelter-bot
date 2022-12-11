@@ -27,7 +27,7 @@ CREATE TABLE animals(
     features text,
     file_path text,
     file_size bigint,
-    avatar_picture bytea,
+    avatar_preview bytea,
     owner_id bigint references users (id),
     adoption_date timestamp
 );
@@ -46,3 +46,24 @@ CREATE TABLE daily_reports(
 
 -- changeset vasilydemin:3
 ALTER TABLE animals ADD COLUMN media_type text;
+
+-- changeset vasilydemin:4
+INSERT INTO users (first_name, second_name, nick_name)
+VALUES ('Vasily', 'Demin', 'CatOgre'),
+       ('Alexander', 'Petrov', 'Sashka'),
+       ('Sergey', 'Pushkin', 'Pushok'),
+       ('Ivan', 'Tolstoi', 'Tolstyi'),
+       ('Petr', 'Ivanov', 'Ivan');
+INSERT INTO animals ("name", kind, breed, color, features)
+VALUES ('Matroskin', 'Cat', 'Maine Coon', 'Gray', 'Professional killer'),
+       ('Sharik', 'Dog', 'Cur', 'Brown', 'loves rotten herring from the dump, but is weak in the stomach, so never give it!'),
+       ('Burenka', 'Cow', 'Yaroslavl', 'Brown with white', 'Must be milked twice a day'),
+       ('Bobik', 'Dog', 'Cur', 'Black', 'Runs away sometimes'),
+       ('Musia', 'Cat', 'Siberian', 'Black with white tie', 'Do not let to Matroskin!');
+
+-- changeset vasilydemin:5
+UPDATE users SET chat_id = 334390754 WHERE first_name = 'Vasily' AND second_name = 'Demin';
+
+-- changeset vasilydemin:6
+INSERT INTO chat_config (chat_id, chat_state)
+VALUES (334390754, 0);
