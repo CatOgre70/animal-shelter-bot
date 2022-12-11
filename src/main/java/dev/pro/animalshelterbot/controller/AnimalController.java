@@ -1,28 +1,24 @@
 package dev.pro.animalshelterbot.controller;
 
+import dev.pro.animalshelterbot.exception.AnimalNotFoundException;
 import dev.pro.animalshelterbot.model.Animal;
 import dev.pro.animalshelterbot.service.AnimalService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.info.Contact;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -34,6 +30,8 @@ public class AnimalController {
     public AnimalController (AnimalService animalService) {
         this.animalService = animalService;
     }
+
+    private final Logger logger = LoggerFactory.getLogger(AnimalController.class);
 
 
     @Operation (
@@ -54,11 +52,7 @@ public class AnimalController {
     @GetMapping("/{id}")
     ResponseEntity<Animal> getAnimalById(@Parameter(description = "animal id", example = "123")@PathVariable Long id) {
         Optional<Animal> animal = animalService.getAnimalById(id);
-        if(animal.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        } else {
-            return ResponseEntity.ok(animal.get());
-        }
+        return animal.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @Operation (
@@ -153,13 +147,12 @@ public class AnimalController {
     )
 
     @DeleteMapping("/{id}")
-    public ResponseEntity deleteAnimal(@PathVariable Long id) {
+    public void deleteAnimal(@PathVariable Long id) {
         animalService.deleteAnimal(id);
-        return ResponseEntity.ok().build();
     }
 
     @Operation (
-            summary = "animal avatar creation",
+            summary = "animal avatar uploading",
             responses = {
                     @ApiResponse(
                             responseCode = "200",
@@ -173,14 +166,19 @@ public class AnimalController {
             },
             tags = "Animals"
     )
-    @PostMapping(value = "/avatar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/{id}/avatar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity <String> uploadAvatar(@PathVariable Long id,
-                                                @RequestParam MultipartFile avatar) throws IOException {
+                                                @RequestParam MultipartFile avatar) {
         if (avatar.getSize() > 1024 * 300) {
             return ResponseEntity.badRequest().body("File is too big");
         }
-        animalService.uploadAvatar(id, avatar);
-        return ResponseEntity.ok().build();
+        try {
+            animalService.uploadAvatar(id, avatar);
+            return ResponseEntity.ok().build();
+        } catch (IOException e) {
+            logger.error(Arrays.toString(e.getStackTrace()));
+            return ResponseEntity.notFound().build();
+        }
     }
     @Operation (
             summary = "get animal avatar",
@@ -197,15 +195,18 @@ public class AnimalController {
             },
             tags = "Animals"
     )
+
+
     @GetMapping(value = "/{id}/avatar/preview")
     public ResponseEntity <byte[]> downloadAvatar(@PathVariable Long id) {
 
-        Animal animal = animalService.findAvatar(id);
+        Animal animal = animalService.getAnimalById(id).orElseThrow(
+                () -> new AnimalNotFoundException("Animal with such id was not found in the database"));
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.parseMediaType(animal.getMediaType()));
-        headers.setContentLength(animal.getAvatarPicture().length);
+        headers.setContentLength(animal.getAvatarPreview().length);
 
-        return ResponseEntity.status(HttpStatus.OK).headers(headers).body(animal.getAvatarPicture());
+        return ResponseEntity.status(HttpStatus.OK).headers(headers).body(animal.getAvatarPreview());
     }
 }
