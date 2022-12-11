@@ -1,20 +1,23 @@
 package dev.pro.animalshelterbot.service;
+import dev.pro.animalshelterbot.exception.AnimalNotFoundException;
 import dev.pro.animalshelterbot.model.Animal;
 import dev.pro.animalshelterbot.repository.AnimalRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Example;
-import org.springframework.data.domain.ExampleMatcher;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.imageio.ImageIO;
+import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 import static java.nio.file.StandardOpenOption.CREATE_NEW;
@@ -22,7 +25,7 @@ import static java.nio.file.StandardOpenOption.CREATE_NEW;
 @Service
 public class AnimalService {
 
-    @Value("/avatars")
+    @Value("avatars")
     private String avatarsDir;
 
     private final AnimalRepository animalRepository;
@@ -44,33 +47,22 @@ public class AnimalService {
      * @return the animal stored in the database
      */
     public Animal addAnimal(Animal animal) {
-        logger.info("Metod \"UserService.addAnimal()\" was called");
+        logger.info("Method \"UserService.addAnimal()\" was called");
         return animalRepository.save(animal);
     }
-    /**
-     * find for an animal by ID in the database
-     * the repository method is used {@link JpaRepository#findById(Object)}
-     * event recording process
-     * @param id animal, must not be null
-     * @return found animal
-     */
 
-    public Animal findAnimal(long id) {
-        logger.info("Metod \"UserService.findAnimal()\" was called");
-        return animalRepository.findById(id).orElse(null);
-    }
     /**
      * edit for an animal by ID in the database
      * the repository method is used {@link JpaRepository#findById(Object)}
      * event recording process
      * fetching data from the database and modifying it
-     * @param animal
-     * @return making changes to the database
+     * @param animal Animal class object to be the source of data for saving in the database
+     * @return Animal class object with result of saving changes in the database
      */
     public Animal editAnimal(Animal animal) {
-        logger.info("Metod \"AnimalService.editAnimal()\" was called");
+        logger.info("Method \"AnimalService.editAnimal()\" was called");
         Optional<Animal> optional = animalRepository.findById(animal.getId());
-        if(!optional.isPresent()) {
+        if(optional.isEmpty()) {
             return null;
         }
         else {
@@ -82,6 +74,7 @@ public class AnimalService {
             return animalRepository.save(fromDb);
         }
     }
+
     /**
      * delete for an animal by ID in the database
      * the repository method is used {@link JpaRepository#deleteById(Object)}
@@ -89,88 +82,110 @@ public class AnimalService {
      * @param id, must not be null
      */
     public void deleteAnimal(long id) {
-        logger.info("Metod \"UserService.deleteAnimal()\" was called");
+        logger.info("Method \"UserService.deleteAnimal()\" was called");
         animalRepository.deleteById(id);
     }
+
     /**
-     * find for an animal by name in the database
-     * the repository method is used {@link JpaRepository#(Object)}
-     * event recording process
-     * @param name animal, must not be null
-     * @return found animal
+     * Find animals by substrings in their name, kind, breed, color
+     * @param name - substring of Animal name we are looking for
+     * @param kind - substring of Animal kind we are looking for
+     * @param breed - substring of Animal breed we are looking for
+     * @param color - substring of Animal color we are looking for
+     * @return - List of Animals which name, kind, breed and color contain selected substrings
      */
-    public Collection <Animal> getName(String name) {
-        logger.info("Metod \"UserService.getName()\" was called");
-        return animalRepository.getName(name);
+    public List<Animal> getAnimalBySubstrings(String name, String kind, String breed, String color) {
+        return animalRepository.getAnimalsBySubstrings(name, kind, breed, color);
     }
+
     /**
-     * find for an animal by ID in the database
-     * the repository method is used {@link JpaRepository#(Object)}
-     * event recording process
-     * @param kind animal, must not be null
-     * @return found animal
+     * Find an animal by id
+     * @param id - Animal id
+     * @return Animal found by id
      */
-    public Collection <Animal> getKind(String kind) {
-        logger.info("Metod \"UserService.getKind()\" was called");
-        return animalRepository.getKind(kind);
+    public Optional<Animal> getAnimalById(Long id) {
+        return animalRepository.findById(id);
     }
+
     /**
-     * find for an animal by ID in the database
-     * the repository method is used {@link JpaRepository#(Object)}
-     * event recording process
-     * @param breed animal, must not be null
-     * @return found animal
-     */
-    public Collection <Animal> getBreed(String breed) {
-        logger.info("Metod \"UserService.getBreed()\" was called");
-        return animalRepository.getBreed(breed);
-    }
-    /**
-     * find for an animalin the database
+     * Find for an animal in the database
      * the repository method is used {@link JpaRepository#(Object)()}
      * event recording process
      * @return found animal
      */
-    public Collection <Animal> getAllAnimal() {
-        logger.info("Metod \"UserService.getAllAnimal()\" was called");
+    public Collection <Animal> getAllAnimals() {
+        logger.info("Method \"UserService.getAllAnimal()\" was called");
         return animalRepository.findAll();
     }
 
-    public Animal findAvatar(long id) {
-        return animalRepository.findById(id).orElseThrow();
-    }
+    /**
+     * Upload the avatar file/picture to the root application directory and 'avatars' subdirectory
+     * also prepare avatar preview and put it into the database
+     * @param id - Animal id
+     * @param file - file with avatar picture
+     * @throws IOException well, shit happens sometime :)
+     */
     public void uploadAvatar(Long id, MultipartFile file) throws IOException {
-        Path filePath = Path.of(avatarsDir, id + "." + getExtension(file.getOriginalFilename()));
+        logger.info("Method \"AnimalService.uploadAvatar()\" was invoked");
+
+        Animal animal = animalRepository.findById(id).orElseThrow(
+                () -> new AnimalNotFoundException("There is no animal with such id in the database"));
+
+        Path filePath = Path.of(avatarsDir, id + "." + getExtensions(file.getOriginalFilename()));
         Files.createDirectories(filePath.getParent());
         Files.deleteIfExists(filePath);
         try (InputStream is = file.getInputStream();
              OutputStream os = Files.newOutputStream(filePath, CREATE_NEW);
              BufferedInputStream bis = new BufferedInputStream(is, 1024);
-             BufferedOutputStream bos = new BufferedOutputStream(os, 1024);
+             BufferedOutputStream bos = new BufferedOutputStream(os, 1024)
         ) {
             bis.transferTo(bos);
         }
-        Animal animal = animalRepository.findById(id).orElseGet(Animal::new);
         animal.setFilePath(filePath.toString());
         animal.setFileSize(file.getSize());
         animal.setMediaType(file.getContentType());
-        animal.setAvatarPicture(file.getBytes());
+        try {
+            animal.setAvatarPreview(generateImagePreview(filePath));
+        } catch(IOException e) {
+            logger.error(Arrays.toString(e.getStackTrace()));
+        }
         animalRepository.save(animal);
     }
-    private String getExtension(String fileName) {
+
+    /**
+     * Generate avatar preview for the database
+     * @param filePath - path to the avatar file
+     * @return image with smaller size as byte[]
+     * @throws IOException well, shit happens sometimes
+     */
+    private byte[] generateImagePreview(Path filePath) throws IOException {
+        logger.debug("Method \"AnimalService.generateImagePreview()\" was invoked with Path parameter: " + filePath);
+        try (InputStream is = Files.newInputStream(filePath);
+             BufferedInputStream bis = new BufferedInputStream(is, 1024);
+             ByteArrayOutputStream baos = new ByteArrayOutputStream()
+        ){
+            BufferedImage image = ImageIO.read(bis);
+
+            int height = image.getHeight() / (image.getWidth() / 100);
+            BufferedImage preview = new BufferedImage(100, height, image.getType());
+            Graphics2D graphics = preview.createGraphics();
+            graphics.drawImage(image, 0, 0, 100, height, null);
+            graphics.dispose();
+
+            ImageIO.write(preview, getExtensions(filePath.getFileName().toString()), baos);
+            return baos.toByteArray();
+        }
+    }
+
+    /**
+     * Get extension from fileName
+     * @param fileName - file name
+     * @return file extension
+     */
+    private String getExtensions(String fileName) {
+        logger.debug("Method \"AvatarService.getExtensions()\" was invoked with String parameter: " + fileName);
         return fileName.substring(fileName.lastIndexOf(".") + 1);
     }
 
-    public Collection<Animal> getAvatarPage(int page, int size) {
-        PageRequest pageRequest = PageRequest.of(page - 1, size);
-        return animalRepository.findAll(pageRequest).getContent();
-    }
 
-    public Collection<Animal> getAnimalBySubstrings(String name, String kind, String breed, String color) {
-        return animalRepository.getAnimalsBySubstrings(name, kind, breed, color);
-    }
-
-    public Optional<Animal> getAnimalById(Long id) {
-        return animalRepository.findById(id);
-    }
 }
