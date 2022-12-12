@@ -34,7 +34,9 @@ public class DailyReport {
     /**
      * Size of the animal photo file in bytes
      */
-    private int fileSize;
+    private Long fileSize;
+
+    private String mediaType;
 
     /**
      * Animal photo file thumbnail
@@ -69,7 +71,8 @@ public class DailyReport {
         this.id = 0L;
         this.dateTime = null;
         this.filePath = null;
-        this.fileSize = 0;
+        this.fileSize = 0L;
+        this.mediaType = null;
         this.smallPicture = null;
         this.diet = null;
         this.generalWellBeing = null;
@@ -79,11 +82,12 @@ public class DailyReport {
     /**
      * DailyReport class constructor for using in the AnimalShelterBotApplication
      */
-    public DailyReport(LocalDateTime dateTime, String filePath, int fileSize, byte[] smallPicture, String diet, String generalWellBeing, String changeInBehavior) {
+    public DailyReport(LocalDateTime dateTime, String filePath, Long fileSize, String mediaType, byte[] smallPicture, String diet, String generalWellBeing, String changeInBehavior) {
         this.id = 0L;
         this.dateTime = dateTime;
         this.filePath = filePath;
         this.fileSize = fileSize;
+        this.mediaType = mediaType;
         this.smallPicture = smallPicture;
         this.diet = diet;
         this.generalWellBeing = generalWellBeing;
@@ -114,12 +118,20 @@ public class DailyReport {
         this.filePath = filePath;
     }
 
-    public int getFileSize() {
+    public Long getFileSize() {
         return fileSize;
     }
 
-    public void setFileSize(int fileSize) {
+    public void setFileSize(Long fileSize) {
         this.fileSize = fileSize;
+    }
+
+    public String getMediaType() {
+        return mediaType;
+    }
+
+    public void setMediaType(String mediaType) {
+        this.mediaType = mediaType;
     }
 
     public byte[] getSmallPicture() {

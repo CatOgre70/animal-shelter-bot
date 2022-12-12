@@ -31,7 +31,7 @@ public class DailyReportControllerTest {
     @Test
     public void addDailyReportTest() {
         LocalDateTime dateTime = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES);
-        DailyReport dailyReport = new DailyReport(dateTime, null, 0, null,
+        DailyReport dailyReport = new DailyReport(dateTime, null, 0L, null, null,
                 "Жрал тухлую селедку с помойки", "Блевал, но выглядел счастливым",
                 "Пока не отучил его жрать то, что находит на помойке");
         URI uri = getURIBuilder().build().toUri();
@@ -44,7 +44,7 @@ public class DailyReportControllerTest {
     @Test
     public void getDailyReportInfoTest() {
         LocalDateTime dateTime = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES);
-        DailyReport dailyReport = new DailyReport(dateTime, null, 0, null,
+        DailyReport dailyReport = new DailyReport(dateTime, null, 0L, null, null,
                 "Жрал тухлую селедку с помойки", "Блевал, но выглядел счастливым",
                 "Пока не отучил его жрать то, что находит на помойке");
         URI uri = getURIBuilder().build().toUri();
@@ -66,7 +66,7 @@ public class DailyReportControllerTest {
     @Test
     public void editDailyReportTest() {
         LocalDateTime dateTime = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES);
-        DailyReport dailyReport = new DailyReport(dateTime, null, 0, null,
+        DailyReport dailyReport = new DailyReport(dateTime, null, 0L, null, null,
                 "Жрал тухлую селедку с помойки", "Блевал, но выглядел счастливым",
                 "Пока не отучил его жрать то, что находит на помойке");
         URI uri = getURIBuilder().build().toUri();
@@ -86,7 +86,7 @@ public class DailyReportControllerTest {
     @Test
     public void deleteDailyReportTest() {
         LocalDateTime dateTime = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES);
-        DailyReport dailyReport = new DailyReport(dateTime, null, 0, null,
+        DailyReport dailyReport = new DailyReport(dateTime, null, 0L, null, null,
                 "Жрал тухлую селедку с помойки", "Блевал, но выглядел счастливым",
                 "Пока не отучил его жрать то, что находит на помойке");
         URI uri = getURIBuilder().build().toUri();
