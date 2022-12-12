@@ -36,7 +36,7 @@ CREATE TABLE daily_reports(
     id bigserial primary key,
     date_time timestamp,
     file_path text,
-    file_size integer,
+    file_size bigint,
     small_picture bytea,
     diet text,
     general_well_being text,
@@ -67,3 +67,19 @@ UPDATE users SET chat_id = 334390754 WHERE first_name = 'Vasily' AND second_name
 -- changeset vasilydemin:6
 INSERT INTO chat_config (chat_id, chat_state)
 VALUES (334390754, 0);
+
+-- changeset vasilydemin:7
+ALTER TABLE daily_reports ADD COLUMN media_type text;
+
+-- changeset vasilydemin:8
+UPDATE animals SET owner_id = 1 WHERE name = 'Sharik';
+UPDATE animals SET adoption_date = timestamp '2022-12-09 9:00:00.000' WHERE name = 'Sharik';
+INSERT INTO daily_reports (date_time, diet, general_well_being, change_in_behavior, animal_id)
+VALUES (timestamp '2022-12-12 14:15:00.000', 'Оптяь жрал тухлую селедку на помойке', 'Потом блевал, но выглядел довольным',
+        'Надо приучить его не есть с помойки, а также не убегать от меня во время прогулки', 2),
+       (timestamp '2022-12-11 15:45:00.000', 'Жрал тухлую селедку на помойке', 'Потом блевал, но выглядел страшно довольным',
+        'Никак не приучу его не есть с помойки, а также не убегать от меня во время прогулки', 2),
+       (timestamp '2022-12-10 19:00:00.000', 'Ел корм, купленный в зоомагазине по рекомендациям лучших собаководов',
+        'Спал, гулял нормально, выглядит хорошо', 'Попробую отпусть его завтра с поводка', 2),
+       (timestamp '2022-12-09 12:00:00.000', 'Ничего не ел, только пил, по-видимому привыкает к новому месту',
+        'Спал плохо, почти не отходил от моей кровати', 'Завтра пойдем гулять во двор', 2);
