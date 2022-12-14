@@ -28,6 +28,8 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 
+import static dev.pro.animalshelterbot.constants.BotStatus.KEEPING_a_PET;
+
 /**
  * The main service of the bot containing the logic of processing incoming updates
  */
@@ -337,19 +339,24 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
     }
 
     private void keepingPet(Update update) {
-        KeyboardFactory.stageThree();
+        String message = Constants.KEEPING_a_PET;
+        sendMessageWithKeyboard(update, message, KeyboardFactory.stageThree());
     }
 
     private void consultPotentialOwner(Update update) {
-        KeyboardFactory.stageTwo();
+        String message = Constants.CONSULT_POTENTIAL_OWNER;
+        sendMessageWithKeyboard(update, message, KeyboardFactory.stageTwo());
     }
 
     private void consultNewUser(Update update) {
-        KeyboardFactory.stageOne();
+        String message = " Здесь некоторая информация о нашем приюте.";
+        sendMessageWithKeyboard(update, message, KeyboardFactory.stageOne());
+
     }
 
     private void startButtons(Update update) {
-        KeyboardFactory.startButtons();
+        String message = "Привет, " + update.message().chat().firstName() + "!" + Constants.CHOOSE_OPTION;
+        sendMessageWithKeyboard(update, message, KeyboardFactory.startButtons());
     }
 
     private void sendMessage(Long chatId, String message) {
