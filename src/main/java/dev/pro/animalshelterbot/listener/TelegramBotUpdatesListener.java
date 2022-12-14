@@ -344,8 +344,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
     }
 
     private void keepingPet(Update update) {
-        String message = Constants.KEEPING_a_PET;
-        sendMessageWithKeyboard(update, message, KeyboardFactory.stageThree());
+        KeyboardFactory.stageThree();
     }
 
     private void consultPotentialOwner(Update update) {
