@@ -14,6 +14,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ChatConfigRepository extends JpaRepository<ChatConfig, Long> {
 
-    Long findByChatId(Long chatId);
+    ChatConfig findByChatId(Long chatId);
 
 }
