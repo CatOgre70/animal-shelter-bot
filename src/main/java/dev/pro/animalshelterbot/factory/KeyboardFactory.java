@@ -13,7 +13,7 @@ import java.util.Collection;
 public class KeyboardFactory {
     public static InlineKeyboardMarkup startButtons() {
         InlineKeyboardMarkup inlineKeyboard = new InlineKeyboardMarkup(
-                new InlineKeyboardButton("Узнать информацию о приюте").callbackData(Constants.CONSULT_NEW_USER),
+                new InlineKeyboardButton("Узнать информацию о приюте").callbackData(Constants.CHOOSE_OPTION),
                 new InlineKeyboardButton("Как взять собаку из приюта").callbackData(Constants.CONSULT_POTENTIAL_OWNER),
                 new InlineKeyboardButton("Прислать отчёт о питомце").callbackData(Constants.DAILY_REPORT),
                 new InlineKeyboardButton("Позвать волонтера").callbackData("/volunteer"),
