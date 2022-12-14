@@ -41,6 +41,8 @@ import static dev.pro.animalshelterbot.constants.BotStatus.KEEPING_a_PET;
 
 import static dev.pro.animalshelterbot.constants.BotStatus.KEEPING_a_PET;
 
+import static dev.pro.animalshelterbot.constants.BotStatus.KEEPING_a_PET;
+
 /**
  * The main service of the bot containing the logic of processing incoming updates
  */
