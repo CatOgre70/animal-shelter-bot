@@ -90,7 +90,6 @@ public class UserService {
         logger.info("Metod \"UserService.getAllUser()\" was called");
         return userRepository.findAll();
     }
-
     /**
      * find for an user  in the database
      * the repository method is used {@link  JpaRepository}

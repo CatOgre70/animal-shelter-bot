@@ -11,7 +11,6 @@ import dev.pro.animalshelterbot.constants.BotStatus;
 import dev.pro.animalshelterbot.constants.Commands;
 import dev.pro.animalshelterbot.constants.Constants;
 import dev.pro.animalshelterbot.factory.KeyboardFactory;
-import dev.pro.animalshelterbot.constants.Constants;
 import dev.pro.animalshelterbot.model.ChatConfig;
 import dev.pro.animalshelterbot.model.User;
 import dev.pro.animalshelterbot.service.ChatConfigService;
@@ -22,8 +21,6 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import java.util.List;
-
-import static dev.pro.animalshelterbot.constants.BotStatus.KEEPING_a_PET;
 
 /**
  * The main service of the bot containing the logic of processing incoming updates
@@ -62,46 +59,119 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
 
             checkingUpdate(update);
             checkStartMessage(update);
-            statusDeterminant(update.message().chat().id(), update);
+            scanUpdates(update);
+            statusDeterminant(update);
+            sendReplies(update);
+
 
         });
         return UpdatesListener.CONFIRMED_UPDATES_ALL;
     }
 
+    private void scanUpdates(Update update) {
+    }
+
+
+    private void sendReplies(Update update) {
+        String message = "";
+        Commands commands = null;  // Опасно, т.к. может вызвать NPE
+        switch (commands) {
+            case CONSULT_NEW_USER:
+                consultNewUser(update);
+                break;
+            case CONSULT_POTENTIAL_OWNER:
+                consultPotentialOwner(update);
+                break;
+            case DAILY_REPORT:
+                keepingPet(update);
+                break;
+            case ABOUT:
+                message = Constants.ABOUT;
+                break;
+            case SCHEDULE:
+                message = Constants.SCHEDULE;
+                break;
+            case ADDRESS:
+                message = Constants.ADDRESS;
+                break;
+            case PRECAUTIONS:
+                message = Constants.PRECAUTIONS;
+                break;
+            case DATING_RULES:
+                message = Constants.DATING_RULES;
+                break;
+            case DOCS_LIST:
+                message = Constants.DOCS_LIST;
+                break;
+            case TRANSPORTATION:
+                message = Constants.TRANSPORTATION;
+                break;
+            case PUPPY_IMPROVEMENT:
+                message = Constants.PUPPY_IMPROVEMENT;
+                break;
+            case ADULT_IMPROVEMENT:
+                message = Constants.ADULT_IMPROVEMENT;
+                break;
+            case DISABILITIES_IMPROVEMENTS:
+                message = Constants.DISABILITIES_IMPROVEMENTS;
+                break;
+            case DOG_HANDLERS_TIPS:
+                message = Constants.DOG_HANDLERS_TIPS;
+                break;
+            case PROVEN_DOG_HANDLERS:
+                message = Constants.PROVEN_DOG_HANDLERS;
+                break;
+            case REASONS_FOR_REFUSAL:
+                message = Constants.REASONS_FOR_REFUSAL;
+        }
+        sendMessage(update, message);
+    }
+
+    private void statusDeterminant(Update update) {
+        Long chatId = update.message().chat().id();
+        Long botStatus = chatConfigService.findByChatId(chatId);
+        String message = Constants.CHOOSE_OPTION;
+        BotStatus bStatus = getBotStatusByLong(botStatus);
+        switch (bStatus) {
+            case DEFAULT:
+                startButtons(update);
+                break;
+            case CONSULT_NEW_USER:
+                consultNewUser(update);
+                break;
+            case CONSULT_POTENTIAL_OWNER:
+                consultPotentialOwner(update);
+                break;
+            case KEEPING_a_PET:
+                keepingPet(update);
+                break;
+            case CHAT_WITH_VOLUNTEER:
+                message = Constants.CALL_VOLUNTEER;
+                break;
+            default:
+                Exception exception;
+        }
+
+    }
 
     private void checkStartMessage(Update update) {
-        String message = Constants.REQUEST_START;
         Long chatId = update.message().chat().id();
         String incomingMessage = update.message().text();
-
         if (!userService.checkByChatId(chatId)) {
-            if (findCommandByString(incomingMessage) == Commands.START) {
-//                message = new SendMessage(chatId, Constants.REQUEST_START);
+            if (incomingMessage.equalsIgnoreCase(Commands.START.getS())) {
                 userService.addUser(new User(update.message().chat().firstName(), update.message().chat().lastName(), update.message().chat().username(), null, null, update.message().chat().id()));
+                //Здесь беда в том, что ChatConfig создаётся в базе со значением по умолчанию (0L), вместо приходящего chatId
                 chatConfigService.addChatConfig(new ChatConfig(chatId, 0L));
-                SendMessage sendMessage = new SendMessage(chatId, Constants.START_DESCRIPTION);
+                //Или тупо стрингом прописать? Взлетит ли String без chatId?
+                SendMessage sendMessage = new SendMessage(chatId, Constants.START_DESCRIPTION + Constants.CHOOSE_OPTION);
+                sendMessageWithKeyboard(update, sendMessage.toString(), KeyboardFactory.startButtons());
+            }   SendMessage sendMessage = new SendMessage(chatId, "Вы ошиблись с вводом команды. " + Constants.REQUEST_START);
                 SendResponse sendResponse = telegramBot.execute(sendMessage);
- // это кинуть в отдельный метод, т.к. в этом не вызывается или порешать с ошибкой
-                // SendMessage keys = new SendMessage(update.message().chat().id(), Constants.CHOOSE_OPTION);
- //               keys.replyMarkup(KeyboardFactory.startButtons());
- //               SendResponse response1 = telegramBot.execute(keys);
-            } else if (!incomingMessage.equalsIgnoreCase("/start")) {
-                SendMessage sendMessage = new SendMessage(chatId, "Вы ошиблись с вводом команды. " + Constants.REQUEST_START);
-                SendResponse sendResponse = telegramBot.execute(sendMessage);
-            }
-        } else statusDeterminant(chatId, update);
+
+        } else statusDeterminant(update);
     }
 
-    private Commands findCommandByString(String incomingMessage) {
-        for (Commands c : Commands.values()) {
-            if(c.equals(incomingMessage)) {
-                return c;
-            }
-        }
-        return Commands.HELP;
-    }
-
-    private void checkingUpdate(Update update) {
+    private String checkingUpdate(Update update) {
         if (update.message() != null) {
             String incomingMessage = update.message().text();
             Long chatId = update.message().chat().id();
@@ -123,36 +193,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
             SendResponse response = telegramBot.execute(message);
 
         }
-
-    }
-
-    private SendResponse statusDeterminant(Long chatId, Update update) {
-        Long botStatus = chatConfigService.findByChatId(chatId);
-        SendMessage message = new SendMessage(chatId, Constants.CHOOSE_OPTION);
-        SendResponse response = telegramBot.execute(message);
-        BotStatus bStatus = getBotStatusByLong(botStatus);
-        switch (bStatus) {
-            case DEFAULT:
-                startButtons(update);
-                break;
-            case CONSULT_NEW_USER:
-                consultNewUser(update);
-                break;
-            case CONSULT_POTENTIAL_OWNER:
-                consultPotentialOwner(update);
-                break;
-            case KEEPING_a_PET:
-                keepingPet(update);
-                break;
-            // Не реализовано
-            case CHAT_WITH_VOLUNTEER://либо создать метод
-                message = new SendMessage(chatId, Constants.CALL_VOLUNTEER);
-                response = telegramBot.execute(message);
-                break;
-            default:
-                Exception exception; // не знаю нужно ли цеплять
-        }
-        return response;
+        return Constants.REQUEST_START;
     }
 
     private BotStatus getBotStatusByLong(Long botStatus) {
@@ -164,19 +205,24 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
     }
 
     private void keepingPet(Update update) {
-        KeyboardFactory.stageThree();
+        String message = Constants.KEEPING_a_PET;
+        sendMessageWithKeyboard(update, message, KeyboardFactory.stageThree());
     }
 
     private void consultPotentialOwner(Update update) {
-        KeyboardFactory.stageTwo();
+        String message = Constants.CONSULT_POTENTIAL_OWNER;
+        sendMessageWithKeyboard(update, message, KeyboardFactory.stageTwo());
     }
 
     private void consultNewUser(Update update) {
-        KeyboardFactory.stageOne();
+        String message = " Здесь некоторая информация о нашем приюте.";
+        sendMessageWithKeyboard(update, message, KeyboardFactory.stageOne());
+
     }
 
     private void startButtons(Update update) {
-        KeyboardFactory.startButtons();
+        String message = "Привет, " + update.message().chat().firstName() + "!" + Constants.CHOOSE_OPTION;
+        sendMessageWithKeyboard(update, message, KeyboardFactory.startButtons());
     }
 
     private void sendMessage(Update update, String message) {
