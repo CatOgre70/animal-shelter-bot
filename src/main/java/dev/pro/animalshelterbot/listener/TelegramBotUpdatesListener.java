@@ -39,6 +39,8 @@ import java.util.Optional;
 
 import static dev.pro.animalshelterbot.constants.BotStatus.KEEPING_a_PET;
 
+import static dev.pro.animalshelterbot.constants.BotStatus.KEEPING_a_PET;
+
 /**
  * The main service of the bot containing the logic of processing incoming updates
  */
@@ -799,7 +801,8 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
      * @param update
      */
     private void keepingPet(Update update) {
-        KeyboardFactory.stageThree();
+        String message = Constants.KEEPING_a_PET;
+        sendMessageWithKeyboard(update, message, KeyboardFactory.stageThree());
     }
 
     /**
@@ -807,7 +810,8 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
      * @param update
      */
     private void consultPotentialOwner(Update update) {
-        KeyboardFactory.stageTwo();
+        String message = Constants.CONSULT_POTENTIAL_OWNER;
+        sendMessageWithKeyboard(update, message, KeyboardFactory.stageTwo());
     }
 
     /**
@@ -815,7 +819,9 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
      * @param update
      */
     private void consultNewUser(Update update) {
-        KeyboardFactory.stageOne();
+        String message = " Здесь некоторая информация о нашем приюте.";
+        sendMessageWithKeyboard(update, message, KeyboardFactory.stageOne());
+
     }
 
     /**
@@ -823,7 +829,8 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
      * @param update
      */
     private void startButtons(Update update) {
-        KeyboardFactory.startButtons();
+        String message = "Привет, " + update.message().chat().firstName() + "!" + Constants.CHOOSE_OPTION;
+        sendMessageWithKeyboard(update, message, KeyboardFactory.startButtons());
     }
 
     /**
