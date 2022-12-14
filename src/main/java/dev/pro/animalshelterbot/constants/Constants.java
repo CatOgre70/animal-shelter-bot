@@ -15,14 +15,14 @@ public interface Constants {
             "всей необходимой информации людям, желающим принять наших милых обитателей в любящую и счастливую семью.";
     String CHOOSE_OPTION = "Выберите необходимый пункт меню.";
     String GREETINGS = "Приветствуем Вас в нашем приюте!";
-    String CONSULT_NEW_USER = "Узнать информацию о приюте";
+    String CONSULT_NEW_USER = String.valueOf(Commands.consultNewUser.values());
     String ABOUT = "";
     String SCHEDULE = "";
     String ADDRESS = "";
     String PRECAUTIONS = "";
     String LEAVE_CONTACTS = "";
     String CALL_VOLUNTEER = "";
-    String CONSULT_POTENTIAL_OWNER = "Как взять собаку из приюта";
+    String CONSULT_POTENTIAL_OWNER = String.valueOf(Commands.consultPotentialOwner.values());
     String DATING_RULES = "";
     String DOCS_LIST = "";
     String TRANSPORTATION = "";
@@ -32,7 +32,7 @@ public interface Constants {
     String DOG_HANDLERS_TIPS = "";
     String PROVEN_DOG_HANDLERS = "";
     String REASONS_FOR_REFUSAL = "";
-    String KEEPING_a_PET = "";
+    String KEEPING_a_PET = String.valueOf(Commands.KEEPING_a_PET.values());
     String DAILY_REPORT = ""; // NOT String?
     String REQUEST_TEXT = "";
     String REQUEST_PHOTO = "";

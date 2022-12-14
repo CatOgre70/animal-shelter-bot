@@ -2,10 +2,6 @@ package dev.pro.animalshelterbot.constants;
 
 // Дозаполнить descriptions для команд 2го этапа
 // Прописать команды 3го этапа и продумать их реализацию. Или наоборот, сначала продумать, потом прописать..
-
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * Class containing all commands available to the user, depending on the stage of the user's path
  * Used in @see TelegramBotUpdatesListener
