@@ -27,19 +27,18 @@ public class ChatConfigService {
 
     public ChatConfig editChatConfig(ChatConfig chatConfig) {
         logger.info("Method \"ChatConfigService.editChatConfig()\" was called");
-        Long botStatus = chatConfigRepository.findByChatId(chatConfig.getChatState());
-        Optional<ChatConfig> optional = chatConfigRepository.findById(chatConfig.getChatId());
-        if(!optional.isPresent()) {
+        Optional<ChatConfig> result = chatConfigRepository.findById(chatConfig.getChatId());
+        if(!result.isPresent()) {
             return null;
         }
         else {
-            ChatConfig fromDb = chatConfig;
+            ChatConfig fromDb = result.get();
             fromDb.setChatState(chatConfig.getChatState());
             return chatConfigRepository.save(fromDb);
         }
     }
 
-    public Long findByChatId(Long chatId) {
+    public ChatConfig findByChatId(Long chatId) {
         logger.info("Method \"ChatConfigService.findByChatId()\" was called");
         return chatConfigRepository.findByChatId(chatId);
     }

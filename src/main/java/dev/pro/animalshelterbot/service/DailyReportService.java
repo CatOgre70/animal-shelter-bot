@@ -25,7 +25,7 @@ import static java.nio.file.StandardOpenOption.CREATE_NEW;
 public class DailyReportService {
 
     @Value("dailyreportphotos")
-    private String avatarsDir;
+    private String photosDir;
 
     private final DailyReportRepository dailyReportRepository;
 
@@ -106,7 +106,7 @@ public class DailyReportService {
         DailyReport dailyReport = dailyReportRepository.findById(id).orElseThrow(
                 () -> new DailyReportNotFoundException("There is no animal with such id in the database"));
 
-        Path filePath = Path.of(avatarsDir, id + "." + getExtensions(photo.getOriginalFilename()));
+        Path filePath = Path.of(photosDir, id + "." + getExtensions(photo.getOriginalFilename()));
         Files.createDirectories(filePath.getParent());
         Files.deleteIfExists(filePath);
         try (InputStream is = photo.getInputStream();
@@ -158,7 +158,7 @@ public class DailyReportService {
      * @return file extension
      */
     private String getExtensions(String fileName) {
-        logger.debug("Method \"AvatarService.getExtensions()\" was invoked with String parameter: " + fileName);
+        logger.debug("Method \"DailyReportService.getExtensions()\" was invoked with String parameter: " + fileName);
         return fileName.substring(fileName.lastIndexOf(".") + 1);
     }
 
