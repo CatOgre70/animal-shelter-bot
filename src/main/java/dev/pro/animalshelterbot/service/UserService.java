@@ -90,6 +90,7 @@ public class UserService {
         logger.info("Metod \"UserService.getAllUser()\" was called");
         return userRepository.findAll();
     }
+
     /**
      * find for an user  in the database
      * the repository method is used {@link  JpaRepository}
@@ -101,11 +102,26 @@ public class UserService {
         return userRepository.existsByChatId(chatId);
     }
 
-    public User findByChatId(Long chatId) {
+    /**
+     * find user by chatId in database
+     * the repository method is used {@link  JpaRepository}
+     * event recording process
+     * return found User
+     */
+    public List<User> findByChatId(Long chatId) {
+        logger.info("Method \"findByChatId()\" was called");
         return userRepository.findByChatId(chatId);
     }
 
+    /**
+     *
+     * find user by three substrings in database
+     * the repository method is used {@link  JpaRepository}
+     * event recording process
+     * return found User
+     */
     public List<User> findByThreeSubstrings(String firstName, String secondName, String nickName) {
+        logger.info("Method \"findByThreeSubstrings()\" was called");
         return userRepository.findByThreeSubstrings(firstName, secondName, nickName);
     }
 }

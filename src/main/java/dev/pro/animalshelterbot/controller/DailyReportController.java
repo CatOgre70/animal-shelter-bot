@@ -1,8 +1,12 @@
 package dev.pro.animalshelterbot.controller;
 
+
+import dev.pro.animalshelterbot.model.Animal;
 import dev.pro.animalshelterbot.model.DailyReport;
+import dev.pro.animalshelterbot.model.User;
 import dev.pro.animalshelterbot.service.DailyReportService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -14,6 +18,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import java.util.Collection;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -46,7 +51,8 @@ public class DailyReportController {
             },
             tags = "DailyReport"
     )
-    @GetMapping("/{id}")
+
+    @GetMapping("{id}")
     public ResponseEntity<DailyReport> getDailyReportInfo(@PathVariable Long id) {
         DailyReport dailyReport = dailyReportService.findDailyReport(id);
         if (dailyReport == null) {
