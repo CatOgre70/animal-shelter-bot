@@ -40,9 +40,7 @@ import static dev.pro.animalshelterbot.constants.BotStatus.KEEPING_a_PET;
  */
 @Service
 public class TelegramBotUpdatesListener implements UpdatesListener {
-    /**
-     * event recording process
-     */
+
     private final Logger logger = LoggerFactory.getLogger(TelegramBotUpdatesListener.class);
 
     private final TelegramBot telegramBot;
