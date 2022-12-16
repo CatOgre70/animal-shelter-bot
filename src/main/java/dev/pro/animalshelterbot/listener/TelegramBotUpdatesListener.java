@@ -2,6 +2,7 @@ package dev.pro.animalshelterbot.listener;
 
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.UpdatesListener;
+import com.pengrad.telegrambot.model.PhotoSize;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.model.request.InlineKeyboardButton;
 import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
@@ -33,6 +34,7 @@ import static dev.pro.animalshelterbot.constants.BotStatus.KEEPING_a_PET;
 /**
  * The main service of the bot containing the logic of processing incoming updates
  */
+
 @Service
 public class TelegramBotUpdatesListener implements UpdatesListener {
     /**
@@ -105,13 +107,9 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                 chatState = chatConfig.getChatState();
             }
 
-            switch(chatState) {
-                case NEW_USER:
-                    sendMessage(chatId, Messages.WELCOME_TO_THE_CHATBOT.messageText);
-                    sendMessage(chatId, Messages.CHOOSE_SHELTER.messageText);
-                    sendMenu(chatId, "Приюты", Buttons.DOG_SHELTER, Buttons.CAT_SHELTER);
-                    chatConfig.setChatState(ChatState.AWAITING_SHELTER);
-                    chatConfigService.editChatConfig(chatConfig);
+            switch (updateType) {
+                case COMMAND:
+                    processCommands(update, botStatus);
                     break;
                 case AWAITING_SHELTER:
                     if(updateType == UpdateType.CALL_BACK_QUERY &&
