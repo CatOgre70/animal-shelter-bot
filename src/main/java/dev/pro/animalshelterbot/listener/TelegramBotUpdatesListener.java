@@ -147,6 +147,9 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
     }
 
 
+    /**
+     * commands that the user sends
+     */
     private void processCommands(Update update, BotStatus botStatus) {
         Long chatId = update.message().chat().id();
         Commands command = Commands.valueOfCommandText(update.message().text());
