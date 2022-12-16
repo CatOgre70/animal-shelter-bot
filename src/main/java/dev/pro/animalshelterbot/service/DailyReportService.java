@@ -41,8 +41,8 @@ public class DailyReportService {
      * saving the animal in the database
      * the repository method is used {@link JpaRepository#save(Object)}
      * event recording process
-     * @param dailyReport, must not be null
-     * @return the user stored in the database
+     * param dailyReport, must not be null
+     * return the user stored in the database
      */
     public DailyReport addDailyReport(DailyReport dailyReport) {
         logger.info("Method \"UserService.addDailyReport()\" was called");
@@ -53,8 +53,8 @@ public class DailyReportService {
      * find for an dailyReport by ID in the database
      * the repository method is used {@link JpaRepository#findById(Object)}
      * event recording process
-     * @param id user, must not be null
-     * @return found user
+     * param id user, must not be null
+     * return found user
      */
     public DailyReport findDailyReport(long id) {
         logger.info("Method \"UserService.findDailyReport()\" was called");
@@ -66,9 +66,8 @@ public class DailyReportService {
      * the repository method is used {@link JpaRepository#findById(Object)}
      * event recording process
      * fetching data from the database and modifying it
-     *
-     * @param dailyReport report with new data should be saved in the database
-     * @return DailyReport object saved in the database
+     * param dailyReport report with new data should be saved in the database
+     * return DailyReport object saved in the database
      */
     public Optional<DailyReport> editDailyReport(DailyReport dailyReport) {
         logger.info("Method \"DailyReportService.DailyReport()\" was called");
@@ -89,7 +88,7 @@ public class DailyReportService {
      * delete for an dailyReport by ID in the database
      * the repository method is used {@link JpaRepository#deleteById(Object)}
      * event recording process
-     * @param id, must not be null
+     * param id, must not be null
      */
     public Optional<DailyReport> deleteDailyReport(long id) {
         logger.info("Method \"UserService.deleteDailyReport()\" was called");
@@ -99,7 +98,13 @@ public class DailyReportService {
         }
         return result;
     }
-
+    /**
+     * upload photo by id
+     * event recording process
+     * the exception method is used
+     * setting the file size
+     * save photo in dailyReport
+     */
     public void uploadPhoto(Long id, MultipartFile photo) throws IOException {
         logger.info("Method \"AnimalService.uploadAvatar()\" was invoked");
 
@@ -129,9 +134,9 @@ public class DailyReportService {
 
     /**
      * Generate photo preview for the database
-     * @param filePath - path to the avatar file
-     * @return image with smaller size as byte[]
-     * @throws IOException well, shit happens sometimes
+     * param filePath - path to the avatar file
+     * return image with smaller size as byte[]
+     * throws IOException well, shit happens sometimes
      */
     private byte[] generateImagePreview(Path filePath) throws IOException {
         logger.debug("Method \"DailyReportService.generateImagePreview()\" was invoked with Path parameter: " + filePath);
@@ -154,8 +159,8 @@ public class DailyReportService {
 
     /**
      * Get extension from fileName
-     * @param fileName - file name
-     * @return file extension
+     * param fileName - file name
+     * return file extension
      */
     private String getExtensions(String fileName) {
         logger.debug("Method \"DailyReportService.getExtensions()\" was invoked with String parameter: " + fileName);
