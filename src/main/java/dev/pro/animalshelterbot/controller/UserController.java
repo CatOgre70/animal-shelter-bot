@@ -79,7 +79,7 @@ public class UserController {
         } else if (chatId == null){
             return ResponseEntity.notFound().build();
         } else {
-            return ResponseEntity.ok(userService.findByChatId(chatId));
+            return ResponseEntity.ok(List.of(userService.findByChatId(chatId)));
         }
     }
 

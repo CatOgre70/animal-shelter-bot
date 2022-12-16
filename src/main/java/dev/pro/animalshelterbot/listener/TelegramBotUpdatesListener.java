@@ -10,14 +10,18 @@ import com.pengrad.telegrambot.response.SendResponse;
 import dev.pro.animalshelterbot.factory.KeyboardFactory;
 import dev.pro.animalshelterbot.constants.*;
 import dev.pro.animalshelterbot.model.ChatConfig;
+import dev.pro.animalshelterbot.model.DailyReport;
 import dev.pro.animalshelterbot.model.User;
 import dev.pro.animalshelterbot.service.ChatConfigService;
+import dev.pro.animalshelterbot.service.DailyReportService;
 import dev.pro.animalshelterbot.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 /**
@@ -26,45 +30,64 @@ import java.util.List;
 
 @Service
 public class TelegramBotUpdatesListener implements UpdatesListener {
-
+/**
+ * event recording process
+ */
     private final Logger logger = LoggerFactory.getLogger(TelegramBotUpdatesListener.class);
 
     private final TelegramBot telegramBot;
 
     private final ChatConfigService chatConfigService;
 
+    private final DailyReportService dailyReportService;
+
     private final UserService userService;
 
-    public TelegramBotUpdatesListener(TelegramBot telegramBot, ChatConfigService chatConfigService, UserService userService) {
+    public TelegramBotUpdatesListener(TelegramBot telegramBot, ChatConfigService chatConfigService,
+                                      UserService userService, DailyReportService dailyReportService) {
         this.telegramBot = telegramBot;
         this.chatConfigService = chatConfigService;
         this.userService = userService;
+        this.dailyReportService = dailyReportService;
     }
+
 
     @PostConstruct
     public void init() {
         telegramBot.setUpdatesListener(this);
     }
 
-
+    /**
+     * defining bot actions depending on user status
+     */
     @Override
     public int process(List<Update> updates) {
         updates.forEach(update -> {
             // Process your updates here
             logger.info("Processing update: {}", update);
             Long chatId = 0L;
+            String firstName = null, lastName = null, nickName = null;
             BotStatus botStatus;
 
             UpdateType updateType = checkingUpdate(update);
             if(updateType == UpdateType.COMMAND || updateType == UpdateType.MESSAGE || updateType == UpdateType.PHOTO) {
                 chatId = update.message().chat().id();
+                firstName = update.message().from().firstName();
+                lastName = update.message().from().lastName();
+                nickName = update.message().from().username();
             } else if(updateType == UpdateType.CALL_BACK_QUERY) {
                 chatId = update.callbackQuery().from().id();
+                firstName = update.callbackQuery().from().firstName();
+                lastName = update.callbackQuery().from().lastName();
+                nickName = update.callbackQuery().from().username();
             }
 
             ChatConfig chatConfig = chatConfigService.findByChatId(chatId);
+            User user = userService.findByChatId(chatId);
 
-            if(chatConfig == null) { // New user
+            if(chatConfig == null && user == null) { // New user
+                user = new User(firstName, lastName, nickName, null, null, chatId);
+                userService.addUser(user);
                 chatConfig = new ChatConfig(chatId, BotStatus.DEFAULT.status);
                 chatConfigService.addChatConfig(chatConfig);
                 botStatus = BotStatus.NEW_USER;
@@ -77,7 +100,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                     processCommands(update, botStatus);
                     break;
                 case MESSAGE:
-//                    processMessages(update, botStatus);
+                    processMessages(update, botStatus);
                     break;
                 case PHOTO:
 //                    processPhotos(update, botStatus);
@@ -94,6 +117,30 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
 
         });
         return UpdatesListener.CONFIRMED_UPDATES_ALL;
+    }
+    /**
+     * commands that the user receives
+     */
+    private void processMessages(Update update, BotStatus botStatus) {
+        Long chatId = update.message().chat().id();
+        DailyReport currentDailyReport;
+        if(botStatus == BotStatus.AWAITING_GENERAL_WELL_BEING) {
+            currentDailyReport = dailyReportService.findDailyReportByChatId(chatId);
+            if(currentDailyReport == null) { // new daily report
+                LocalDateTime localDateTime = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES);
+                currentDailyReport = new DailyReport(localDateTime, null, null, null,
+                        null, null, update.message().text(), null);
+                dailyReportService.addDailyReport(currentDailyReport);
+                sendMessage(chatId, Messages.GENERAL_WELL_BEING_RECEIVED.messageText);
+                ChatConfig chatConfig = chatConfigService.findByChatId(chatId);
+                chatConfig.setChatState(BotStatus.KEEPING_a_PET.status);
+                chatConfigService.editChatConfig(chatConfig);
+            } else {
+
+            }
+        }
+
+
     }
 
 
@@ -142,7 +189,9 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
 //        } else statusDeterminant(chatId, update);
     }
 
-
+    /**
+     * user stage check
+     */
     private UpdateType checkingUpdate(Update update) {
         if (update.message() != null) {
             if(update.message().text() != null) {
@@ -179,6 +228,12 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
         }
     }
 
+    /**
+     * user menu
+     * param chatId must not be null
+     * param update must not be null
+     * return user response
+     */
     private SendResponse statusDeterminant(Long chatId, Update update) {
         Long botStatus = chatConfigService.findByChatId(chatId).getChatId();
         SendMessage message = new SendMessage(chatId, Constants.CHOOSE_OPTION);
