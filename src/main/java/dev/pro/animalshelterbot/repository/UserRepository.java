@@ -21,7 +21,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
             "AND users.nick_name ILIKE CONCAT('%',:nickNameSub,'%'))", nativeQuery = true)
     public List<User> findByThreeSubstrings(String firstNameSub, String secondNameSub, String nickNameSub);
 
-    List<User> findByChatId(Long chatId);
+    User findByChatId(Long chatId);
 
     boolean existsByChatId(Long chatId);
 }

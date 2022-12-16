@@ -1,7 +1,12 @@
 package dev.pro.animalshelterbot.service;
 
+import dev.pro.animalshelterbot.exception.AdoptedAnimalsNotFoundException;
 import dev.pro.animalshelterbot.exception.DailyReportNotFoundException;
+import dev.pro.animalshelterbot.exception.UserNotFoundException;
+import dev.pro.animalshelterbot.model.Animal;
+import dev.pro.animalshelterbot.model.ChatConfig;
 import dev.pro.animalshelterbot.model.DailyReport;
+import dev.pro.animalshelterbot.model.User;
 import dev.pro.animalshelterbot.repository.DailyReportRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,7 +21,11 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalUnit;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 import static java.nio.file.StandardOpenOption.CREATE_NEW;
@@ -29,8 +38,15 @@ public class DailyReportService {
 
     private final DailyReportRepository dailyReportRepository;
 
-    public DailyReportService(DailyReportRepository dailyReportRepository) {
+    private final ChatConfigService chatConfigService;
+
+    private final UserService userService;
+
+    public DailyReportService(DailyReportRepository dailyReportRepository, ChatConfigService chatConfigService,
+                                UserService userService) {
         this.dailyReportRepository = dailyReportRepository;
+        this.chatConfigService = chatConfigService;
+        this.userService = userService;
     }
     /**
      * event recording process
@@ -162,4 +178,24 @@ public class DailyReportService {
         return fileName.substring(fileName.lastIndexOf(".") + 1);
     }
 
+    public DailyReport findDailyReportByChatId(Long chatId) {
+        LocalDateTime localDateTime = LocalDateTime.now().truncatedTo(ChronoUnit.DAYS);
+        User user = userService.findByChatId(chatId);
+        Animal animal;
+        if(user == null) {
+            throw new UserNotFoundException("User with such chatId was not found in the database");
+        }
+        if(!user.getAdoptedAnimals().isEmpty()) {
+            // Well, it means, that each user can own only one adopted animal in current version
+            animal = user.getAdoptedAnimals().get(0);
+        } else {
+            throw new AdoptedAnimalsNotFoundException("User with such chatId has not any adopted animals");
+        }
+        List<DailyReport> dailyReports = animal.getReports();
+        for(DailyReport dr : dailyReports){
+            if(dr.getDateTime().truncatedTo(ChronoUnit.DAYS).isEqual(localDateTime))
+                return dr;
+        }
+        return null;
+    }
 }
