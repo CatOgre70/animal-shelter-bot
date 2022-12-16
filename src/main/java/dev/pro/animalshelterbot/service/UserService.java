@@ -52,8 +52,8 @@ public class UserService {
      * edit user in the database
      * the repository method is used {@link JpaRepository#findById(Object)}
      * fetching data from the database and modifying it
-     * param user
-     * return making changes to the database
+     * @param user
+     * @return making changes to the database
      */
     public User editUser(User user) {
         logger.info("Metod \"UserService.editUser()\" was called");
@@ -74,7 +74,7 @@ public class UserService {
      * delete user from the database
      * the repository method is used {@link JpaRepository#deleteById(Object)}
      * event recording process
-     * return id, must not be null
+     * @param id, must not be null
      */
     public void deleteUser(long id) {
         logger.info("Method \"UserService.deleteStudent()\" was called");
@@ -84,7 +84,7 @@ public class UserService {
      * find for an user  in the database
      * the repository method is used {@link JpaRepository#findAll}
      * event recording process
-     * return found user
+     * @return found user
      */
     public Collection<User> getAllUser() {
         logger.info("Metod \"UserService.getAllUser()\" was called");
@@ -95,7 +95,7 @@ public class UserService {
      * find for an user  in the database
      * the repository method is used {@link  JpaRepository}
      * event recording process
-     * return found NickName
+     * @return found NickName
      */
     public boolean checkByChatId(Long chatId) {
         logger.info("Method \"UserService.checkByChatId()\" was called");
@@ -108,8 +108,7 @@ public class UserService {
      * event recording process
      * return found User
      */
-    public List<User> findByChatId(Long chatId) {
-        logger.info("Method \"findByChatId()\" was called");
+    public User findByChatId(Long chatId) {
         return userRepository.findByChatId(chatId);
     }
 
