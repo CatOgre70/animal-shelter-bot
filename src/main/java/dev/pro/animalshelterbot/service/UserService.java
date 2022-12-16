@@ -102,7 +102,7 @@ public class UserService {
         return userRepository.existsByChatId(chatId);
     }
 
-    public List<User> findByChatId(Long chatId) {
+    public User findByChatId(Long chatId) {
         return userRepository.findByChatId(chatId);
     }
 
