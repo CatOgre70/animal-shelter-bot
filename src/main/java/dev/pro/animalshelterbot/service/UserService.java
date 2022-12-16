@@ -30,8 +30,8 @@ public class UserService {
      * saving the user in the database
      * the repository method is used {@link JpaRepository#save(Object)}
      * event recording process
-     * @param user, must not be null
-     * @return the user stored in the database
+     * param user, must not be null
+     * return the user stored in the database
      */
     public User addUser(User user) {
         logger.info("Metod \"UserService.addUser()\" was called");
@@ -41,8 +41,8 @@ public class UserService {
      * find for a user by ID in the database
      * the repository method is used {@link JpaRepository#findById(Object)}
      * event recording process
-     * @param id user, must not be null
-     * @return found user
+     * param id user, must not be null
+     * return found user
      */
     public User findUser(long id) {
         logger.info("Method \"UserService.findUser()\" was called");
@@ -52,8 +52,8 @@ public class UserService {
      * edit user in the database
      * the repository method is used {@link JpaRepository#findById(Object)}
      * fetching data from the database and modifying it
-     * @param user
-     * @return making changes to the database
+     * param user
+     * return making changes to the database
      */
     public User editUser(User user) {
         logger.info("Metod \"UserService.editUser()\" was called");
@@ -74,7 +74,7 @@ public class UserService {
      * delete user from the database
      * the repository method is used {@link JpaRepository#deleteById(Object)}
      * event recording process
-     * @param id, must not be null
+     * return id, must not be null
      */
     public void deleteUser(long id) {
         logger.info("Method \"UserService.deleteStudent()\" was called");
@@ -84,7 +84,7 @@ public class UserService {
      * find for an user  in the database
      * the repository method is used {@link JpaRepository#findAll}
      * event recording process
-     * @return found user
+     * return found user
      */
     public Collection<User> getAllUser() {
         logger.info("Metod \"UserService.getAllUser()\" was called");
@@ -95,18 +95,33 @@ public class UserService {
      * find for an user  in the database
      * the repository method is used {@link  JpaRepository}
      * event recording process
-     * @return found NickName
+     * return found NickName
      */
     public boolean checkByChatId(Long chatId) {
         logger.info("Method \"UserService.checkByChatId()\" was called");
         return userRepository.existsByChatId(chatId);
     }
 
+    /**
+     * find user by chatId in database
+     * the repository method is used {@link  JpaRepository}
+     * event recording process
+     * return found User
+     */
     public List<User> findByChatId(Long chatId) {
+        logger.info("Method \"findByChatId()\" was called");
         return userRepository.findByChatId(chatId);
     }
 
+    /**
+     *
+     * find user by three substrings in database
+     * the repository method is used {@link  JpaRepository}
+     * event recording process
+     * return found User
+     */
     public List<User> findByThreeSubstrings(String firstName, String secondName, String nickName) {
+        logger.info("Method \"findByThreeSubstrings()\" was called");
         return userRepository.findByThreeSubstrings(firstName, secondName, nickName);
     }
 }
