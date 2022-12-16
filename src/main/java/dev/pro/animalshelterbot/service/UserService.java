@@ -30,8 +30,8 @@ public class UserService {
      * saving the user in the database
      * the repository method is used {@link JpaRepository#save(Object)}
      * event recording process
-     * @param user, must not be null
-     * @return the user stored in the database
+     * param user, must not be null
+     * return the user stored in the database
      */
     public User addUser(User user) {
         logger.info("Metod \"UserService.addUser()\" was called");
@@ -41,8 +41,8 @@ public class UserService {
      * find for a user by ID in the database
      * the repository method is used {@link JpaRepository#findById(Object)}
      * event recording process
-     * @param id user, must not be null
-     * @return found user
+     * param id user, must not be null
+     * return found user
      */
     public User findUser(long id) {
         logger.info("Method \"UserService.findUser()\" was called");
@@ -102,11 +102,25 @@ public class UserService {
         return userRepository.existsByChatId(chatId);
     }
 
+    /**
+     * find user by chatId in database
+     * the repository method is used {@link  JpaRepository}
+     * event recording process
+     * return found User
+     */
     public User findByChatId(Long chatId) {
         return userRepository.findByChatId(chatId);
     }
 
+    /**
+     *
+     * find user by three substrings in database
+     * the repository method is used {@link  JpaRepository}
+     * event recording process
+     * return found User
+     */
     public List<User> findByThreeSubstrings(String firstName, String secondName, String nickName) {
+        logger.info("Method \"findByThreeSubstrings()\" was called");
         return userRepository.findByThreeSubstrings(firstName, secondName, nickName);
     }
 }

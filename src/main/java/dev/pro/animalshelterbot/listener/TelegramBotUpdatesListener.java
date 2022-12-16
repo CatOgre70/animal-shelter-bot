@@ -30,7 +30,9 @@ import java.util.List;
 
 @Service
 public class TelegramBotUpdatesListener implements UpdatesListener {
-
+/**
+ * event recording process
+ */
     private final Logger logger = LoggerFactory.getLogger(TelegramBotUpdatesListener.class);
 
     private final TelegramBot telegramBot;
@@ -49,12 +51,15 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
         this.dailyReportService = dailyReportService;
     }
 
+
     @PostConstruct
     public void init() {
         telegramBot.setUpdatesListener(this);
     }
 
-
+    /**
+     * defining bot actions depending on user status
+     */
     @Override
     public int process(List<Update> updates) {
         updates.forEach(update -> {
@@ -113,7 +118,9 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
         });
         return UpdatesListener.CONFIRMED_UPDATES_ALL;
     }
-
+    /**
+     * commands that the user receives
+     */
     private void processMessages(Update update, BotStatus botStatus) {
         Long chatId = update.message().chat().id();
         DailyReport currentDailyReport;
@@ -182,7 +189,9 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
 //        } else statusDeterminant(chatId, update);
     }
 
-
+    /**
+     * user stage check
+     */
     private UpdateType checkingUpdate(Update update) {
         if (update.message() != null) {
             if(update.message().text() != null) {
@@ -219,6 +228,12 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
         }
     }
 
+    /**
+     * user menu
+     * param chatId must not be null
+     * param update must not be null
+     * return user response
+     */
     private SendResponse statusDeterminant(Long chatId, Update update) {
         Long botStatus = chatConfigService.findByChatId(chatId).getChatId();
         SendMessage message = new SendMessage(chatId, Constants.CHOOSE_OPTION);

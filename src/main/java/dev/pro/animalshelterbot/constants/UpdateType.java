@@ -3,6 +3,9 @@ package dev.pro.animalshelterbot.constants;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * A class containing all possible upadates available depending on the user's status
+ */
 public enum UpdateType {
 
     MESSAGE(0L), COMMAND(1L), PHOTO(2L), CALL_BACK_QUERY(3L), ERROR(5L);
