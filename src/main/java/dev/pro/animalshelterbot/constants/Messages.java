@@ -1,11 +1,10 @@
 package dev.pro.animalshelterbot.constants;
 
-/**
- * this class contains a list of responses to correct and incorrect user requests
- */
+import java.util.HashMap;
+import java.util.Map;
+
 public enum Messages {
-    THERE_IS_NO_SUCH_COMMAND("Команда не распознана. Хотите поговорить с волонтером? Для связи с волонтером " +
-            "выберите соответствующий пункт контекстного меню или наберите команду /callvolunteers"),
+    THERE_IS_NO_SUCH_COMMAND("Команда не распознана."),
     WELCOME_TO_THE_CHATBOT("Добро пожаловать в наш самый распрекрасный чат-бот..."),
 
     CHOOSE_SHELTER("Выберите, пожалуйста, приют: вы хотите взять собаку или кошку?"),
@@ -55,6 +54,18 @@ public enum Messages {
 
     Messages(String str) {
         this.messageText = str;
+    }
+
+    public static Map<String, Messages> BY_MESSAGE_TEXT = new HashMap<>();
+
+    static {
+        for(Messages s : values()) {
+            BY_MESSAGE_TEXT.put(s.messageText, s);
+        }
+    }
+
+    public static Messages valueOfMessageText(String messageText){
+        return BY_MESSAGE_TEXT.get(messageText);
     }
 
 }

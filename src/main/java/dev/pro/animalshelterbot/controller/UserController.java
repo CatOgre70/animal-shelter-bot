@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/user")
@@ -44,12 +43,11 @@ public class UserController {
     )
     @GetMapping("/{id}")
     public ResponseEntity<User> getUserInfo(@Parameter(description = "user id", example = "123")@PathVariable Long id) {
-        Optional<User> result = userService.findUser(id);
-        if (result.isEmpty()) {
+        User user = userService.findUser(id);
+        if (user == null) {
             return ResponseEntity.notFound().build();
-        } else {
-            return ResponseEntity.ok(result.get());
         }
+        return ResponseEntity.ok(user);
     }
     @Operation (
             summary = "get users by parameters",
@@ -127,11 +125,11 @@ public class UserController {
 
     @PutMapping
     public ResponseEntity<User> editUser(@RequestBody User user) {
-        Optional<User> result = userService.editUser(user);
-        if (result.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        User user1 = userService.editUser(user);
+        if (user1 == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
-        return ResponseEntity.ok(result.get());
+        return ResponseEntity.ok(user);
     }
 
     @Operation(

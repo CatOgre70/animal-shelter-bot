@@ -5,32 +5,27 @@ import dev.pro.animalshelterbot.exception.DailyReportNotFoundException;
 import dev.pro.animalshelterbot.exception.UserNotFoundException;
 import dev.pro.animalshelterbot.model.Animal;
 import dev.pro.animalshelterbot.model.DailyReport;
-import dev.pro.animalshelterbot.model.User;
 import dev.pro.animalshelterbot.repository.DailyReportRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
 
 import static java.nio.file.StandardOpenOption.CREATE_NEW;
 
-@Transactional
 @Service
 public class DailyReportService {
 
@@ -39,15 +34,8 @@ public class DailyReportService {
 
     private final DailyReportRepository dailyReportRepository;
 
-    private final ChatConfigService chatConfigService;
-
-    private final UserService userService;
-
-    public DailyReportService(DailyReportRepository dailyReportRepository, ChatConfigService chatConfigService,
-                                UserService userService) {
+    public DailyReportService(DailyReportRepository dailyReportRepository) {
         this.dailyReportRepository = dailyReportRepository;
-        this.chatConfigService = chatConfigService;
-        this.userService = userService;
     }
     /**
      * event recording process
@@ -58,31 +46,34 @@ public class DailyReportService {
      * saving the animal in the database
      * the repository method is used {@link JpaRepository#save(Object)}
      * event recording process
-     * param dailyReport, must not be null
-     * return the user stored in the database
+     * @param dailyReport, must not be null
+     * @return the user stored in the database
      */
     public DailyReport addDailyReport(DailyReport dailyReport) {
         logger.info("Method \"UserService.addDailyReport()\" was called");
         return dailyReportRepository.save(dailyReport);
     }
+
     /**
      * find for an dailyReport by ID in the database
      * the repository method is used {@link JpaRepository#findById(Object)}
      * event recording process
-     * param id user, must not be null
-     * return found user
+     * @param id user, must not be null
+     * @return found user
      */
     public DailyReport findDailyReport(long id) {
         logger.info("Method \"UserService.findDailyReport()\" was called");
         return dailyReportRepository.findById(id).orElse(null);
     }
+
     /**
      * edit for an dailyReport by ID in the database
      * the repository method is used {@link JpaRepository#findById(Object)}
      * event recording process
      * fetching data from the database and modifying it
-     * param dailyReport report with new data should be saved in the database
-     * return DailyReport object saved in the database
+     *
+     * @param dailyReport report with new data should be saved in the database
+     * @return DailyReport object saved in the database
      */
     public Optional<DailyReport> editDailyReport(DailyReport dailyReport) {
         logger.info("Method \"DailyReportService.DailyReport()\" was called");
@@ -103,7 +94,7 @@ public class DailyReportService {
      * delete for an dailyReport by ID in the database
      * the repository method is used {@link JpaRepository#deleteById(Object)}
      * event recording process
-     * param id, must not be null
+     * @param id, must not be null
      */
     public Optional<DailyReport> deleteDailyReport(long id) {
         logger.info("Method \"UserService.deleteDailyReport()\" was called");
@@ -113,15 +104,9 @@ public class DailyReportService {
         }
         return result;
     }
-    /**
-     * upload photo by id
-     * event recording process
-     * the exception method is used
-     * setting the file size
-     * save photo in dailyReport
-     */
+
     public void uploadPhoto(Long id, MultipartFile photo) throws IOException {
-        logger.info("Method \"AnimalService.uploadPhoto()\" was invoked");
+        logger.info("Method \"AnimalService.uploadAvatar()\" was invoked");
 
         DailyReport dailyReport = dailyReportRepository.findById(id).orElseThrow(
                 () -> new DailyReportNotFoundException("There is no animal with such id in the database"));
@@ -147,33 +132,11 @@ public class DailyReportService {
         dailyReportRepository.save(dailyReport);
     }
 
-    public void downloadAndUploadPhoto(Long id, String fileFullPath, Long fileSize, String mediaType) throws IOException {
-        logger.info("Method \"AnimalService.downloadAndUploadPhoto()\" was invoked");
-        DailyReport dailyReport = dailyReportRepository.findById(id).orElseThrow(
-                () -> new DailyReportNotFoundException("There is no animal with such id in the database"));
-        BufferedInputStream bis = new BufferedInputStream(new URL(fileFullPath).openStream(), 1024);
-        Path outputFilePath = Path.of(photosDir, id + "." + getExtensions(fileFullPath));
-        Files.createDirectories(outputFilePath.getParent());
-        Files.deleteIfExists(outputFilePath);
-        OutputStream os = Files.newOutputStream(outputFilePath, CREATE_NEW);
-        BufferedOutputStream bos = new BufferedOutputStream(os, 1024);
-        bis.transferTo(bos);
-        dailyReport.setFilePath(outputFilePath.toString());
-        dailyReport.setFileSize(fileSize);
-        dailyReport.setMediaType(mediaType);
-        try {
-            dailyReport.setSmallPicture(generateImagePreview(outputFilePath));
-        } catch(IOException e) {
-            logger.error(Arrays.toString(e.getStackTrace()));
-        }
-        dailyReportRepository.save(dailyReport);
-    }
-
     /**
      * Generate photo preview for the database
-     * param filePath - path to the avatar file
-     * return image with smaller size as byte[]
-     * throws IOException well, shit happens sometimes
+     * @param filePath - path to the avatar file
+     * @return image with smaller size as byte[]
+     * @throws IOException well, shit happens sometimes
      */
     private byte[] generateImagePreview(Path filePath) throws IOException {
         logger.debug("Method \"DailyReportService.generateImagePreview()\" was invoked with Path parameter: " + filePath);
@@ -193,10 +156,11 @@ public class DailyReportService {
             return baos.toByteArray();
         }
     }
+
     /**
      * Get extension from fileName
-     * param fileName - file name
-     * return file extension
+     * @param fileName - file name
+     * @return file extension
      */
     private String getExtensions(String fileName) {
         logger.debug("Method \"DailyReportService.getExtensions()\" was invoked with String parameter: " + fileName);
