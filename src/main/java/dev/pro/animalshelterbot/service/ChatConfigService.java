@@ -1,10 +1,10 @@
 package dev.pro.animalshelterbot.service;
 
+import dev.pro.animalshelterbot.constants.BotStatus;
 import dev.pro.animalshelterbot.model.ChatConfig;
 import dev.pro.animalshelterbot.repository.ChatConfigRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -13,21 +13,13 @@ import java.util.Optional;
 public class ChatConfigService {
 
     private final ChatConfigRepository chatConfigRepository;
-    /**
-     * event recording process
-     */
+
     private final Logger logger = LoggerFactory.getLogger(UserService.class);
 
     public ChatConfigService (ChatConfigRepository chatConfigRepository) {
         this.chatConfigRepository = chatConfigRepository;
     }
-    /**
-     * saving the chat in the database
-     * the repository method is used {@link JpaRepository#save(Object)}
-     * event recording process
-     * param chatConfig, must not be null
-     * return the chat stored in the database
-     */
+
     public ChatConfig addChatConfig(ChatConfig chatConfig) {
         logger.info("Method \"ChatConfigService.addChatConfig()\" was called");
         return chatConfigRepository.save(chatConfig);
@@ -41,13 +33,14 @@ public class ChatConfigService {
      */
     public Optional<ChatConfig> editChatConfig(ChatConfig chatConfig) {
         logger.info("Method \"ChatConfigService.editChatConfig()\" was called");
-        Optional<ChatConfig> result = chatConfigRepository.findById(chatConfig.getId());
-        if(result.isEmpty()) {
-            return Optional.empty();
+        Optional<ChatConfig> result = chatConfigRepository.findById(chatConfig.getChatId());
+        if(!result.isPresent()) {
+            return null;
         }
         else {
-            chatConfig.setId(result.get().getId());
-            return Optional.of(chatConfigRepository.save(chatConfig));
+            ChatConfig fromDb = result.get();
+            fromDb.setChatState(chatConfig.getChatState());
+            return chatConfigRepository.save(fromDb);
         }
     }
     /**
