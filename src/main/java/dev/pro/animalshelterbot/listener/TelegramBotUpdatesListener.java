@@ -121,9 +121,14 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
         return UpdatesListener.CONFIRMED_UPDATES_ALL;
     }
 
-/**
- * commands that the user receives
- */
+    private void processPhotos(Update update, BotStatus botStatus) {
+        PhotoSize[] incomingMessage = update.message().photo();
+        Long chatId = update.message().chat().id();
+        if (!(botStatus == KEEPING_a_PET || botStatus == AWAITING_PHOTO)) {
+            sendMessage(chatId, Messages.NO_ANIMAL_ADAPT.messageText);
+        }
+    }
+
     private void processMessages(Update update, BotStatus botStatus) {
         Long chatId = update.message().chat().id();
         DailyReport currentDailyReport;
@@ -195,7 +200,9 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
 //        } else statusDeterminant(chatId, update);
     }
 
-
+    /**
+     * user stage check
+     */
     private UpdateType checkingUpdate(Update update) {
         if (update.message() != null) {
             if(update.message().text() != null) {
