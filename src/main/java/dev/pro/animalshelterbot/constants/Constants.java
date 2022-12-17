@@ -32,7 +32,7 @@ public interface Constants {
     String DOG_HANDLERS_TIPS = "";
     String PROVEN_DOG_HANDLERS = "";
     String REASONS_FOR_REFUSAL = "";
-//    String KEEPING_a_PET = String.valueOf(Commands.KEEPING_a_PET.values());
+    String KEEPING_a_PET = String.valueOf(Commands.KEEPING_a_PET.values());
     String DAILY_REPORT = ""; // NOT String?
     String REQUEST_TEXT = "";
     String REQUEST_PHOTO = "";

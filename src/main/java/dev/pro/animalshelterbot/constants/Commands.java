@@ -39,9 +39,6 @@ public enum Commands{
 
 
 
-    public final String s;
-
-
     public final String commandText;
 
     Commands (String s) {
