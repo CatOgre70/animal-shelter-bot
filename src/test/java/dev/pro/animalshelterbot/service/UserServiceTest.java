@@ -144,10 +144,8 @@ public class UserServiceTest {
                 null, 1234567890L);
         user = userService.addUser(user);
 
-        Collection<User> actual = userService.findByChatId(1234567890L);
-        List<User> actualList = new ArrayList<>(actual);
-        Assertions.assertEquals(1, actualList.size());
-        Assertions.assertEquals(user, actualList.get(0));
+        User actual = userService.findByChatId(1234567890L);
+        Assertions.assertEquals(user, actual);
     }
 
     @Test
