@@ -8,7 +8,7 @@ import dev.pro.animalshelterbot.constants.Constants;
 import java.util.Collection;
 
 /**
- Class that implements the built-in keyboard in the start menu
+ * Class that implements the built-in keyboard in the start menu
  */
 public class KeyboardFactory {
     public static InlineKeyboardMarkup startButtons() {

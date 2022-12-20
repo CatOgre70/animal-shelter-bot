@@ -88,7 +88,7 @@ public class AnimalService {
     }
 
     /**
-     * Find animals by substrings in their name, kind, breed, color
+     * Find animals by substrings in their name, breed, color
      * @param name - substring of Animal name we are looking for
      * @param breed - substring of Animal breed we are looking for
      * @param color - substring of Animal color we are looking for
@@ -97,7 +97,14 @@ public class AnimalService {
     public List<Animal> getAnimalBySubstrings(String name, String breed, String color) {
             return animalRepository.getAnimalsBySubstrings(name, breed, color);
     }
-
+    /**
+     * Find animals by substrings in their name, kind, breed, color
+     * @param name - substring of Animal name we are looking for
+     * @param kind - substring of Animal kind we are looking for
+     * @param breed - substring of Animal breed we are looking for
+     * @param color - substring of Animal color we are looking for
+     * @return - List of Animals which name, kind, breed and color contain selected substrings
+     */
     public List<Animal> getAnimalBySubstringsAndKind(String name, int kind, String breed, String color) {
         return animalRepository.getAnimalBySubstringsAndKind(name, kind, breed, color);
     }
