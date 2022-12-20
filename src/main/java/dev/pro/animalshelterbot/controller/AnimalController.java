@@ -1,5 +1,6 @@
 package dev.pro.animalshelterbot.controller;
 
+import dev.pro.animalshelterbot.constants.AnimalKind;
 import dev.pro.animalshelterbot.exception.AnimalNotFoundException;
 import dev.pro.animalshelterbot.model.Animal;
 import dev.pro.animalshelterbot.service.AnimalService;
@@ -18,7 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -71,19 +72,32 @@ public class AnimalController {
             tags = "Animals"
     )
     @GetMapping
-    public ResponseEntity <Collection<Animal>> getAnimal(@Parameter(description = "animal name", example = "Matroskin")   @RequestParam(required = false) String name,
-                                                         @Parameter(description = "animal kind", example = "Сat")         @RequestParam(required = false) String kind,
-                                                         @Parameter(description = "animal breed", example = "Maine Coon") @RequestParam(required = false) String breed,
-                                                         @Parameter(description = "animal color", example = "Gray")       @RequestParam(required = false) String color) {
+    public ResponseEntity <List<Animal>> getAnimal(@Parameter(description = "animal name", example = "Matroskin")   @RequestParam(required = false) String name,
+                                                   @Parameter(description = "animal kind", example = "1")           @RequestParam(required = false) Integer kind,
+                                                   @Parameter(description = "animal breed", example = "Maine Coon") @RequestParam(required = false) String breed,
+                                                   @Parameter(description = "animal color", example = "Gray")       @RequestParam(required = false) String color) {
         boolean nameIsNotEmpty = name != null && !name.isBlank();
-        boolean kindIsNotEmpty = kind != null && !kind.isBlank();
         boolean breedIsNotEmpty = breed != null && !breed.isBlank();
         boolean colorIsNotEmpty = color != null && !color.isBlank();
+        boolean kindIsNotEmpty = kind != null;
 
-        if(!nameIsNotEmpty && !kindIsNotEmpty && !breedIsNotEmpty && !colorIsNotEmpty) {
+        if(!nameIsNotEmpty && !breedIsNotEmpty && !colorIsNotEmpty && !kindIsNotEmpty) {
             return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.ok(animalService.getAnimalBySubstrings(name, kind, breed, color));
+        if(kind != null) {
+            boolean isFound = false;
+            for (AnimalKind a : AnimalKind.values()) {
+                if (kind == a.ordinal()) {
+                    isFound = true;
+                }
+            }
+            if (!isFound) {
+                throw new AnimalNotFoundException("Animal with such kind index was not find in the database");
+            }
+            return ResponseEntity.ok(animalService.getAnimalBySubstringsAndKind(name, kind, breed, color));
+        } else {
+            return ResponseEntity.ok(animalService.getAnimalBySubstrings(name, breed, color));
+        }
     }
 
     @Operation (

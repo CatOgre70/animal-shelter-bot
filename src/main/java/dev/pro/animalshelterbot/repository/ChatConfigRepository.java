@@ -1,10 +1,10 @@
 package dev.pro.animalshelterbot.repository;
 
-import dev.pro.animalshelterbot.constants.BotStatus;
 import dev.pro.animalshelterbot.model.ChatConfig;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
+
+import java.util.Optional;
 
 /**
  * ChatConfigRepository is the interface to storage for Telegram bot chat statuses.
@@ -14,6 +14,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ChatConfigRepository extends JpaRepository<ChatConfig, Long> {
 
-    ChatConfig findByChatId(Long chatId);
+    Optional<ChatConfig> findByChatId(Long chatId);
 
 }

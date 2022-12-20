@@ -39,11 +39,11 @@ public class UserServiceTest {
         Assertions.assertNotNull(user);
         Assertions.assertTrue(user.getId() != 0L);
 
-        User userFound = userService.findUser(user.getId());
-        Assertions.assertEquals(user, userFound);
+        Optional<User> result = userService.findUser(user.getId());
+        Assertions.assertEquals(user, result.get());
 
-        userFound = userService.findUser(user.getId()+2_000_000L);
-        Assertions.assertNull(userFound);
+        result = userService.findUser(user.getId()+2_000_000L);
+        Assertions.assertEquals(Optional.empty(), result);
     }
 
     @Test
@@ -56,8 +56,8 @@ public class UserServiceTest {
         user.setMobilePhone("+79001234567");
         user.setAddress("1, Red Square, Moscow, 100000, Russia");
 
-        User userEdited = userService.editUser(user);
-        Assertions.assertEquals(user, userEdited);
+        Optional<User> result = userService.editUser(user);
+        Assertions.assertEquals(user, result.get());
     }
 
     @Test
@@ -70,7 +70,7 @@ public class UserServiceTest {
 
         userService.deleteUser(user.getId());
 
-        Assertions.assertNull(userService.findUser(user.getId()));
+        Assertions.assertEquals(Optional.empty(), userService.findUser(user.getId()));
     }
 
     @Test
@@ -144,8 +144,8 @@ public class UserServiceTest {
                 null, 1234567890L);
         user = userService.addUser(user);
 
-        User actual = userService.findByChatId(1234567890L);
-        Assertions.assertEquals(user, actual);
+        Optional<User> actual = userService.findByChatId(1234567890L);
+        Assertions.assertEquals(user, actual.get());
     }
 
     @Test
