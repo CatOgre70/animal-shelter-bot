@@ -5,7 +5,7 @@ import java.util.Map;
 
 public enum Shelter {
 
-    DOG_SHELTER("Dog shelter"), CAT_SHELTER("Cat shelter"), COW_SHELTER("Cow shelter");
+    DOG_SHELTER("Приют для собак"), CAT_SHELTER("Приют для кошек"), COW_SHELTER("Приют для коров");
 
     public String shelterSpecialization;
 
