@@ -177,7 +177,10 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                                     Buttons.SEND_PHONE_AND_ADDRESS, Buttons.CALL_VOLUNTEER);
                         } else {
                             sendMenu(chatId, "Информация о том, как взять кошку из приюта", Buttons.BACK,
-                                    Buttons.CALL_VOLUNTEER);
+                                    Buttons.CAT_ANIMAL_WELCOME, Buttons.CAT_ANIMAL_DOCS, Buttons.CAT_ANIMAL_TRANSPORT,
+                                    Buttons.CAT_ANIMAL_HOME1, Buttons.CAT_ANIMAL_HOME2, Buttons.CAT_ANIMAL_HOME3,
+                                    Buttons.CAT_ANIMAL_REJECT,
+                                    Buttons.SEND_PHONE_AND_ADDRESS, Buttons.CALL_VOLUNTEER);
                         }
                     } else if(updateType == UpdateType.MESSAGE) {
 
