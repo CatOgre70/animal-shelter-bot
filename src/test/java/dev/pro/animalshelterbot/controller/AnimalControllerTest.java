@@ -1,5 +1,6 @@
 package dev.pro.animalshelterbot.controller;
 
+import dev.pro.animalshelterbot.constants.AnimalKind;
 import dev.pro.animalshelterbot.model.Animal;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -35,7 +36,7 @@ public class AnimalControllerTest {
 
     @Test
     public void createAnimalTest() {
-        Animal animal = givenAnimalWith("Matroskin", "Cat", "Maine Coon", "Gray");
+        Animal animal = givenAnimalWith("Matroskin", AnimalKind.CAT, "Maine Coon", "Gray");
         ResponseEntity<Animal> response = addAnimalInTheDatabase(getURIBuilder().build().toUri(), animal);
         Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         Assertions.assertThat(response.getBody()).isNotNull();
@@ -44,7 +45,7 @@ public class AnimalControllerTest {
 
     @Test
     public void getAnimalByIdTest() {
-        Animal animal = givenAnimalWith("Matroskin", "Cat", "Maine Coon", "Gray");
+        Animal animal = givenAnimalWith("Matroskin", AnimalKind.CAT, "Maine Coon", "Gray");
         ResponseEntity<Animal> response = addAnimalInTheDatabase(getURIBuilder().build().toUri(), animal);
         Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         Assertions.assertThat(response.getBody()).isNotNull();
@@ -61,11 +62,11 @@ public class AnimalControllerTest {
 
     @Test
     public void getAnimalTest() {
-        Animal animal0 = givenAnimalWith("Matroskin", "Cat", "Maine Coon", "Gray");
-        Animal animal1 = givenAnimalWith("Sharik", "Dog", "Cur", "Brown");
-        Animal animal2 = givenAnimalWith("Burenka", "Cow", "Yaroslavl", "Black and White");
-        Animal animal3 = givenAnimalWith("Bobik", "Dog", "Cur", "Black");
-        Animal animal4 = givenAnimalWith("Musia", "Cat", "Siberian", "Black with white tie");
+        Animal animal0 = givenAnimalWith("Matroskin", AnimalKind.CAT, "Maine Coon", "Gray");
+        Animal animal1 = givenAnimalWith("Sharik", AnimalKind.DOG, "Cur", "Brown");
+        Animal animal2 = givenAnimalWith("Burenka", AnimalKind.COW, "Yaroslavl", "Black and White");
+        Animal animal3 = givenAnimalWith("Bobik", AnimalKind.DOG, "Cur", "Black");
+        Animal animal4 = givenAnimalWith("Musia", AnimalKind.CAT, "Siberian", "Black with white tie");
         URI uri = getURIBuilder().build().toUri();
         addAnimalInTheDatabase(uri, animal0);
         addAnimalInTheDatabase(uri, animal1);
@@ -78,7 +79,7 @@ public class AnimalControllerTest {
         animalsAreFoundByCriteria(queryParams, animal0, animal1, animal2, animal4);
 
         queryParams.clear();
-        queryParams.add("kind", "cat");
+        queryParams.add("kind", "0");
         animalsAreFoundByCriteria(queryParams, animal0, animal4);
 
         queryParams.clear();
@@ -91,7 +92,7 @@ public class AnimalControllerTest {
 
         queryParams.clear();
         queryParams.add("name", "ik");
-        queryParams.add("kind", "og");
+        queryParams.add("kind", "1");
         animalsAreFoundByCriteria(queryParams, animal1, animal3);
 
         queryParams.clear();
@@ -102,13 +103,13 @@ public class AnimalControllerTest {
         queryParams.clear();
         queryParams.add("breed", "c");
         queryParams.add("color", "b");
-        queryParams.add("kind", "dog");
+        queryParams.add("kind", "1");
         animalsAreFoundByCriteria(queryParams, animal1, animal3);
 
         queryParams.clear();
         queryParams.add("breed", "c");
         queryParams.add("color", "b");
-        queryParams.add("kind", "dog");
+        queryParams.add("kind", "1");
         queryParams.add("name", "ik");
         animalsAreFoundByCriteria(queryParams, animal1, animal3);
 
@@ -126,7 +127,7 @@ public class AnimalControllerTest {
 
     @Test
     public void editAnimalTest() {
-        Animal animal = givenAnimalWith("Matroskin", "Cat", "Maine Coon", "Gray");
+        Animal animal = givenAnimalWith("Matroskin", AnimalKind.CAT, "Maine Coon", "Gray");
         ResponseEntity<Animal> response = addAnimalInTheDatabase(getURIBuilder().build().toUri(), animal);
         Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         Assertions.assertThat(response.getBody()).isNotNull();
@@ -142,7 +143,7 @@ public class AnimalControllerTest {
 
     @Test
     public void deleteAnimalTest() {
-        Animal animal = givenAnimalWith("Matroskin", "Cat", "Maine Coon", "Gray");
+        Animal animal = givenAnimalWith("Matroskin", AnimalKind.CAT, "Maine Coon", "Gray");
         ResponseEntity<Animal> response = addAnimalInTheDatabase(getURIBuilder().build().toUri(), animal);
         Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         Assertions.assertThat(response.getBody()).isNotNull();
@@ -240,7 +241,7 @@ public class AnimalControllerTest {
                 .path("/animal");
     }
 
-    private Animal givenAnimalWith(String name, String kind, String breed, String color) {
+    private Animal givenAnimalWith(String name, AnimalKind kind, String breed, String color) {
         LocalDateTime defaultDateTime = LocalDateTime.of(1900, 1, 1, 0, 0, 0);
         return new Animal(name, kind, breed, color, null, null, 0L, null,
                           defaultDateTime, null);

@@ -1,10 +1,9 @@
 package dev.pro.animalshelterbot.service;
 
-import dev.pro.animalshelterbot.exception.AdoptedAnimalsNotFoundException;
+import dev.pro.animalshelterbot.exception.AdoptedAnimalNotFoundException;
 import dev.pro.animalshelterbot.exception.DailyReportNotFoundException;
 import dev.pro.animalshelterbot.exception.UserNotFoundException;
 import dev.pro.animalshelterbot.model.Animal;
-import dev.pro.animalshelterbot.model.ChatConfig;
 import dev.pro.animalshelterbot.model.DailyReport;
 import dev.pro.animalshelterbot.model.User;
 import dev.pro.animalshelterbot.repository.DailyReportRepository;
@@ -23,7 +22,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalUnit;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -185,16 +183,15 @@ public class DailyReportService {
 
     public DailyReport findDailyReportByChatId(Long chatId) {
         LocalDateTime localDateTime = LocalDateTime.now().truncatedTo(ChronoUnit.DAYS);
-        User user = userService.findByChatId(chatId);
+        Optional<User> result = userService.findByChatId(chatId);
         Animal animal;
-        if(user == null) {
+        if(result.isEmpty()) {
             throw new UserNotFoundException("User with such chatId was not found in the database");
         }
-        if(!user.getAdoptedAnimals().isEmpty()) {
-            // Well, it means, that each user can own only one adopted animal in current version
-            animal = user.getAdoptedAnimals().get(0);
+        if(result.get().getAdoptedAnimal() != null) {
+            animal = result.get().getAdoptedAnimal();
         } else {
-            throw new AdoptedAnimalsNotFoundException("User with such chatId has not any adopted animals");
+            throw new AdoptedAnimalNotFoundException("User with such chatId has not any adopted animals");
         }
         List<DailyReport> dailyReports = animal.getReports();
         for(DailyReport dr : dailyReports){

@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * UserRepository is the interface for storing Animal Shelter users (clients) information
@@ -21,7 +22,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
             "AND users.nick_name ILIKE CONCAT('%',:nickNameSub,'%'))", nativeQuery = true)
     public List<User> findByThreeSubstrings(String firstNameSub, String secondNameSub, String nickNameSub);
 
-    User findByChatId(Long chatId);
+    Optional<User> findByChatId(Long chatId);
 
     boolean existsByChatId(Long chatId);
 }

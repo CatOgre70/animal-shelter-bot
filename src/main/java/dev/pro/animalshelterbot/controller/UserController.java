@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/user")
@@ -43,11 +44,12 @@ public class UserController {
     )
     @GetMapping("/{id}")
     public ResponseEntity<User> getUserInfo(@Parameter(description = "user id", example = "123")@PathVariable Long id) {
-        User user = userService.findUser(id);
-        if (user == null) {
+        Optional<User> result = userService.findUser(id);
+        if (result.isEmpty()) {
             return ResponseEntity.notFound().build();
+        } else {
+            return ResponseEntity.ok(result.get());
         }
-        return ResponseEntity.ok(user);
     }
     @Operation (
             summary = "get users by parameters",
@@ -79,7 +81,12 @@ public class UserController {
         } else if (chatId == null){
             return ResponseEntity.notFound().build();
         } else {
-            return ResponseEntity.ok(List.of(userService.findByChatId(chatId)));
+            Optional<User> result = userService.findByChatId(chatId);
+            if(result.isEmpty()) {
+                return ResponseEntity.notFound().build();
+            } else {
+                return ResponseEntity.ok(List.of(result.get()));
+            }
         }
     }
 
@@ -120,11 +127,11 @@ public class UserController {
 
     @PutMapping
     public ResponseEntity<User> editUser(@RequestBody User user) {
-        User user1 = userService.editUser(user);
-        if (user1 == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        Optional<User> result = userService.editUser(user);
+        if (result.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
-        return ResponseEntity.ok(user);
+        return ResponseEntity.ok(result.get());
     }
 
     @Operation(
