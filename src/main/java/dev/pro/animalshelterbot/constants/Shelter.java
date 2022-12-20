@@ -3,9 +3,12 @@ package dev.pro.animalshelterbot.constants;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * this class contains an enumeration of shelter animal types
+ */
 public enum Shelter {
 
-    DOG_SHELTER("Dog shelter"), CAT_SHELTER("Cat shelter"), COW_SHELTER("Cow shelter");
+    DOG_SHELTER("Приют для собак"), CAT_SHELTER("Приют для кошек"), COW_SHELTER("Приют для коров");
 
     public String shelterSpecialization;
 
