@@ -10,8 +10,6 @@ public enum Buttons {
     CAT_SHELTER("Приют для кошек", "CatShelter", ButtonType.CALLBACK, null),
 
     // Default root menu
-
-
     SHELTER_INFO("Информация о приюте", "ShelterInfo", ButtonType.CALLBACK, null),
     ANIMAL_INFO("Как взять животное", "AnimalInfo", ButtonType.CALLBACK, null),
     DAILY_REPORT("Отправить отчет о питомце", "DailyReport", ButtonType.CALLBACK, null),
@@ -24,7 +22,7 @@ public enum Buttons {
 
 
     // Information about dog shelter
-    DOG_SHELTER_INFO("Информация о приюте", "DogShelterInfo", ButtonType.CALLBACK, null),
+    DOG_SHELTER_INFO("Общая информация о приюте", "DogShelterInfo", ButtonType.CALLBACK, null),
     DOG_SHELTER_ADDRESS("Расписание работы, адрес, схема проезда", "DogShelterAddr", ButtonType.CALLBACK, null),
     DOG_SHELTER_SECURITY("Как заказать пропуск на машину", "DogShelterSec", ButtonType.CALLBACK, null),
     DOG_SHELTER_SAFETY_TIPS("О технике безопасности на территории приюта", "DogShelterSafe", ButtonType.CALLBACK, null),
