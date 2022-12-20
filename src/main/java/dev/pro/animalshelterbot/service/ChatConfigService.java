@@ -1,6 +1,5 @@
 package dev.pro.animalshelterbot.service;
 
-import dev.pro.animalshelterbot.constants.BotStatus;
 import dev.pro.animalshelterbot.model.ChatConfig;
 import dev.pro.animalshelterbot.repository.ChatConfigRepository;
 import org.slf4j.Logger;
@@ -40,16 +39,15 @@ public class ChatConfigService {
      * fetching data from the database and modifying it
      * return ChatConfig  object saved in the database
      */
-    public ChatConfig editChatConfig(ChatConfig chatConfig) {
+    public Optional<ChatConfig> editChatConfig(ChatConfig chatConfig) {
         logger.info("Method \"ChatConfigService.editChatConfig()\" was called");
-        Optional<ChatConfig> result = chatConfigRepository.findById(chatConfig.getChatId());
+        Optional<ChatConfig> result = chatConfigRepository.findById(chatConfig.getId());
         if(!result.isPresent()) {
-            return null;
+            return Optional.empty();
         }
         else {
-            ChatConfig fromDb = result.get();
-            fromDb.setChatState(chatConfig.getChatState());
-            return chatConfigRepository.save(fromDb);
+            chatConfig.setId(result.get().getId());
+            return Optional.of(chatConfigRepository.save(chatConfig));
         }
     }
     /**
@@ -59,7 +57,7 @@ public class ChatConfigService {
      * param chatId , must not be null
      * return found chat
      */
-    public ChatConfig findByChatId(Long chatId) {
+    public Optional<ChatConfig> findByChatId(Long chatId) {
         logger.info("Method \"ChatConfigService.findByChatId()\" was called");
         return chatConfigRepository.findByChatId(chatId);
     }

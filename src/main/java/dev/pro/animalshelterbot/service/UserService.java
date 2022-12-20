@@ -44,9 +44,9 @@ public class UserService {
      * param id user, must not be null
      * return found user
      */
-    public User findUser(long id) {
+    public Optional<User> findUser(long id) {
         logger.info("Method \"UserService.findUser()\" was called");
-        return userRepository.findById(id).orElse(null);
+        return userRepository.findById(id);
     }
     /**
      * edit user in the database
@@ -55,19 +55,15 @@ public class UserService {
      * @param user
      * @return making changes to the database
      */
-    public User editUser(User user) {
-        logger.info("Metod \"UserService.editUser()\" was called");
+    public Optional<User> editUser(User user) {
+        logger.info("Method \"UserService.editUser()\" was called");
         Optional<User> optional = userRepository.findById(user.getId());
         if(!optional.isPresent()) {
-            return null;
+            return Optional.empty();
         }
         else {
-            User fromDb = optional.get();
-            fromDb.setFirstName(user.getFirstName());
-            fromDb.setSecondName(user.getSecondName());
-            fromDb.setAddress(user.getAddress());
-            fromDb.setMobilePhone(user.getMobilePhone());
-            return userRepository.save(fromDb);
+            user.setId(optional.get().getId());
+            return Optional.of(userRepository.save(user));
         }
     }
     /**
@@ -76,10 +72,13 @@ public class UserService {
      * event recording process
      * @param id, must not be null
      */
-    public void deleteUser(long id) {
+    public Optional<User> deleteUser(long id) {
         logger.info("Method \"UserService.deleteStudent()\" was called");
+        Optional<User> optional = userRepository.findById(id);
         userRepository.deleteById(id);
+        return optional;
     }
+
     /**
      * find for an user  in the database
      * the repository method is used {@link JpaRepository#findAll}
@@ -108,7 +107,7 @@ public class UserService {
      * event recording process
      * return found User
      */
-    public User findByChatId(Long chatId) {
+    public Optional<User> findByChatId(Long chatId) {
         return userRepository.findByChatId(chatId);
     }
 

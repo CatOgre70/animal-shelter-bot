@@ -1,5 +1,8 @@
 package dev.pro.animalshelterbot.model;
 
+import dev.pro.animalshelterbot.constants.ChatState;
+import dev.pro.animalshelterbot.constants.Shelter;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -18,44 +21,47 @@ public class ChatConfig {
      */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long id;
+    private Long id;
 
     /**
      * chatId - Chat with user identifier from Telegram
      */
-    Long chatId;
+    private Long chatId;
 
     /**
      * chatState - State of chat with user: enum BotStatus
      * { DEFAULT, CONSULT_NEW_USER, CONSULT_POTENTIAL_OWNER, KEEPING_a_PET, CHAT_WITH_VOLUNTEER }
      */
-    Long chatState;
+    private ChatState chatState;
+
+    private Shelter shelter;
 
     /**
      * ChatConfig class empty constructor for Spring JPA and Hibernate
      */
-    public ChatConfig(Long chatId, long l) {
+    public ChatConfig() {
         this.id = 0L;
         this.chatId = 0L;
-        this.chatState = 0L;
+        this.chatState = null;
     }
 
     /**
      * ChatConfig class constructor for using in the AnimalShelterBotApplication
      */
-    public ChatConfig(Long chatId, Long chatState) {
+    public ChatConfig(Long chatId, ChatState chatState, Shelter shelter) {
         this.id = 0L;
         this.chatId = chatId;
         this.chatState = chatState;
-    }
-
-    public ChatConfig() {
-
+        this.shelter = shelter;
     }
 
 
-    public Long getChatConfigId() {
+    public Long getId() {
         return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public Long getChatId() {
@@ -66,12 +72,20 @@ public class ChatConfig {
         this.chatId = chatId;
     }
 
-    public Long getChatState() {
+    public ChatState getChatState() {
         return chatState;
     }
 
-    public void setChatState(Long chatState) {
+    public void setChatState(ChatState chatState) {
         this.chatState = chatState;
+    }
+
+    public Shelter getShelter() {
+        return shelter;
+    }
+
+    public void setShelter(Shelter shelter) {
+        this.shelter = shelter;
     }
 
     @Override

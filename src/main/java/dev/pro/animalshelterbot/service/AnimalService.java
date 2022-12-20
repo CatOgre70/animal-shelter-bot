@@ -1,4 +1,5 @@
 package dev.pro.animalshelterbot.service;
+import dev.pro.animalshelterbot.constants.AnimalKind;
 import dev.pro.animalshelterbot.exception.AnimalNotFoundException;
 import dev.pro.animalshelterbot.model.Animal;
 import dev.pro.animalshelterbot.repository.AnimalRepository;
@@ -89,13 +90,16 @@ public class AnimalService {
     /**
      * Find animals by substrings in their name, kind, breed, color
      * @param name - substring of Animal name we are looking for
-     * @param kind - substring of Animal kind we are looking for
      * @param breed - substring of Animal breed we are looking for
      * @param color - substring of Animal color we are looking for
      * @return - List of Animals which name, kind, breed and color contain selected substrings
      */
-    public List<Animal> getAnimalBySubstrings(String name, String kind, String breed, String color) {
-        return animalRepository.getAnimalsBySubstrings(name, kind, breed, color);
+    public List<Animal> getAnimalBySubstrings(String name, String breed, String color) {
+            return animalRepository.getAnimalsBySubstrings(name, breed, color);
+    }
+
+    public List<Animal> getAnimalBySubstringsAndKind(String name, int kind, String breed, String color) {
+        return animalRepository.getAnimalBySubstringsAndKind(name, kind, breed, color);
     }
 
     /**
@@ -186,6 +190,7 @@ public class AnimalService {
         logger.debug("Method \"AvatarService.getExtensions()\" was invoked with String parameter: " + fileName);
         return fileName.substring(fileName.lastIndexOf(".") + 1);
     }
+
 
 
 }

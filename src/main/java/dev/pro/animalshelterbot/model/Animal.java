@@ -1,5 +1,8 @@
 package dev.pro.animalshelterbot.model;
 
+import dev.pro.animalshelterbot.constants.AnimalKind;
+import dev.pro.animalshelterbot.constants.Shelter;
+
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -29,7 +32,7 @@ public class Animal {
     /**
      * Animal kind (dog, cat, bird, snake...)
      */
-    private String kind;
+    private AnimalKind kind;
 
     /**
      * Animal breed (dog breeds, for example: shepherd dog, bulldog, etc.)
@@ -71,7 +74,7 @@ public class Animal {
     /**
      * Animal owner
      */
-    @ManyToOne
+    @OneToOne
     private User owner;
 
     /**
@@ -79,6 +82,8 @@ public class Animal {
      */
     @OneToMany(mappedBy = "animal")
     List<DailyReport> dailyReports;
+
+    private Shelter shelter;
 
     /**
      * Animal class empty constructor for Spring JPA and Hibernate
@@ -100,8 +105,8 @@ public class Animal {
     /**
      * Animal class constructor for using in the AnimalShelterBotApplication
      */
-    public Animal(String name, String kind, String breed, String color, String features, String filePath,
-                  long fileSize, byte[] avatarPicture, LocalDateTime adoptionDate, String mediaType) {
+    public Animal(String name, AnimalKind kind, String breed, String color, String features, String filePath,
+                  Long fileSize, byte[] avatarPicture, LocalDateTime adoptionDate, String mediaType) {
         this.id = 0L;
         this.name = name;
         this.kind = kind;
@@ -131,11 +136,11 @@ public class Animal {
         this.name = name;
     }
 
-    public String getKind() {
+    public AnimalKind getKind() {
         return kind;
     }
 
-    public void setKind(String kind) {
+    public void setKind(AnimalKind kind) {
         this.kind = kind;
     }
 
