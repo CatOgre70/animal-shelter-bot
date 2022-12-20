@@ -62,7 +62,6 @@ public class DailyReportService {
         logger.info("Method \"UserService.addDailyReport()\" was called");
         return dailyReportRepository.save(dailyReport);
     }
-
     /**
      * find for an dailyReport by ID in the database
      * the repository method is used {@link JpaRepository#findById(Object)}
@@ -74,7 +73,6 @@ public class DailyReportService {
         logger.info("Method \"UserService.findDailyReport()\" was called");
         return dailyReportRepository.findById(id).orElse(null);
     }
-
     /**
      * edit for an dailyReport by ID in the database
      * the repository method is used {@link JpaRepository#findById(Object)}
@@ -170,7 +168,6 @@ public class DailyReportService {
             return baos.toByteArray();
         }
     }
-
     /**
      * Get extension from fileName
      * param fileName - file name
@@ -181,6 +178,13 @@ public class DailyReportService {
         return fileName.substring(fileName.lastIndexOf(".") + 1);
     }
 
+    /**
+     * Find daily report from chatId
+     * @param chatId
+     * UserNotFoundException - user not found in database
+     * AdoptedAnimalNotFoundException - the animal does not have a guardian
+     * @return daily report
+     */
     public DailyReport findDailyReportByChatId(Long chatId) {
         LocalDateTime localDateTime = LocalDateTime.now().truncatedTo(ChronoUnit.DAYS);
         Optional<User> result = userService.findByChatId(chatId);

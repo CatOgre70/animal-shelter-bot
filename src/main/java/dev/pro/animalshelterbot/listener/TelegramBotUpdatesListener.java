@@ -90,6 +90,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
             Optional<User> userResult = userService.findByChatId(chatId);
             User user;
             ChatConfig chatConfig;
+            Shelter shelter;
 
             if(chatConfigResult.isEmpty() && userResult.isEmpty()) { // New user
                 user = new User(firstName, lastName, nickName, null, null, chatId);
@@ -114,30 +115,79 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                 case AWAITING_SHELTER:
                     if(updateType == UpdateType.CALL_BACK_QUERY &&
                             update.callbackQuery().data().equals(Buttons.DOG_SHELTER.bCallBack)) {
-                        user.setShelter(Shelter.DOG_SHELTER);
-                        userService.editUser(user);
-                        chatConfig.setShelter(Shelter.DOG_SHELTER);
-                        chatConfig.setChatState(ChatState.DEFAULT);
-                        chatConfigService.editChatConfig(chatConfig);
-                        sendMessage(chatId, Messages.SHELTER_CHOSEN.messageText +
-                                chatConfig.getShelter().shelterSpecialization + Messages.SHELTER_CHOSEN1);
+                        shelter = Shelter.DOG_SHELTER;
                     } else if(updateType == UpdateType.CALL_BACK_QUERY &&
                             update.callbackQuery().data().equals(Buttons.CAT_SHELTER.bCallBack)) {
-                        user.setShelter(Shelter.CAT_SHELTER);
-                        userService.editUser(user);
-                        chatConfig.setShelter(Shelter.CAT_SHELTER);
-                        chatConfig.setChatState(ChatState.DEFAULT);
-                        chatConfigService.editChatConfig(chatConfig);
-                        sendMessage(chatId, Messages.SHELTER_CHOSEN.messageText +
-                                chatConfig.getShelter().shelterSpecialization + Messages.SHELTER_CHOSEN1.messageText);
+                        shelter = Shelter.CAT_SHELTER;
                     } else {
                         sendMessage(chatId, Messages.CHOOSE_SHELTER1.messageText);
                         sendMenu(chatId, "Приюты", Buttons.DOG_SHELTER, Buttons.CAT_SHELTER);
+                        break;
                     }
+                    user.setShelter(shelter);
+                    userService.editUser(user);
+                    chatConfig.setShelter(shelter);
+                    chatConfig.setChatState(ChatState.DEFAULT);
+                    chatConfigService.editChatConfig(chatConfig);
+                    sendMessage(chatId, Messages.SHELTER_CHOSEN.messageText +
+                            chatConfig.getShelter().shelterSpecialization.toLowerCase() +
+                            Messages.SHELTER_CHOSEN1.messageText);
+                    sendMenu(chatId, "Главное меню. Что вы хотите сделать дальше:", Buttons.BACK,
+                            Buttons.SHELTER_INFO, Buttons.ANIMAL_INFO, Buttons.DAILY_REPORT, Buttons.CALL_VOLUNTEER,
+                            Buttons.HELP);
                     break;
                 case SHELTER_CHOSEN:
+                    break;
                 case DEFAULT:
+                    if(updateType == UpdateType.CALL_BACK_QUERY &&
+                            update.callbackQuery().data().equals(Buttons.SHELTER_INFO.bCallBack)) {
+                        shelter = chatConfig.getShelter();
+                        chatConfig.setChatState(ChatState.CONSULT_NEW_USER);
+                        chatConfigService.editChatConfig(chatConfig);
+                        if (shelter == Shelter.DOG_SHELTER) {
+                            sendMenu(chatId, "Информация о приюте для собак", Buttons.BACK, Buttons.DOG_SHELTER_INFO,
+                                    Buttons.DOG_SHELTER_ADDRESS, Buttons.DOG_SHELTER_SECURITY,
+                                    Buttons.DOG_SHELTER_SAFETY_TIPS, Buttons.SEND_PHONE_AND_ADDRESS,
+                                    Buttons.SEND_PHONE_AND_ADDRESS, Buttons.CALL_VOLUNTEER);
+                        } else {
+                            sendMenu(chatId, "Информация о приюте для кошек", Buttons.BACK, Buttons.CAT_SHELTER_INFO,
+                                    Buttons.CAT_SHELTER_ADDRESS, Buttons.CAT_SHELTER_SECURITY,
+                                    Buttons.CAT_SHELTER_SAFETY_TIPS, Buttons.CAT_SHELTER_SEND_PHONE_AND_ADDRESS,
+                                    Buttons.SEND_PHONE_AND_ADDRESS, Buttons.CALL_VOLUNTEER);
+                        }
+                    } else if(updateType == UpdateType.CALL_BACK_QUERY &&
+                            update.callbackQuery().data().equals(Buttons.BACK.bCallBack)) {
+                        chatConfig.setShelter(null);
+                        chatConfig.setChatState(ChatState.AWAITING_SHELTER);
+                        chatConfigService.editChatConfig(chatConfig);
+                        user.setShelter(null);
+                        userService.editUser(user);
+                        sendMessage(chatId, Messages.CHOOSE_SHELTER1.messageText);
+                        sendMenu(chatId, "Приюты", Buttons.DOG_SHELTER, Buttons.CAT_SHELTER);
+                    } else if(updateType == UpdateType.CALL_BACK_QUERY &&
+                            update.callbackQuery().data().equals(Buttons.ANIMAL_INFO.bCallBack)) {
+                        shelter = chatConfig.getShelter();
+                        chatConfig.setChatState(ChatState.CONSULT_POTENTIAL_OWNER);
+                        chatConfigService.editChatConfig(chatConfig);
+                        if (shelter == Shelter.DOG_SHELTER) {
+                            sendMenu(chatId, "Информация о том, как взять собаку из приюта", Buttons.BACK,
+                                    Buttons.DOG_ANIMAL_WELCOME, Buttons.DOG_ANIMAL_DOCS, Buttons.DOG_ANIMAL_TRANSPORT,
+                                    Buttons.DOG_ANIMAL_HOME1, Buttons.DOG_ANIMAL_HOME2, Buttons.DOG_ANIMAL_HOME3,
+                                    Buttons.DOG_ANIMAL_FIRST, Buttons.DOG_ANIMAL_PROF, Buttons.DOG_ANIMAL_REJECT,
+                                    Buttons.SEND_PHONE_AND_ADDRESS, Buttons.CALL_VOLUNTEER);
+                        } else {
+                            sendMenu(chatId, "Информация о том, как взять кошку из приюта", Buttons.BACK,
+                                    Buttons.CALL_VOLUNTEER);
+                        }
+                    } else if(updateType == UpdateType.MESSAGE) {
+
+                    } else if(updateType == UpdateType.PHOTO) {
+
+                    } else {
+
+                    }
                 case CONSULT_NEW_USER:
+
                 case CONSULT_POTENTIAL_OWNER:
                 case KEEPING_a_PET:
                 case CHAT_WITH_VOLUNTEER:
@@ -225,7 +275,11 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
 //        } else statusDeterminant(chatId, update);
     }
 
-
+    /**
+     * НА ДАННЫЙ МОМЕНТ МЕТОД НЕ ИСПОЛЬЗУЕТСЯ
+     * @param update
+     * @param chatState
+     */
     private void processMessages(Update update, ChatState chatState) {
         Long chatId = update.message().chat().id();
         DailyReport currentDailyReport;
@@ -294,6 +348,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
     }
 
     /**
+     * НА ДАННЫЙ МОМЕНТ МЕТОД НЕ ИСПОЛЬЗУЕТСЯ
      * user menu
      * param chatId must not be null
      * param update must not be null
@@ -328,6 +383,11 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
         return response;
     }
 
+    /**
+     * depending on the status of the chat, we get the status of the bot
+     * @param botStatus
+     * @return bot status
+     */
     private ChatState getBotStatusByLong(Long botStatus) {
         for (ChatState s : ChatState.values()) {
             if(s.equals(botStatus))
@@ -336,22 +396,44 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
         return ChatState.DEFAULT;
     }
 
+    /**
+     * depending on the update, we use the method of keeping pet
+     * @param update
+     */
     private void keepingPet(Update update) {
         KeyboardFactory.stageThree();
     }
 
+    /**
+     * depending on the update, we use the method consult potential Owner
+     * @param update
+     */
     private void consultPotentialOwner(Update update) {
         KeyboardFactory.stageTwo();
     }
 
+    /**
+     * depending on the update, we use the method consult new user
+     * @param update
+     */
     private void consultNewUser(Update update) {
         KeyboardFactory.stageOne();
     }
 
+    /**
+     * depending on the update, we use the method start buttons
+     * @param update
+     */
     private void startButtons(Update update) {
         KeyboardFactory.startButtons();
     }
 
+    /**
+     * tdepending on the incoming message, choose what to reply to the user
+     * @param chatId
+     * @param message
+     * record an event about a sent message or an error
+     */
     private void sendMessage(Long chatId, String message) {
         SendMessage sendMessage = new SendMessage(chatId, message);
         SendResponse response = telegramBot.execute(sendMessage);
@@ -362,13 +444,20 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
         }
     }
 
+    /**
+     * depending on the condition, we give the opportunity to return back to the menu or go to the cattery website
+     * @param chatId
+     * @param menuHeader
+     * @param buttons
+     * if the message is not sent record an event about a sent message or an error
+     */
     private void sendMenu(Long chatId, String menuHeader, Buttons... buttons) {
-        InlineKeyboardButton[] inlineKeyboardButtons = new InlineKeyboardButton[buttons.length];
+        InlineKeyboardButton[][] inlineKeyboardButtons = new InlineKeyboardButton[buttons.length][1];
         for(int i = 0; i < buttons.length; i++) {
             if(buttons[i].bType.equals(ButtonType.CALLBACK)) {
-                inlineKeyboardButtons[i] = new InlineKeyboardButton(buttons[i].bText).callbackData(buttons[i].bCallBack);
+                inlineKeyboardButtons[i][0] = new InlineKeyboardButton(buttons[i].bText).callbackData(buttons[i].bCallBack);
             } else {
-                inlineKeyboardButtons[i] = new InlineKeyboardButton(buttons[i].bText).url(buttons[i].url);
+                inlineKeyboardButtons[i][0] = new InlineKeyboardButton(buttons[i].bText).url(buttons[i].url);
             }
         }
         InlineKeyboardMarkup inlineKeyboard = new InlineKeyboardMarkup(inlineKeyboardButtons);
@@ -380,6 +469,12 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
         }
     }
 
+    /**
+     * НА ДАННЫЙ МОМЕНТ МЕТОД НЕ ИСПОЛЬЗУЕТСЯ
+     * @param update
+     * @param message
+     * @param keyboardMarkup
+     */
     private void sendMessageWithKeyboard(Update update, String message, InlineKeyboardMarkup keyboardMarkup) {
         Long chatId = update.message().chat().id();
         SendResponse response = telegramBot.execute(new SendMessage(chatId, message).replyMarkup(keyboardMarkup));

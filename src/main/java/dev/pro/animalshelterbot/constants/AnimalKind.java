@@ -3,6 +3,9 @@ package dev.pro.animalshelterbot.constants;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * this class contains an enumeration of animal types
+ */
 public enum AnimalKind {
 
     CAT("Cat"), DOG("Dog"), COW("Cow");
