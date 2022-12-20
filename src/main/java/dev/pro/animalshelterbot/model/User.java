@@ -1,5 +1,7 @@
 package dev.pro.animalshelterbot.model;
 
+import dev.pro.animalshelterbot.constants.Shelter;
+
 import javax.persistence.*;
 import java.util.List;
 import java.util.Objects;
@@ -52,8 +54,10 @@ public class User {
     /**
      * List of this user adopted animals
      */
-    @OneToMany(mappedBy = "owner")
-    List<Animal> adoptedAnimals;
+    @OneToOne(mappedBy = "owner")
+    private Animal adoptedAnimal;
+
+    private Shelter shelter;
 
     /**
      * User class empty constructor for Spring JPA and Hibernate
@@ -137,12 +141,20 @@ public class User {
         this.chatId = chatId;
     }
 
-    public List<Animal> getAdoptedAnimals() {
-        return adoptedAnimals;
+    public Animal getAdoptedAnimal() {
+        return adoptedAnimal;
     }
 
-    public void setAdoptedAnimals(List<Animal> adoptedAnimals) {
-        this.adoptedAnimals = adoptedAnimals;
+    public void setAdoptedAnimal(Animal adoptedAnimal) {
+        this.adoptedAnimal = adoptedAnimal;
+    }
+
+    public Shelter getShelter() {
+        return shelter;
+    }
+
+    public void setShelter(Shelter shelter) {
+        this.shelter = shelter;
     }
 
     @Override
@@ -150,11 +162,17 @@ public class User {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         User user = (User) o;
-        return Objects.equals(id, user.id) && Objects.equals(firstName, user.firstName) && Objects.equals(secondName, user.secondName) && Objects.equals(nickName, user.nickName) && Objects.equals(address, user.address) && Objects.equals(mobilePhone, user.mobilePhone) && Objects.equals(chatId, user.chatId);
+        return Objects.equals(id, user.id) && Objects.equals(firstName, user.firstName) &&
+               Objects.equals(secondName, user.secondName) &&
+               Objects.equals(nickName, user.nickName) &&
+               Objects.equals(address, user.address) &&
+               Objects.equals(mobilePhone, user.mobilePhone) &&
+               Objects.equals(chatId, user.chatId) &&
+               Objects.equals(shelter, user.shelter);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, firstName, secondName, nickName, address, mobilePhone, chatId);
+        return Objects.hash(id, firstName, secondName, nickName, address, mobilePhone, chatId, shelter);
     }
 }

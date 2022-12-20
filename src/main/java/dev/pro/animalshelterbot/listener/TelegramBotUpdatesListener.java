@@ -2,13 +2,16 @@ package dev.pro.animalshelterbot.listener;
 
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.UpdatesListener;
-import com.pengrad.telegrambot.model.PhotoSize;
 import com.pengrad.telegrambot.model.Update;
+import com.pengrad.telegrambot.model.request.InlineKeyboardButton;
 import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
 import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.response.SendResponse;
+import dev.pro.animalshelterbot.exception.ChatConfigNotFoundException;
 import dev.pro.animalshelterbot.factory.KeyboardFactory;
 import dev.pro.animalshelterbot.constants.*;
+import dev.pro.animalshelterbot.menu.ButtonType;
+import dev.pro.animalshelterbot.menu.Buttons;
 import dev.pro.animalshelterbot.model.ChatConfig;
 import dev.pro.animalshelterbot.model.DailyReport;
 import dev.pro.animalshelterbot.model.User;
@@ -23,16 +26,16 @@ import javax.annotation.PostConstruct;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * The main service of the bot containing the logic of processing incoming updates
  */
-
 @Service
 public class TelegramBotUpdatesListener implements UpdatesListener {
-/**
- * event recording process
- */
+    /**
+     * event recording process
+     */
     private final Logger logger = LoggerFactory.getLogger(TelegramBotUpdatesListener.class);
 
     private final TelegramBot telegramBot;
@@ -42,6 +45,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
     private final DailyReportService dailyReportService;
 
     private final UserService userService;
+
 
     public TelegramBotUpdatesListener(TelegramBot telegramBot, ChatConfigService chatConfigService,
                                       UserService userService, DailyReportService dailyReportService) {
@@ -67,7 +71,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
             logger.info("Processing update: {}", update);
             Long chatId = 0L;
             String firstName = null, lastName = null, nickName = null;
-            BotStatus botStatus;
+            ChatState chatState;
 
             UpdateType updateType = checkingUpdate(update);
             if(updateType == UpdateType.COMMAND || updateType == UpdateType.MESSAGE || updateType == UpdateType.PHOTO) {
@@ -82,69 +86,97 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                 nickName = update.callbackQuery().from().username();
             }
 
-            ChatConfig chatConfig = chatConfigService.findByChatId(chatId);
-            User user = userService.findByChatId(chatId);
+            Optional<ChatConfig> chatConfigResult = chatConfigService.findByChatId(chatId);
+            Optional<User> userResult = userService.findByChatId(chatId);
+            User user;
+            ChatConfig chatConfig;
 
-            if(chatConfig == null && user == null) { // New user
+            if(chatConfigResult.isEmpty() && userResult.isEmpty()) { // New user
                 user = new User(firstName, lastName, nickName, null, null, chatId);
                 userService.addUser(user);
-                chatConfig = new ChatConfig(chatId, BotStatus.DEFAULT.status);
+                chatConfig = new ChatConfig(chatId, ChatState.AWAITING_SHELTER, null);
                 chatConfigService.addChatConfig(chatConfig);
-                botStatus = BotStatus.NEW_USER;
+                chatState = ChatState.NEW_USER;
             } else { // Not new user
-                botStatus = BotStatus.valueOfStatus(chatConfig.getChatState());
+                user = userResult.get();
+                chatConfig = chatConfigResult.get();
+                chatState = chatConfig.getChatState();
             }
 
-            switch (updateType) {
-                case COMMAND:
-                    processCommands(update, botStatus);
+            switch(chatState) {
+                case NEW_USER:
+                    sendMessage(chatId, Messages.WELCOME_TO_THE_CHATBOT.messageText);
+                    sendMessage(chatId, Messages.CHOOSE_SHELTER.messageText);
+                    sendMenu(chatId, "Приюты", Buttons.DOG_SHELTER, Buttons.CAT_SHELTER);
+                    chatConfig.setChatState(ChatState.AWAITING_SHELTER);
+                    chatConfigService.editChatConfig(chatConfig);
                     break;
-                case MESSAGE:
-                    processMessages(update, botStatus);
+                case AWAITING_SHELTER:
+                    if(updateType == UpdateType.CALL_BACK_QUERY &&
+                            update.callbackQuery().data().equals(Buttons.DOG_SHELTER.bCallBack)) {
+                        user.setShelter(Shelter.DOG_SHELTER);
+                        userService.editUser(user);
+                        chatConfig.setShelter(Shelter.DOG_SHELTER);
+                        chatConfig.setChatState(ChatState.DEFAULT);
+                        chatConfigService.editChatConfig(chatConfig);
+                        sendMessage(chatId, Messages.SHELTER_CHOSEN.messageText +
+                                chatConfig.getShelter().shelterSpecialization + Messages.SHELTER_CHOSEN1);
+                    } else if(updateType == UpdateType.CALL_BACK_QUERY &&
+                            update.callbackQuery().data().equals(Buttons.CAT_SHELTER.bCallBack)) {
+                        user.setShelter(Shelter.CAT_SHELTER);
+                        userService.editUser(user);
+                        chatConfig.setShelter(Shelter.CAT_SHELTER);
+                        chatConfig.setChatState(ChatState.DEFAULT);
+                        chatConfigService.editChatConfig(chatConfig);
+                        sendMessage(chatId, Messages.SHELTER_CHOSEN.messageText +
+                                chatConfig.getShelter().shelterSpecialization + Messages.SHELTER_CHOSEN1.messageText);
+                    } else {
+                        sendMessage(chatId, Messages.CHOOSE_SHELTER1.messageText);
+                        sendMenu(chatId, "Приюты", Buttons.DOG_SHELTER, Buttons.CAT_SHELTER);
+                    }
                     break;
-                case PHOTO:
-//                    processPhotos(update, botStatus);
-                    break;
-                case CALL_BACK_QUERY:
-//                    processCallbackQueries(update, botStatus);
-                    break;
-                case ERROR:
-//                    processErrors(update, botStatus);
-                    break;
+                case SHELTER_CHOSEN:
+                case DEFAULT:
+                case CONSULT_NEW_USER:
+                case CONSULT_POTENTIAL_OWNER:
+                case KEEPING_a_PET:
+                case CHAT_WITH_VOLUNTEER:
+                case AWAITING_GENERAL_WELL_BEING:
+                case AWAITING_DIET:
+                case AWAITING_CHANGE_IN_BEHAVIOR:
+                case AWAITING_PHOTO:
+                case AWAITING_ADDRESS:
+                case AWAITING_PHONE:
             }
+
+//            switch (updateType) {
+//                case COMMAND:
+//                    processCommands(update, chatState);
+//                    break;
+//                case MESSAGE:
+//                    processMessages(update, chatState);
+//                    break;
+//                case PHOTO:
+//                    processPhotos(update, botStatus);
+//                    break;
+//                case CALL_BACK_QUERY:
+//                    processCallbackQueries(update, botStatus);
+//                    break;
+//                case ERROR:
+//                    processErrors(update, botStatus);
+//                    break;
+//            }
 
 //            statusDeterminant(update.message().chat().id(), update);
 
         });
         return UpdatesListener.CONFIRMED_UPDATES_ALL;
     }
-    private void processMessages(Update update, BotStatus botStatus) {
-        Long chatId = update.message().chat().id();
-        DailyReport currentDailyReport;
-        if(botStatus == BotStatus.AWAITING_GENERAL_WELL_BEING) {
-            currentDailyReport = dailyReportService.findDailyReportByChatId(chatId);
-            if(currentDailyReport == null) { // new daily report
-                LocalDateTime localDateTime = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES);
-                currentDailyReport = new DailyReport(localDateTime, null, null, null,
-                        null, null, update.message().text(), null);
-                dailyReportService.addDailyReport(currentDailyReport);
-                sendMessage(chatId, Messages.GENERAL_WELL_BEING_RECEIVED.messageText);
-                ChatConfig chatConfig = chatConfigService.findByChatId(chatId);
-                chatConfig.setChatState(BotStatus.KEEPING_a_PET.status);
-                chatConfigService.editChatConfig(chatConfig);
-            } else {
-
-            }
-        }
-
-
-    }
-
 
     /**
      * commands that the user sends
      */
-    private void processCommands(Update update, BotStatus botStatus) {
+    private void processCommands(Update update, ChatState chatState) {
         Long chatId = update.message().chat().id();
         Commands command = Commands.valueOfCommandText(update.message().text());
         if(command == null) {
@@ -153,11 +185,15 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
             return;
         }
         if(command == Commands.START) {
-            switch (botStatus) {
+            switch (chatState) {
                 case NEW_USER:
                     sendMessage(chatId, Messages.WELCOME_TO_THE_CHATBOT.messageText);
-                    sendMessage(chatId, Messages.HELP.messageText);
+                    sendMessage(chatId, Messages.CHOOSE_SHELTER.messageText);
+                    sendMenu(chatId, "Приюты", Buttons.DOG_SHELTER, Buttons.CAT_SHELTER);
                     break;
+                case AWAITING_SHELTER:
+                    sendMessage(chatId, Messages.CHOOSE_SHELTER1.messageText);
+                    sendMenu(chatId, "Приюты", Buttons.DOG_SHELTER, Buttons.CAT_SHELTER);
                 case DEFAULT:
                 case CONSULT_NEW_USER:
                 case CONSULT_POTENTIAL_OWNER:
@@ -188,6 +224,35 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
 //            }
 //        } else statusDeterminant(chatId, update);
     }
+
+
+    private void processMessages(Update update, ChatState chatState) {
+        Long chatId = update.message().chat().id();
+        DailyReport currentDailyReport;
+        if(chatState == ChatState.AWAITING_GENERAL_WELL_BEING) {
+            currentDailyReport = dailyReportService.findDailyReportByChatId(chatId);
+            if(currentDailyReport == null) { // new daily report
+                LocalDateTime localDateTime = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES);
+                currentDailyReport = new DailyReport(localDateTime, null, null, null,
+                        null, null, update.message().text(), null);
+                dailyReportService.addDailyReport(currentDailyReport);
+                sendMessage(chatId, Messages.GENERAL_WELL_BEING_RECEIVED.messageText);
+                Optional<ChatConfig> chatConfigResult = chatConfigService.findByChatId(chatId);
+                if(chatConfigResult.isEmpty()) {
+                    throw new ChatConfigNotFoundException("Запись конфигурации чата с таким chatId не найдена!");
+                } else {
+                    chatConfigResult.get().setChatState(ChatState.KEEPING_a_PET);
+                    chatConfigService.editChatConfig(chatConfigResult.get());
+                }
+            } else {
+
+            }
+        }
+
+
+    }
+
+
 
     /**
      * user stage check
@@ -235,10 +300,10 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
      * return user response
      */
     private SendResponse statusDeterminant(Long chatId, Update update) {
-        Long botStatus = chatConfigService.findByChatId(chatId).getChatId();
+        Long botStatus = chatConfigService.findByChatId(chatId).get().getChatId();
         SendMessage message = new SendMessage(chatId, Constants.CHOOSE_OPTION);
         SendResponse response = telegramBot.execute(message);
-        BotStatus bStatus = getBotStatusByLong(botStatus);
+        ChatState bStatus = getBotStatusByLong(botStatus);
         switch (bStatus) {
             case DEFAULT:
                 startButtons(update);
@@ -263,12 +328,12 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
         return response;
     }
 
-    private BotStatus getBotStatusByLong(Long botStatus) {
-        for (BotStatus s : BotStatus.values()) {
+    private ChatState getBotStatusByLong(Long botStatus) {
+        for (ChatState s : ChatState.values()) {
             if(s.equals(botStatus))
                 return s;
         }
-        return BotStatus.DEFAULT;
+        return ChatState.DEFAULT;
     }
 
     private void keepingPet(Update update) {
@@ -294,6 +359,24 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
             logger.info("message: {} is sent ", message);
         } else {
             logger.warn("Message was not sent. Error code:  " + response.errorCode());
+        }
+    }
+
+    private void sendMenu(Long chatId, String menuHeader, Buttons... buttons) {
+        InlineKeyboardButton[] inlineKeyboardButtons = new InlineKeyboardButton[buttons.length];
+        for(int i = 0; i < buttons.length; i++) {
+            if(buttons[i].bType.equals(ButtonType.CALLBACK)) {
+                inlineKeyboardButtons[i] = new InlineKeyboardButton(buttons[i].bText).callbackData(buttons[i].bCallBack);
+            } else {
+                inlineKeyboardButtons[i] = new InlineKeyboardButton(buttons[i].bText).url(buttons[i].url);
+            }
+        }
+        InlineKeyboardMarkup inlineKeyboard = new InlineKeyboardMarkup(inlineKeyboardButtons);
+        SendMessage message = new SendMessage(chatId, menuHeader);
+        message.replyMarkup(inlineKeyboard);
+        SendResponse response = telegramBot.execute(message);
+        if (!response.isOk()) {
+            logger.error("Response error: {} {}", response.errorCode(), response.message());
         }
     }
 
