@@ -5,6 +5,7 @@ import dev.pro.animalshelterbot.exception.DailyReportNotFoundException;
 import dev.pro.animalshelterbot.exception.UserNotFoundException;
 import dev.pro.animalshelterbot.model.Animal;
 import dev.pro.animalshelterbot.model.DailyReport;
+import dev.pro.animalshelterbot.model.User;
 import dev.pro.animalshelterbot.repository.DailyReportRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,6 +23,7 @@ import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 import static java.nio.file.StandardOpenOption.CREATE_NEW;
@@ -34,8 +36,15 @@ public class DailyReportService {
 
     private final DailyReportRepository dailyReportRepository;
 
-    public DailyReportService(DailyReportRepository dailyReportRepository) {
+    private final ChatConfigService chatConfigService;
+
+    private final UserService userService;
+
+    public DailyReportService(DailyReportRepository dailyReportRepository, ChatConfigService chatConfigService,
+                                UserService userService) {
         this.dailyReportRepository = dailyReportRepository;
+        this.chatConfigService = chatConfigService;
+        this.userService = userService;
     }
     /**
      * event recording process
@@ -194,8 +203,8 @@ public class DailyReportService {
         List<DailyReport> dailyReports = dailyReportRepository.getDailyReportByAnimalId(animal.getId());
         for(DailyReport dr : dailyReports){
             if(dr.getDateTime().truncatedTo(ChronoUnit.DAYS).isEqual(localDateTime))
-                return Optional.of(dr);
+                return dr;
         }
-        return Optional.empty();
+        return null;
     }
 }
