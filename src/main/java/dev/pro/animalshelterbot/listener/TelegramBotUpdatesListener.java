@@ -225,7 +225,11 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
 //        } else statusDeterminant(chatId, update);
     }
 
-
+    /**
+     * НА ДАННЫЙ МОМЕНТ МЕТОД НЕ ИСПОЛЬЗУЕТСЯ
+     * @param update
+     * @param chatState
+     */
     private void processMessages(Update update, ChatState chatState) {
         Long chatId = update.message().chat().id();
         DailyReport currentDailyReport;
@@ -294,6 +298,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
     }
 
     /**
+     * НА ДАННЫЙ МОМЕНТ МЕТОД НЕ ИСПОЛЬЗУЕТСЯ
      * user menu
      * param chatId must not be null
      * param update must not be null
@@ -328,6 +333,11 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
         return response;
     }
 
+    /**
+     * depending on the status of the chat, we get the status of the bot
+     * @param botStatus
+     * @return bot status
+     */
     private ChatState getBotStatusByLong(Long botStatus) {
         for (ChatState s : ChatState.values()) {
             if(s.equals(botStatus))
@@ -336,22 +346,44 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
         return ChatState.DEFAULT;
     }
 
+    /**
+     * depending on the update, we use the method of keeping pet
+     * @param update
+     */
     private void keepingPet(Update update) {
         KeyboardFactory.stageThree();
     }
 
+    /**
+     * depending on the update, we use the method consult potential Owner
+     * @param update
+     */
     private void consultPotentialOwner(Update update) {
         KeyboardFactory.stageTwo();
     }
 
+    /**
+     * depending on the update, we use the method consult new user
+     * @param update
+     */
     private void consultNewUser(Update update) {
         KeyboardFactory.stageOne();
     }
 
+    /**
+     * depending on the update, we use the method start buttons
+     * @param update
+     */
     private void startButtons(Update update) {
         KeyboardFactory.startButtons();
     }
 
+    /**
+     * tdepending on the incoming message, choose what to reply to the user
+     * @param chatId
+     * @param message
+     * record an event about a sent message or an error
+     */
     private void sendMessage(Long chatId, String message) {
         SendMessage sendMessage = new SendMessage(chatId, message);
         SendResponse response = telegramBot.execute(sendMessage);
@@ -362,6 +394,13 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
         }
     }
 
+    /**
+     * depending on the condition, we give the opportunity to return back to the menu or go to the cattery website
+     * @param chatId
+     * @param menuHeader
+     * @param buttons
+     * if the message is not sent record an event about a sent message or an error
+     */
     private void sendMenu(Long chatId, String menuHeader, Buttons... buttons) {
         InlineKeyboardButton[] inlineKeyboardButtons = new InlineKeyboardButton[buttons.length];
         for(int i = 0; i < buttons.length; i++) {
@@ -380,6 +419,12 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
         }
     }
 
+    /**
+     * НА ДАННЫЙ МОМЕНТ МЕТОД НЕ ИСПОЛЬЗУЕТСЯ
+     * @param update
+     * @param message
+     * @param keyboardMarkup
+     */
     private void sendMessageWithKeyboard(Update update, String message, InlineKeyboardMarkup keyboardMarkup) {
         Long chatId = update.message().chat().id();
         SendResponse response = telegramBot.execute(new SendMessage(chatId, message).replyMarkup(keyboardMarkup));

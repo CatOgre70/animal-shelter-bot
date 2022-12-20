@@ -100,6 +100,7 @@ public class Animal {
         this.avatarPreview = null;
         this.adoptionDate = null;
         this.mediaType = null;
+        return;
     }
 
     /**

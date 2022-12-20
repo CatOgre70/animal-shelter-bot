@@ -2,7 +2,9 @@ package dev.pro.animalshelterbot.constants;
 
 import java.util.HashMap;
 import java.util.Map;
-
+/**
+ * this class contains a list of responses to correct and incorrect user requests
+ */
 public enum Messages {
     THERE_IS_NO_SUCH_COMMAND("Команда не распознана. Хотите поговорить с волонтером?"),
     WELCOME_TO_THE_CHATBOT("Добро пожаловать в наш самый распрекрасный чат-бот..."),
