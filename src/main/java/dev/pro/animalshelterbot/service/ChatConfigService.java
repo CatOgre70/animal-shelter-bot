@@ -42,7 +42,7 @@ public class ChatConfigService {
     public Optional<ChatConfig> editChatConfig(ChatConfig chatConfig) {
         logger.info("Method \"ChatConfigService.editChatConfig()\" was called");
         Optional<ChatConfig> result = chatConfigRepository.findById(chatConfig.getId());
-        if(!result.isPresent()) {
+        if(result.isEmpty()) {
             return Optional.empty();
         }
         else {

@@ -19,6 +19,7 @@ import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
@@ -120,7 +121,7 @@ public class DailyReportService {
      * save photo in dailyReport
      */
     public void uploadPhoto(Long id, MultipartFile photo) throws IOException {
-        logger.info("Method \"AnimalService.uploadAvatar()\" was invoked");
+        logger.info("Method \"AnimalService.uploadPhoto()\" was invoked");
 
         DailyReport dailyReport = dailyReportRepository.findById(id).orElseThrow(
                 () -> new DailyReportNotFoundException("There is no animal with such id in the database"));
@@ -140,6 +141,28 @@ public class DailyReportService {
         dailyReport.setMediaType(photo.getContentType());
         try {
             dailyReport.setSmallPicture(generateImagePreview(filePath));
+        } catch(IOException e) {
+            logger.error(Arrays.toString(e.getStackTrace()));
+        }
+        dailyReportRepository.save(dailyReport);
+    }
+
+    public void downloadAndUploadPhoto(Long id, String fileFullPath, Long fileSize, String mediaType) throws IOException {
+        logger.info("Method \"AnimalService.downloadAndUploadPhoto()\" was invoked");
+        DailyReport dailyReport = dailyReportRepository.findById(id).orElseThrow(
+                () -> new DailyReportNotFoundException("There is no animal with such id in the database"));
+        BufferedInputStream bis = new BufferedInputStream(new URL(fileFullPath).openStream(), 1024);
+        Path outputFilePath = Path.of(photosDir, id + "." + getExtensions(fileFullPath));
+        Files.createDirectories(outputFilePath.getParent());
+        Files.deleteIfExists(outputFilePath);
+        OutputStream os = Files.newOutputStream(outputFilePath, CREATE_NEW);
+        BufferedOutputStream bos = new BufferedOutputStream(os, 1024);
+        bis.transferTo(bos);
+        dailyReport.setFilePath(outputFilePath.toString());
+        dailyReport.setFileSize(fileSize);
+        dailyReport.setMediaType(mediaType);
+        try {
+            dailyReport.setSmallPicture(generateImagePreview(outputFilePath));
         } catch(IOException e) {
             logger.error(Arrays.toString(e.getStackTrace()));
         }

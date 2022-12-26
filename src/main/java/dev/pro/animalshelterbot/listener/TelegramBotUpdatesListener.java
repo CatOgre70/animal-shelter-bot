@@ -2,10 +2,13 @@ package dev.pro.animalshelterbot.listener;
 
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.UpdatesListener;
+import com.pengrad.telegrambot.model.File;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.model.request.InlineKeyboardButton;
 import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
+import com.pengrad.telegrambot.request.GetFile;
 import com.pengrad.telegrambot.request.SendMessage;
+import com.pengrad.telegrambot.response.GetFileResponse;
 import com.pengrad.telegrambot.response.SendResponse;
 import dev.pro.animalshelterbot.exception.AnimalNotFoundException;
 import dev.pro.animalshelterbot.exception.ChatConfigNotFoundException;
@@ -26,8 +29,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -232,7 +237,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                                 Buttons.SHELTER_INFO, Buttons.ANIMAL_INFO, Buttons.DAILY_REPORT, Buttons.HELP,
                                 Buttons.CALL_VOLUNTEER);
                     } else {
-
+                        logger.error("Unrecognized update!");
                     }
                     break;
                 case CONSULT_NEW_USER:
@@ -289,7 +294,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                                     Buttons.HELP, Buttons.CALL_VOLUNTEER);
                         }
                     } else {
-
+                        logger.error("Unrecognized update!");
                     }
                     break;
                 case CONSULT_POTENTIAL_OWNER:
@@ -348,7 +353,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                                     Buttons.SEND_PHONE_AND_ADDRESS, Buttons.HELP, Buttons.CALL_VOLUNTEER);
                         }
                     } else {
-
+                        logger.error("Unrecognized update!");
                     }
                     break;
                 case KEEPING_a_PET:
@@ -413,7 +418,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                                 Buttons.DR_DIET, Buttons.DR_CHANGE_IN_BEHAVIOR, Buttons.DR_PHOTO,
                                 Buttons.HELP, Buttons.CALL_VOLUNTEER);
                     } else {
-
+                        logger.error("Unrecognized update!");
                     }
                     break;
                 case CHAT_WITH_VOLUNTEER:
@@ -453,7 +458,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                         // We are not processing callback queries at this stage
                         sendMessage(chatId, Messages.SEND_GENERAL_WELL_BEING.messageText);
                     } else {
-
+                        logger.error("Unrecognized update!");
                     }
                     break;
                 case AWAITING_DIET:
@@ -492,7 +497,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                         // We are not processing callback queries at this stage
                         sendMessage(chatId, Messages.SEND_CHANGE_IN_BEHAVIOR.messageText);
                     } else {
-
+                        logger.error("Unrecognized update!");
                     }
                     break;
                 case AWAITING_CHANGE_IN_BEHAVIOR:
@@ -531,7 +536,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                         // We are not processing callback queries at this stage
                         sendMessage(chatId, Messages.SEND_CHANGE_IN_BEHAVIOR.messageText);
                     } else {
-
+                        logger.error("Unrecognized update!");
                     }
                     break;
                 case AWAITING_PHOTO:
@@ -557,16 +562,34 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                             } else {
                                 currentDailyReport.setAnimal(animalResult.get());
                             }
+                            currentDailyReport = dailyReportService.addDailyReport(currentDailyReport);
+                            // Sent photo processing
+                            String fileId = update.message().photo()[2].fileId();
+                            GetFile request = new GetFile(fileId);
+                            GetFileResponse getFileResponse = telegramBot.execute(request);
+                            File file = getFileResponse.file();
+                            String fullPath = telegramBot.getFullFilePath(file);
+                            try {
+                                dailyReportService.downloadAndUploadPhoto(currentDailyReport.getId(), fullPath,
+                                        file.fileSize(), "image/jpeg");
+                            } catch(IOException e) {
+                                logger.error(Arrays.toString(e.getStackTrace()));
+                            }
 
-                            // Вот тут обработка присланной фотографии
-
-                            dailyReportService.addDailyReport(currentDailyReport);
                         } else { // Existing daily report
                             currentDailyReport = result.get();
-
-                            // Вот тут обработка присланной фотографии
-
-                            dailyReportService.editDailyReport(currentDailyReport);
+                            // Sent photo processing
+                            String fileId = update.message().photo()[2].fileId();
+                            GetFile request = new GetFile(fileId);
+                            GetFileResponse getFileResponse = telegramBot.execute(request);
+                            File file = getFileResponse.file();
+                            String fullPath = telegramBot.getFullFilePath(file);
+                            try {
+                                dailyReportService.downloadAndUploadPhoto(currentDailyReport.getId(), fullPath,
+                                        file.fileSize(), "image/jpeg");
+                            } catch(IOException e) {
+                                logger.error(Arrays.toString(e.getStackTrace()));
+                            }
                         }
                         chatConfig.setChatState(ChatState.KEEPING_a_PET);
                         chatConfigService.editChatConfig(chatConfig);
@@ -575,7 +598,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                         // We are not processing callback queries at this stage
                         sendMessage(chatId, Messages.SEND_CHANGE_IN_BEHAVIOR.messageText);
                     } else {
-
+                        logger.error("Unrecognized update!");
                     }
                     break;
 
