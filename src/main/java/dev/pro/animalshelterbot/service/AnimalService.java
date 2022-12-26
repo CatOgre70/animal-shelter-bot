@@ -1,13 +1,15 @@
 package dev.pro.animalshelterbot.service;
-import dev.pro.animalshelterbot.constants.AnimalKind;
 import dev.pro.animalshelterbot.exception.AnimalNotFoundException;
 import dev.pro.animalshelterbot.model.Animal;
+import dev.pro.animalshelterbot.model.DailyReport;
+import dev.pro.animalshelterbot.model.User;
 import dev.pro.animalshelterbot.repository.AnimalRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.imageio.ImageIO;
@@ -23,6 +25,7 @@ import java.util.Optional;
 
 import static java.nio.file.StandardOpenOption.CREATE_NEW;
 
+@Transactional
 @Service
 public class AnimalService {
 
@@ -30,9 +33,11 @@ public class AnimalService {
     private String avatarsDir;
 
     private final AnimalRepository animalRepository;
+    private final UserService userService;
 
-    public AnimalService(AnimalRepository animalRepository) {
+    public AnimalService(AnimalRepository animalRepository, UserService userService) {
         this.animalRepository = animalRepository;
+        this.userService = userService;
     }
 
     /**
@@ -124,7 +129,7 @@ public class AnimalService {
      * event recording process
      * @return found animal
      */
-    public Collection <Animal> getAllAnimals() {
+    public List<Animal> getAllAnimals() {
         logger.info("Method \"UserService.getAllAnimal()\" was called");
         return animalRepository.findAll();
     }
@@ -199,5 +204,22 @@ public class AnimalService {
     }
 
 
+    public Optional<Animal> getAnimalByChatId(Long chatId) {
+        Optional<User> userResult = userService.findByChatId(chatId);
+        if(userResult.isEmpty()) {
+            return Optional.empty();
+        } else {
+            return Optional.of(userResult.get().getAdoptedAnimal());
+        }
+    }
+
+    public List<DailyReport> getDailyReports(Long id) {
+        Optional<Animal> response = animalRepository.findById(id);
+        if(response.isPresent()) {
+            return response.get().getReports();
+        } else {
+            return List.of();
+        }
+    }
 
 }
