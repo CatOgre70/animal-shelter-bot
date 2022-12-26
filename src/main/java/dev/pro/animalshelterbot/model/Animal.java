@@ -1,6 +1,5 @@
 package dev.pro.animalshelterbot.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import dev.pro.animalshelterbot.constants.AnimalKind;
 import dev.pro.animalshelterbot.constants.Shelter;
@@ -105,7 +104,6 @@ public class Animal {
         this.avatarPreview = null;
         this.adoptionDate = null;
         this.mediaType = null;
-        return;
     }
 
     /**
@@ -228,6 +226,14 @@ public class Animal {
 
     public void setReports(List<DailyReport> dailyReports) {
         this.dailyReports = dailyReports;
+    }
+
+    public Shelter getShelter() {
+        return shelter;
+    }
+
+    public void setShelter(Shelter shelter) {
+        this.shelter = shelter;
     }
 
     @Override

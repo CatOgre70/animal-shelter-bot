@@ -183,7 +183,7 @@ public class DailyReport {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         DailyReport report = (DailyReport) o;
-        return fileSize == report.fileSize && Objects.equals(id, report.id) && Objects.equals(dateTime, report.dateTime) && Objects.equals(filePath, report.filePath) && Arrays.equals(smallPicture, report.smallPicture) && Objects.equals(diet, report.diet) && Objects.equals(generalWellBeing, report.generalWellBeing) && Objects.equals(changeInBehavior, report.changeInBehavior) && Objects.equals(animal, report.animal);
+        return Objects.equals(fileSize, report.fileSize) && Objects.equals(id, report.id) && Objects.equals(dateTime, report.dateTime) && Objects.equals(filePath, report.filePath) && Arrays.equals(smallPicture, report.smallPicture) && Objects.equals(diet, report.diet) && Objects.equals(generalWellBeing, report.generalWellBeing) && Objects.equals(changeInBehavior, report.changeInBehavior) && Objects.equals(animal, report.animal);
     }
 
     @Override

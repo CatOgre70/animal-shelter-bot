@@ -1,11 +1,9 @@
 package dev.pro.animalshelterbot.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import dev.pro.animalshelterbot.constants.Shelter;
 
 import javax.persistence.*;
-import java.util.List;
 import java.util.Objects;
 
 /**

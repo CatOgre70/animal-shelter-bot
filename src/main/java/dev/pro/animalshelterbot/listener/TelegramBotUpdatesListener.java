@@ -2,10 +2,13 @@ package dev.pro.animalshelterbot.listener;
 
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.UpdatesListener;
+import com.pengrad.telegrambot.model.File;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.model.request.InlineKeyboardButton;
 import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
+import com.pengrad.telegrambot.request.GetFile;
 import com.pengrad.telegrambot.request.SendMessage;
+import com.pengrad.telegrambot.response.GetFileResponse;
 import com.pengrad.telegrambot.response.SendResponse;
 import dev.pro.animalshelterbot.exception.AnimalNotFoundException;
 import dev.pro.animalshelterbot.exception.ChatConfigNotFoundException;
@@ -26,8 +29,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -557,16 +562,34 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                             } else {
                                 currentDailyReport.setAnimal(animalResult.get());
                             }
+                            currentDailyReport = dailyReportService.addDailyReport(currentDailyReport);
+                            // Sent photo processing
+                            String fileId = update.message().photo()[2].fileId();
+                            GetFile request = new GetFile(fileId);
+                            GetFileResponse getFileResponse = telegramBot.execute(request);
+                            File file = getFileResponse.file();
+                            String fullPath = telegramBot.getFullFilePath(file);
+                            try {
+                                dailyReportService.downloadAndUploadPhoto(currentDailyReport.getId(), fullPath,
+                                        file.fileSize(), "image/jpeg");
+                            } catch(IOException e) {
+                                logger.error(e.getStackTrace().toString());
+                            }
 
-                            // Вот тут обработка присланной фотографии
-
-                            dailyReportService.addDailyReport(currentDailyReport);
                         } else { // Existing daily report
                             currentDailyReport = result.get();
-
-                            // Вот тут обработка присланной фотографии
-
-                            dailyReportService.editDailyReport(currentDailyReport);
+                            // Sent photo processing
+                            String fileId = update.message().photo()[2].fileId();
+                            GetFile request = new GetFile(fileId);
+                            GetFileResponse getFileResponse = telegramBot.execute(request);
+                            File file = getFileResponse.file();
+                            String fullPath = telegramBot.getFullFilePath(file);
+                            try {
+                                dailyReportService.downloadAndUploadPhoto(currentDailyReport.getId(), fullPath,
+                                        file.fileSize(), "image/jpeg");
+                            } catch(IOException e) {
+                                logger.error(Arrays.toString(e.getStackTrace()));
+                            }
                         }
                         chatConfig.setChatState(ChatState.KEEPING_a_PET);
                         chatConfigService.editChatConfig(chatConfig);
