@@ -2,6 +2,8 @@ package dev.pro.animalshelterbot.controller;
 
 import dev.pro.animalshelterbot.constants.AnimalKind;
 import dev.pro.animalshelterbot.model.Animal;
+import dev.pro.animalshelterbot.model.DailyReport;
+import dev.pro.animalshelterbot.service.DailyReportService;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +23,8 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.net.URI;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 @ActiveProfiles("test")
@@ -33,6 +37,9 @@ public class AnimalControllerTest {
 
     @Autowired
     private TestRestTemplate restTemplate;
+
+    @Autowired
+    private DailyReportService dailyReportService;
 
     @Test
     public void createAnimalTest() {
@@ -192,7 +199,72 @@ public class AnimalControllerTest {
         Assertions.assertThat(response.getBody()).isNotNull();
     }
  */
-
+    @Test
+    public void getReportsTest() {
+        Animal animal0 = givenAnimalWith("Matroskin", AnimalKind.CAT, "Maine Coon", "Gray");
+        Animal animal1 = givenAnimalWith("Sharik", AnimalKind.DOG, "Cur", "Brown");
+        Animal animal2 = givenAnimalWith("Burenka", AnimalKind.COW, "Yaroslavl", "Black and White");
+        Animal animal3 = givenAnimalWith("Bobik", AnimalKind.DOG, "Cur", "Black");
+        Animal animal4 = givenAnimalWith("Musia", AnimalKind.CAT, "Siberian", "Black with white tie");
+        URI uri = getURIBuilder().build().toUri();
+        addAnimalInTheDatabase(uri, animal0);
+        addAnimalInTheDatabase(uri, animal1);
+        addAnimalInTheDatabase(uri, animal2);
+        addAnimalInTheDatabase(uri, animal3);
+        addAnimalInTheDatabase(uri, animal4);
+        MultiValueMap<String, String> queryParams = new LinkedMultiValueMap<>();
+        queryParams.add("name", "Sharik");
+        uri = getURIBuilder().queryParams(queryParams).build().toUri();
+        ResponseEntity<List<Animal>> response = restTemplate.exchange(
+                uri,
+                HttpMethod.GET,
+                null,
+                new ParameterizedTypeReference<List<Animal>>() {
+                });
+        Assertions.assertThat(response.getBody()).isNotNull();
+        Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        Animal actualResult = response.getBody().get(0);
+        List<DailyReport> expectedResult = new ArrayList<>();
+        LocalDateTime localDateTime = LocalDateTime.of(2022, 12, 23, 9, 0, 0).truncatedTo(ChronoUnit.DAYS);
+        DailyReport dailyReport1 = new DailyReport(localDateTime, null, 0L, null, null,
+                "Оптяь жрал тухлую селедку на помойке", "Потом блевал, но выглядел довольным",
+                "Надо приучить его не есть с помойки, а также не убегать от меня во время прогулки");
+        dailyReport1.setAnimal(actualResult);
+        dailyReportService.addDailyReport(dailyReport1);
+        expectedResult.add(dailyReport1);
+        localDateTime = LocalDateTime.of(2022, 12, 22, 9, 0, 0).truncatedTo(ChronoUnit.DAYS);
+        DailyReport dailyReport2 = new DailyReport(localDateTime, null, 0L, null, null,
+                "Жрал тухлую селедку на помойке", "Потом блевал, но выглядел страшно довольным",
+                "Никак не приучу его не есть с помойки, а также не убегать от меня во время прогулки");
+        dailyReport2.setAnimal(actualResult);
+        dailyReportService.addDailyReport(dailyReport2);
+        expectedResult.add(dailyReport2);
+        localDateTime = LocalDateTime.of(2022, 12, 21, 9, 0, 0).truncatedTo(ChronoUnit.DAYS);
+        DailyReport dailyReport3 = new DailyReport(localDateTime, null, 0L, null, null,
+                "Ел корм, купленный в зоомагазине по рекомендациям лучших собаководов", "Спал, гулял нормально, выглядит хорошо",
+                "Попробую отпусть его завтра с поводка");
+        dailyReport3.setAnimal(actualResult);
+        dailyReportService.addDailyReport(dailyReport3);
+        expectedResult.add(dailyReport3);
+        localDateTime = LocalDateTime.of(2022, 12, 20, 9, 0, 0).truncatedTo(ChronoUnit.DAYS);
+        DailyReport dailyReport4 = new DailyReport(localDateTime, null, 0L, null, null,
+                "Ничего не ел, только пил, по-видимому привыкает к новому месту", "Спал плохо, почти не отходил от моей кровати",
+                "Завтра пойдем гулять во двор");
+        dailyReport4.setAnimal(actualResult);
+        dailyReportService.addDailyReport(dailyReport4);
+        expectedResult.add(dailyReport4);
+        uri = getURIBuilder().path("/{id}/reports").buildAndExpand(actualResult.getId()).toUri();
+        ResponseEntity<List<DailyReport>> response1 = restTemplate.exchange(
+                uri,
+                HttpMethod.GET,
+                null,
+                new ParameterizedTypeReference<List<DailyReport>>() {
+                });
+        Assertions.assertThat(response1.getBody()).isNotNull();
+        Assertions.assertThat(response1.getStatusCode()).isEqualTo(HttpStatus.OK);
+        List<DailyReport> actualResult1 = response1.getBody();
+        Assertions.assertThat(actualResult1).containsExactlyInAnyOrder(dailyReport1, dailyReport2, dailyReport3, dailyReport4);
+    }
 
 
     private void animalHasBeenUpdated(Animal animal, String features, LocalDateTime localDateTime) {

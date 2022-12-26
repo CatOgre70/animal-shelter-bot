@@ -1,5 +1,7 @@
 package dev.pro.animalshelterbot.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -61,7 +63,9 @@ public class DailyReport {
     /**
      * Daily report is about this animal
      */
+    @JsonIgnoreProperties("dailyReports")
     @ManyToOne
+    @JoinColumn(name = "animal_id")
     private Animal animal;
 
     /**

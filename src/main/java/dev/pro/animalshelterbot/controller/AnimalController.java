@@ -3,6 +3,7 @@ package dev.pro.animalshelterbot.controller;
 import dev.pro.animalshelterbot.constants.AnimalKind;
 import dev.pro.animalshelterbot.exception.AnimalNotFoundException;
 import dev.pro.animalshelterbot.model.Animal;
+import dev.pro.animalshelterbot.model.DailyReport;
 import dev.pro.animalshelterbot.service.AnimalService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -54,6 +55,26 @@ public class AnimalController {
     ResponseEntity<Animal> getAnimalById(@Parameter(description = "animal id", example = "123")@PathVariable Long id) {
         Optional<Animal> animal = animalService.getAnimalById(id);
         return animal.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @Operation (
+            summary = "get daily reports regarding the animal by id",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "daily reports regarding the animal from the db",
+                            content = @Content(
+                                    mediaType  = MediaType.APPLICATION_JSON_VALUE,
+                                    array = @ArraySchema(schema = @Schema(implementation = DailyReport.class))
+
+                            )
+                    )
+            },
+            tags = "Animals"
+    )
+    @GetMapping("/{id}/reports")
+    ResponseEntity<List<DailyReport>> getReportsByAnimalId(@Parameter(description = "animal id", example = "123")@PathVariable Long id) {
+        return ResponseEntity.ok(animalService.getDailyReports(id));
     }
 
     @Operation (

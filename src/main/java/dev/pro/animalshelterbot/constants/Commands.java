@@ -15,7 +15,10 @@ public enum Commands{
 
     START("/start"),
     HELP("/help"),
-    MENU("/menu");
+    MENU("/menu"),
+    UP("/up"),
+    CALL_VOLUNTEERS("/callvolunteers"),
+    TO_BE_VOLUNTEER("/tobevolunteer");
 
     public final String commandText;
 
