@@ -237,7 +237,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                                 Buttons.SHELTER_INFO, Buttons.ANIMAL_INFO, Buttons.DAILY_REPORT, Buttons.HELP,
                                 Buttons.CALL_VOLUNTEER);
                     } else {
-
+                        logger.error("Unrecognized update!");
                     }
                     break;
                 case CONSULT_NEW_USER:
@@ -294,7 +294,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                                     Buttons.HELP, Buttons.CALL_VOLUNTEER);
                         }
                     } else {
-
+                        logger.error("Unrecognized update!");
                     }
                     break;
                 case CONSULT_POTENTIAL_OWNER:
@@ -353,7 +353,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                                     Buttons.SEND_PHONE_AND_ADDRESS, Buttons.HELP, Buttons.CALL_VOLUNTEER);
                         }
                     } else {
-
+                        logger.error("Unrecognized update!");
                     }
                     break;
                 case KEEPING_a_PET:
@@ -418,7 +418,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                                 Buttons.DR_DIET, Buttons.DR_CHANGE_IN_BEHAVIOR, Buttons.DR_PHOTO,
                                 Buttons.HELP, Buttons.CALL_VOLUNTEER);
                     } else {
-
+                        logger.error("Unrecognized update!");
                     }
                     break;
                 case CHAT_WITH_VOLUNTEER:
@@ -458,7 +458,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                         // We are not processing callback queries at this stage
                         sendMessage(chatId, Messages.SEND_GENERAL_WELL_BEING.messageText);
                     } else {
-
+                        logger.error("Unrecognized update!");
                     }
                     break;
                 case AWAITING_DIET:
@@ -497,7 +497,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                         // We are not processing callback queries at this stage
                         sendMessage(chatId, Messages.SEND_CHANGE_IN_BEHAVIOR.messageText);
                     } else {
-
+                        logger.error("Unrecognized update!");
                     }
                     break;
                 case AWAITING_CHANGE_IN_BEHAVIOR:
@@ -536,7 +536,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                         // We are not processing callback queries at this stage
                         sendMessage(chatId, Messages.SEND_CHANGE_IN_BEHAVIOR.messageText);
                     } else {
-
+                        logger.error("Unrecognized update!");
                     }
                     break;
                 case AWAITING_PHOTO:
@@ -573,7 +573,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                                 dailyReportService.downloadAndUploadPhoto(currentDailyReport.getId(), fullPath,
                                         file.fileSize(), "image/jpeg");
                             } catch(IOException e) {
-                                logger.error(e.getStackTrace().toString());
+                                logger.error(Arrays.toString(e.getStackTrace()));
                             }
 
                         } else { // Existing daily report
@@ -598,7 +598,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                         // We are not processing callback queries at this stage
                         sendMessage(chatId, Messages.SEND_CHANGE_IN_BEHAVIOR.messageText);
                     } else {
-
+                        logger.error("Unrecognized update!");
                     }
                     break;
 
