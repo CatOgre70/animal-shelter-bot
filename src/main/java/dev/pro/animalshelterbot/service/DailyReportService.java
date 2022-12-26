@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.imageio.ImageIO;
@@ -28,6 +29,7 @@ import java.util.Optional;
 
 import static java.nio.file.StandardOpenOption.CREATE_NEW;
 
+@Transactional
 @Service
 public class DailyReportService {
 
@@ -185,7 +187,7 @@ public class DailyReportService {
      * AdoptedAnimalNotFoundException - the animal does not have a guardian
      * @return daily report
      */
-    public DailyReport findDailyReportByChatId(Long chatId) {
+    public Optional<DailyReport> findDailyReportByChatId(Long chatId) {
         LocalDateTime localDateTime = LocalDateTime.now().truncatedTo(ChronoUnit.DAYS);
         Optional<User> result = userService.findByChatId(chatId);
         Animal animal;
@@ -200,8 +202,8 @@ public class DailyReportService {
         List<DailyReport> dailyReports = animal.getReports();
         for(DailyReport dr : dailyReports){
             if(dr.getDateTime().truncatedTo(ChronoUnit.DAYS).isEqual(localDateTime))
-                return dr;
+                return Optional.of(dr);
         }
-        return null;
+        return Optional.empty();
     }
 }
