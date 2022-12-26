@@ -36,7 +36,7 @@ public class UserService {
      * return the user stored in the database
      */
     public User addUser(User user) {
-        logger.info("Metod \"UserService.addUser()\" was called");
+        logger.info("Method \"UserService.addUser()\" was called");
         return userRepository.save(user);
     }
     /**
@@ -54,13 +54,13 @@ public class UserService {
      * edit user in the database
      * the repository method is used {@link JpaRepository#findById(Object)}
      * fetching data from the database and modifying it
-     * @param user
+     * @param user - user we would like to edit in the database
      * @return making changes to the database
      */
     public Optional<User> editUser(User user) {
         logger.info("Method \"UserService.editUser()\" was called");
         Optional<User> optional = userRepository.findById(user.getId());
-        if(!optional.isPresent()) {
+        if(optional.isEmpty()) {
             return Optional.empty();
         }
         else {
@@ -82,18 +82,18 @@ public class UserService {
     }
 
     /**
-     * find for an user  in the database
+     * find for a user  in the database
      * the repository method is used {@link JpaRepository#findAll}
      * event recording process
      * @return found user
      */
     public Collection<User> getAllUser() {
-        logger.info("Metod \"UserService.getAllUser()\" was called");
+        logger.info("Method \"UserService.getAllUser()\" was called");
         return userRepository.findAll();
     }
 
     /**
-     * find for an user  in the database
+     * find for a user  in the database
      * the repository method is used {@link  JpaRepository}
      * event recording process
      * @return found NickName
