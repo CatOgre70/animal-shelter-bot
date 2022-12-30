@@ -222,7 +222,7 @@ public class DailyReportService {
         } else {
             throw new AdoptedAnimalNotFoundException("User with such chatId has not any adopted animals");
         }
-        List<DailyReport> dailyReports = animal.getReports();
+        List<DailyReport> dailyReports = dailyReportRepository.getDailyReportByAnimalId(animal.getId());
         for(DailyReport dr : dailyReports){
             if(dr.getDateTime().truncatedTo(ChronoUnit.DAYS).isEqual(localDateTime))
                 return Optional.of(dr);
