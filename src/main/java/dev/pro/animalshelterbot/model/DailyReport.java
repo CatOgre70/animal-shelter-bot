@@ -63,10 +63,7 @@ public class DailyReport {
     /**
      * Daily report is about this animal
      */
-    @JsonIgnoreProperties("dailyReports")
-    @ManyToOne
-    @JoinColumn(name = "animal_id")
-    private Animal animal;
+    private Long animalId;
 
     /**
      * DailyReport class empty constructor for Spring JPA and Hibernate
@@ -81,12 +78,14 @@ public class DailyReport {
         this.diet = null;
         this.generalWellBeing = null;
         this.changeInBehavior = null;
+        this.animalId = null;
     }
 
     /**
      * DailyReport class constructor for using in the AnimalShelterBotApplication
      */
-    public DailyReport(LocalDateTime dateTime, String filePath, Long fileSize, String mediaType, byte[] smallPicture, String diet, String generalWellBeing, String changeInBehavior) {
+    public DailyReport(LocalDateTime dateTime, String filePath, Long fileSize, String mediaType, byte[] smallPicture,
+                       String diet, String generalWellBeing, String changeInBehavior, Long animalId) {
         this.id = 0L;
         this.dateTime = dateTime;
         this.filePath = filePath;
@@ -96,6 +95,7 @@ public class DailyReport {
         this.diet = diet;
         this.generalWellBeing = generalWellBeing;
         this.changeInBehavior = changeInBehavior;
+        this.animalId = animalId;
     }
 
     public Long getId() {
@@ -170,25 +170,28 @@ public class DailyReport {
         this.changeInBehavior = changeInBehavior;
     }
 
-    public Animal getAnimal() {
-        return animal;
+    public Long getAnimalId() {
+        return animalId;
     }
 
-    public void setAnimal(Animal animal) {
-        this.animal = animal;
-    }
+    public void setAnimalId(Long id) { this.animalId = id; }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         DailyReport report = (DailyReport) o;
-        return Objects.equals(fileSize, report.fileSize) && Objects.equals(id, report.id) && Objects.equals(dateTime, report.dateTime) && Objects.equals(filePath, report.filePath) && Arrays.equals(smallPicture, report.smallPicture) && Objects.equals(diet, report.diet) && Objects.equals(generalWellBeing, report.generalWellBeing) && Objects.equals(changeInBehavior, report.changeInBehavior) && Objects.equals(animal, report.animal);
+        return Objects.equals(fileSize, report.fileSize) && Objects.equals(id, report.id) &&
+                Objects.equals(dateTime, report.dateTime) && Objects.equals(filePath, report.filePath) &&
+                Arrays.equals(smallPicture, report.smallPicture) && Objects.equals(diet, report.diet) &&
+                Objects.equals(generalWellBeing, report.generalWellBeing) &&
+                Objects.equals(changeInBehavior, report.changeInBehavior) &&
+                (animalId == report.getAnimalId());
     }
 
     @Override
     public int hashCode() {
-        int result = Objects.hash(id, dateTime, filePath, fileSize, diet, generalWellBeing, changeInBehavior, animal);
+        int result = Objects.hash(id, dateTime, filePath, fileSize, diet, generalWellBeing, changeInBehavior, animalId);
         result = 31 * result + Arrays.hashCode(smallPicture);
         return result;
     }
