@@ -110,6 +110,7 @@ public class AnimalController {
             for (AnimalKind a : AnimalKind.values()) {
                 if (kind == a.ordinal()) {
                     isFound = true;
+                    break;
                 }
             }
             if (!isFound) {
@@ -159,11 +160,8 @@ public class AnimalController {
     )
     @PutMapping
     public ResponseEntity<Animal> editAnimal(@RequestBody Animal animal) {
-        Animal animal1 = animalService.editAnimal(animal);
-        if (animal1 == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-        }
-        return ResponseEntity.ok(animal1);
+        Optional<Animal> animal1 = animalService.editAnimal(animal);
+        return animal1.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
     @Operation (

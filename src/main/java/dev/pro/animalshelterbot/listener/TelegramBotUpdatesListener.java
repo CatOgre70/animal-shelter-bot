@@ -194,6 +194,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                     } else if(updateType == UpdateType.CALL_BACK_QUERY &&
                             update.callbackQuery().data().equals(Buttons.DAILY_REPORT.bCallBack)) {
                         // Processing Send daily report button
+
                         chatConfig.setChatState(ChatState.KEEPING_a_PET);
                         chatConfigService.editChatConfig(chatConfig);
                         sendMessage(chatId, Messages.DAILY_REPORT_MENU_WELCOME.messageText);
@@ -433,14 +434,14 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                         if(result.isEmpty()) { // new daily report
                             LocalDateTime localDateTime = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES);
                             currentDailyReport = new DailyReport(localDateTime, null, null, null,
-                                    null, null, update.message().text(), null);
+                                    null, null, update.message().text(), null, null);
                             Optional<Animal> animalResult = animalService.getAnimalByChatId(chatId);
                             if(animalResult.isEmpty()) {
                                 logger.error("Adopted animal of user with such chatId was not found in the database");
                                 throw new AnimalNotFoundException("Adopted animal of user with such chatId " +
                                         "was not found in the database");
                             } else {
-                                currentDailyReport.setAnimal(animalResult.get());
+                                currentDailyReport.setAnimalId(animalResult.get().getId());
                             }
                             dailyReportService.addDailyReport(currentDailyReport);
                         } else { // Existing daily report
@@ -472,14 +473,14 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                         if(result.isEmpty()) { // new daily report
                             LocalDateTime localDateTime = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES);
                             currentDailyReport = new DailyReport(localDateTime, null, null, null,
-                                    null, update.message().text(), null, null);
+                                    null, update.message().text(), null, null, null);
                             Optional<Animal> animalResult = animalService.getAnimalByChatId(chatId);
                             if(animalResult.isEmpty()) {
                                 logger.error("Adopted animal of user with such chatId was not found in the database");
                                 throw new AnimalNotFoundException("Adopted animal of user with such chatId " +
                                         "was not found in the database");
                             } else {
-                                currentDailyReport.setAnimal(animalResult.get());
+                                currentDailyReport.setAnimalId(animalResult.get().getId());
                             }
                             dailyReportService.addDailyReport(currentDailyReport);
                         } else { // Existing daily report
@@ -511,14 +512,14 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                         if(result.isEmpty()) { // new daily report
                             LocalDateTime localDateTime = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES);
                             currentDailyReport = new DailyReport(localDateTime, null, null, null,
-                                    null, null, null, update.message().text());
+                                    null, null, null, update.message().text(), null);
                             Optional<Animal> animalResult = animalService.getAnimalByChatId(chatId);
                             if(animalResult.isEmpty()) {
                                 logger.error("Adopted animal of user with such chatId was not found in the database");
                                 throw new AnimalNotFoundException("Adopted animal of user with such chatId " +
                                         "was not found in the database");
                             } else {
-                                currentDailyReport.setAnimal(animalResult.get());
+                                currentDailyReport.setAnimalId(animalResult.get().getId());
                             }
                             dailyReportService.addDailyReport(currentDailyReport);
                         } else { // Existing daily report
@@ -553,43 +554,31 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                         if(result.isEmpty()) { // new daily report
                             LocalDateTime localDateTime = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES);
                             currentDailyReport = new DailyReport(localDateTime, null, null, null,
-                                    null, null, null, null);
+                                    null, null, null, null, null);
                             Optional<Animal> animalResult = animalService.getAnimalByChatId(chatId);
                             if(animalResult.isEmpty()) {
                                 logger.error("Adopted animal of user with such chatId was not found in the database");
                                 throw new AnimalNotFoundException("Adopted animal of user with such chatId " +
                                         "was not found in the database");
                             } else {
-                                currentDailyReport.setAnimal(animalResult.get());
+                                currentDailyReport.setAnimalId(animalResult.get().getId());
                             }
                             currentDailyReport = dailyReportService.addDailyReport(currentDailyReport);
-                            // Sent photo processing
-                            String fileId = update.message().photo()[2].fileId();
-                            GetFile request = new GetFile(fileId);
-                            GetFileResponse getFileResponse = telegramBot.execute(request);
-                            File file = getFileResponse.file();
-                            String fullPath = telegramBot.getFullFilePath(file);
-                            try {
-                                dailyReportService.downloadAndUploadPhoto(currentDailyReport.getId(), fullPath,
-                                        file.fileSize(), "image/jpeg");
-                            } catch(IOException e) {
-                                logger.error(Arrays.toString(e.getStackTrace()));
-                            }
-
                         } else { // Existing daily report
                             currentDailyReport = result.get();
-                            // Sent photo processing
-                            String fileId = update.message().photo()[2].fileId();
-                            GetFile request = new GetFile(fileId);
-                            GetFileResponse getFileResponse = telegramBot.execute(request);
-                            File file = getFileResponse.file();
-                            String fullPath = telegramBot.getFullFilePath(file);
-                            try {
-                                dailyReportService.downloadAndUploadPhoto(currentDailyReport.getId(), fullPath,
-                                        file.fileSize(), "image/jpeg");
-                            } catch(IOException e) {
-                                logger.error(Arrays.toString(e.getStackTrace()));
-                            }
+                        }
+                        // Sent photo processing
+                        int photoSizeArrayLength = update.message().photo().length;
+                        String fileId = update.message().photo()[photoSizeArrayLength-1].fileId();
+                        GetFile request = new GetFile(fileId);
+                        GetFileResponse getFileResponse = telegramBot.execute(request);
+                        File file = getFileResponse.file();
+                        String fullPath = telegramBot.getFullFilePath(file);
+                        try {
+                            dailyReportService.downloadAndUploadPhoto(currentDailyReport.getId(), fullPath,
+                                    file.fileSize(), "image/jpeg");
+                        } catch(IOException e) {
+                            logger.error(Arrays.toString(e.getStackTrace()));
                         }
                         chatConfig.setChatState(ChatState.KEEPING_a_PET);
                         chatConfigService.editChatConfig(chatConfig);
@@ -695,7 +684,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
             if(result.isEmpty()) { // new daily report
                 LocalDateTime localDateTime = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES);
                 currentDailyReport = new DailyReport(localDateTime, null, null, null,
-                        null, null, update.message().text(), null);
+                        null, null, update.message().text(), null, null);
                 dailyReportService.addDailyReport(currentDailyReport);
                 sendMessage(chatId, Messages.GENERAL_WELL_BEING_RECEIVED.messageText);
                 Optional<ChatConfig> chatConfigResult = chatConfigService.findByChatId(chatId);

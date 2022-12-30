@@ -4,6 +4,7 @@ import dev.pro.animalshelterbot.model.Animal;
 import dev.pro.animalshelterbot.model.DailyReport;
 import dev.pro.animalshelterbot.model.User;
 import dev.pro.animalshelterbot.repository.AnimalRepository;
+import dev.pro.animalshelterbot.repository.DailyReportRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -35,15 +36,18 @@ public class AnimalService {
     private final AnimalRepository animalRepository;
     private final UserService userService;
 
-    public AnimalService(AnimalRepository animalRepository, UserService userService) {
+    public AnimalService(AnimalRepository animalRepository, UserService userService,
+                         DailyReportRepository dailyReportRepository) {
         this.animalRepository = animalRepository;
         this.userService = userService;
+        this.dailyReportRepository = dailyReportRepository;
     }
 
     /**
      * event recording process
      */
     private final Logger logger = LoggerFactory.getLogger(AnimalService.class);
+    private final DailyReportRepository dailyReportRepository;
 
     /**
      * saving the animal in the database
@@ -65,19 +69,16 @@ public class AnimalService {
      * @param animal Animal class object to be the source of data for saving in the database
      * @return Animal class object with result of saving changes in the database
      */
-    public Animal editAnimal(Animal animal) {
+    public Optional<Animal> editAnimal(Animal animal) {
         logger.info("Method \"AnimalService.editAnimal()\" was called");
         Optional<Animal> optional = animalRepository.findById(animal.getId());
         if(optional.isEmpty()) {
-            return null;
+            return Optional.empty();
         }
         else {
             Animal fromDb = optional.get();
-            fromDb.setReports(animal.getReports());
-            fromDb.setAdoptionDate(animal.getAdoptionDate());
-            fromDb.setFeatures(animal.getFeatures());
-            fromDb.setOwner(animal.getOwner());
-            return animalRepository.save(fromDb);
+            animal.setId(fromDb.getId());
+            return Optional.of(animalRepository.save(animal));
         }
     }
 
@@ -216,7 +217,7 @@ public class AnimalService {
     public List<DailyReport> getDailyReports(Long id) {
         Optional<Animal> response = animalRepository.findById(id);
         if(response.isPresent()) {
-            return response.get().getReports();
+            return dailyReportRepository.getDailyReportByAnimalId(response.get().getId());
         } else {
             return List.of();
         }
