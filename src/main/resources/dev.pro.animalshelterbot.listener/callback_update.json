@@ -1,0 +1,14 @@
+{
+  "update_id" : "47838093",
+  "message" : null,
+  "callback_query" : {
+    "id" : "1436197353239545166",
+    "from" : {
+      "id" : "334390754",
+      "first_name" : "Vasily",
+      "last_name" : "Demin",
+      "username" : "CatOgre"
+    },
+    "data" : "help"
+  }
+}
