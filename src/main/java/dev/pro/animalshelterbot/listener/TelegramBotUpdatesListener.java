@@ -80,7 +80,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
     @Override
     public int process(List<Update> updates) {
         updates.forEach(update -> {
-            // Process your updates here
+            // Processing updates
             logger.info("Processing update: {}", update);
             Long chatId = 0L;
             String firstName = null, lastName = null, nickName = null;
@@ -88,7 +88,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
 
             UpdateType updateType = checkingUpdate(update);
             if(updateType == UpdateType.COMMAND || updateType == UpdateType.MESSAGE || updateType == UpdateType.PHOTO) {
-                chatId = update.message().chat().id();
+                chatId = update.message().from().id();
                 firstName = update.message().from().firstName();
                 lastName = update.message().from().lastName();
                 nickName = update.message().from().username();
@@ -595,26 +595,6 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                 case AWAITING_PHONE:
             }
 
-//            switch (updateType) {
-//                case COMMAND:
-//                    processCommands(update, chatState);
-//                    break;
-//                case MESSAGE:
-//                    processMessages(update, chatState);
-//                    break;
-//                case PHOTO:
-//                    processPhotos(update, botStatus);
-//                    break;
-//                case CALL_BACK_QUERY:
-//                    processCallbackQueries(update, botStatus);
-//                    break;
-//                case ERROR:
-//                    processErrors(update, botStatus);
-//                    break;
-//            }
-
-//            statusDeterminant(update.message().chat().id(), update);
-
         });
         return UpdatesListener.CONFIRMED_UPDATES_ALL;
     }
@@ -828,15 +808,17 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
      * tdepending on the incoming message, choose what to reply to the user
      * @param chatId
      * @param message
-     * record an event about a sent message or an error
+     * record an event about sent message or an error
      */
     private void sendMessage(Long chatId, String message) {
         SendMessage sendMessage = new SendMessage(chatId, message);
         SendResponse response = telegramBot.execute(sendMessage);
-        if (response.isOk()) {
+        if (response != null && response.isOk()) {
             logger.info("message: {} is sent ", message);
-        } else {
+        } else if(response != null) {
             logger.warn("Message was not sent. Error code:  " + response.errorCode());
+        } else {
+            logger.warn("Message was not sent. Response is null");
         }
     }
 
@@ -860,10 +842,12 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
         SendMessage message = new SendMessage(chatId, menuHeader);
         message.replyMarkup(inlineKeyboard);
         SendResponse response = telegramBot.execute(message);
-        if (response.isOk()) {
+        if (response != null && response.isOk()) {
             logger.info("menu: {} is sent ", message);
-        } else {
+        } else if (response != null){
             logger.error("Response error: {} {}", response.errorCode(), response.message());
+        } else {
+            logger.error("Response error: response is null");
         }
     }
 

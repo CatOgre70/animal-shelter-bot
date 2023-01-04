@@ -1,0 +1,12 @@
+{
+  "message" : null,
+  "callback_query" : {
+    "from" : {
+      "id" : 334390754,
+      "first_name" : "Vasily",
+      "last_name" : "Demin",
+      "username" : "CatOgre"
+    },
+    "data" : "%CallbackData%"
+  }
+}
