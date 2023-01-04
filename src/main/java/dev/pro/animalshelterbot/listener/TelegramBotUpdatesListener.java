@@ -346,19 +346,15 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
     }
 
     private void consultPotentialOwner(Update update) {
-        String message = Constants.CONSULT_POTENTIAL_OWNER;
-        sendMessageWithKeyboard(update, message, KeyboardFactory.stageTwo());
+        KeyboardFactory.stageTwo();
     }
 
     private void consultNewUser(Update update) {
-        String message = " Здесь некоторая информация о нашем приюте.";
-        sendMessageWithKeyboard(update, message, KeyboardFactory.stageOne());
-
+        KeyboardFactory.stageOne();
     }
 
     private void startButtons(Update update) {
-        String message = "Привет, " + update.message().chat().firstName() + "!" + Constants.CHOOSE_OPTION;
-        sendMessageWithKeyboard(update, message, KeyboardFactory.startButtons());
+        KeyboardFactory.startButtons();
     }
 
     private void sendMessage(Long chatId, String message) {
