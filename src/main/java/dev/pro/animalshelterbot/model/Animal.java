@@ -1,6 +1,5 @@
 package dev.pro.animalshelterbot.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import dev.pro.animalshelterbot.constants.AnimalKind;
 import dev.pro.animalshelterbot.constants.Shelter;
@@ -76,14 +75,18 @@ public class Animal {
     /**
      * Animal owner
      */
-    @JsonIgnore
+    @JsonIgnoreProperties("adoptedAnimal")
     @OneToOne
     @JoinColumn(name = "owner_id")
     private User owner;
 
     /**
-     * Shelter for the animal
+     * List of submitted daily reports
      */
+    @JsonIgnoreProperties("animal")
+    @OneToMany(mappedBy = "animal")
+    List<DailyReport> dailyReports;
+
     private Shelter shelter;
 
     /**
@@ -216,6 +219,14 @@ public class Animal {
 
     public void setOwner(User owner) {
         this.owner = owner;
+    }
+
+    public List<DailyReport> getReports() {
+        return dailyReports;
+    }
+
+    public void setReports(List<DailyReport> dailyReports) {
+        this.dailyReports = dailyReports;
     }
 
     public Shelter getShelter() {
