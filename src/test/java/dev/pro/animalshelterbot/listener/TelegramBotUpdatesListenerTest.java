@@ -73,6 +73,7 @@ public class TelegramBotUpdatesListenerTest {
     @Test
     public void commandsTest() throws URISyntaxException, IOException {
         String json = Files.readString(Paths.get("src/test/resources/dev.pro.animalshelterbot/listener/message_update.json"));
+        json = Files.readString(Paths.get(TelegramBotUpdatesListenerTest.class.getResource("message_update.json").toURI()));
         Update update = getUpdate(json, "/start");
         telegramBotUpdatesListener.process(Collections.singletonList(update));
 
