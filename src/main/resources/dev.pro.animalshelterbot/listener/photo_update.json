@@ -1,13 +1,12 @@
 {
-  "update_id" : "47838095",
   "message" : {
     "from" : {
-      "id" : "334390754",
+      "id" : 334390754,
       "first_name" : "Vasily",
       "last_name" : "Demin",
       "username" : "CatOgre"
     },
-    "text" : "null",
+    "text" : null,
     "photo" :
       [{"file_id" : "AgACAgIAAxkBAAIC3mO0mzaGBzJx8uRCG9gBibrZta_OAAIOwzEbYy6oSaR7ztzhyhw2AQADAgADcwADLQQ",
         "file_unique_id" : "AQADDsMxG2MuqEl4",
@@ -19,7 +18,7 @@
         "file_unique_id" : "AQADDsMxG2MuqEl9",
         "width" : 456, "height" : 456, "file_size" : 21896}
       ],
-    "caption" : "null"
+    "caption" : null
   },
   "callback_query" : null
 }
