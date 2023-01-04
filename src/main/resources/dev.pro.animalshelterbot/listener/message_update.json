@@ -1,10 +1,10 @@
 {
   "message" : {
     "from" : {
-      "id" : "123456789",
-      "first_name" : "Vasily",
-      "last_name" : "Demin",
-      "username" : "CatOgre"
+      "id" : 1234567890,
+      "first_name" : "Ivan",
+      "last_name" : "Ivanov",
+      "username" : "Ivanych"
     },
     "text" : "%text%",
     "photo" : null

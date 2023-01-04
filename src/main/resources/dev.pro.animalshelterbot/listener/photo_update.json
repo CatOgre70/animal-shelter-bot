@@ -1,0 +1,24 @@
+{
+  "message" : {
+    "from" : {
+      "id" : 334390754,
+      "first_name" : "Vasily",
+      "last_name" : "Demin",
+      "username" : "CatOgre"
+    },
+    "text" : null,
+    "photo" :
+      [{"file_id" : "AgACAgIAAxkBAAIC3mO0mzaGBzJx8uRCG9gBibrZta_OAAIOwzEbYy6oSaR7ztzhyhw2AQADAgADcwADLQQ",
+        "file_unique_id" : "AQADDsMxG2MuqEl4",
+        "width" : 90, "height" : 90, "file_size" : 1722},
+      {"file_id" : "AgACAgIAAxkBAAIC3mO0mzaGBzJx8uRCG9gBibrZta_OAAIOwzEbYy6oSaR7ztzhyhw2AQADAgADbQADLQQ",
+        "file_unique_id" : "AQADDsMxG2MuqEly",
+        "width" : 320, "height" : 320, "file_size" : 15913},
+      {"file_id" : "AgACAgIAAxkBAAIC3mO0mzaGBzJx8uRCG9gBibrZta_OAAIOwzEbYy6oSaR7ztzhyhw2AQADAgADeAADLQQ",
+        "file_unique_id" : "AQADDsMxG2MuqEl9",
+        "width" : 456, "height" : 456, "file_size" : 21896}
+      ],
+    "caption" : null
+  },
+  "callback_query" : null
+}

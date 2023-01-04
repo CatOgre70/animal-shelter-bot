@@ -1,0 +1,13 @@
+{
+  "message" : {
+    "from" : {
+      "id" : 1234567890,
+      "first_name" : "Ivan",
+      "last_name" : "Ivanov",
+      "username" : "Ivanych"
+    },
+    "text" : "%text%",
+    "photo" : null
+  },
+  "callback_query" : null
+}
