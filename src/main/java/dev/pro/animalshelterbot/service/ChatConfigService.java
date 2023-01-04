@@ -4,6 +4,7 @@ import dev.pro.animalshelterbot.model.ChatConfig;
 import dev.pro.animalshelterbot.repository.ChatConfigRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -30,7 +31,7 @@ public class ChatConfigService {
      * fetching data from the database and modifying it
      * return ChatConfig  object saved in the database
      */
-    public Optional<ChatConfig> editChatConfig(ChatConfig chatConfig) {
+    public ChatConfig editChatConfig(ChatConfig chatConfig) {
         logger.info("Method \"ChatConfigService.editChatConfig()\" was called");
         Optional<ChatConfig> result = chatConfigRepository.findById(chatConfig.getChatId());
         if(!result.isPresent()) {

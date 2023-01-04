@@ -188,7 +188,7 @@ public class DailyReportService {
      * AdoptedAnimalNotFoundException - the animal does not have a guardian
      * @return daily report
      */
-    public Optional<DailyReport> findDailyReportByChatId(Long chatId) {
+    public DailyReport findDailyReportByChatId(Long chatId) {
         LocalDateTime localDateTime = LocalDateTime.now().truncatedTo(ChronoUnit.DAYS);
         Optional<User> result = userService.findByChatId(chatId);
         Animal animal;

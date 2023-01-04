@@ -228,25 +228,25 @@ public class AnimalControllerTest {
         LocalDateTime localDateTime = LocalDateTime.of(2022, 12, 23, 9, 0, 0).truncatedTo(ChronoUnit.DAYS);
         DailyReport dailyReport1 = new DailyReport(localDateTime, null, 0L, null, null,
                 "Оптяь жрал тухлую селедку на помойке", "Потом блевал, но выглядел довольным",
-                "Надо приучить его не есть с помойки, а также не убегать от меня во время прогулки", 2L);
+                "Надо приучить его не есть с помойки, а также не убегать от меня во время прогулки");
         dailyReportService.addDailyReport(dailyReport1);
         expectedResult.add(dailyReport1);
         localDateTime = LocalDateTime.of(2022, 12, 22, 9, 0, 0).truncatedTo(ChronoUnit.DAYS);
         DailyReport dailyReport2 = new DailyReport(localDateTime, null, 0L, null, null,
                 "Жрал тухлую селедку на помойке", "Потом блевал, но выглядел страшно довольным",
-                "Никак не приучу его не есть с помойки, а также не убегать от меня во время прогулки", 2L);
+                "Никак не приучу его не есть с помойки, а также не убегать от меня во время прогулки");
         dailyReportService.addDailyReport(dailyReport2);
         expectedResult.add(dailyReport2);
         localDateTime = LocalDateTime.of(2022, 12, 21, 9, 0, 0).truncatedTo(ChronoUnit.DAYS);
         DailyReport dailyReport3 = new DailyReport(localDateTime, null, 0L, null, null,
                 "Ел корм, купленный в зоомагазине по рекомендациям лучших собаководов", "Спал, гулял нормально, выглядит хорошо",
-                "Попробую отпусть его завтра с поводка", 2L);
+                "Попробую отпусть его завтра с поводка");
         dailyReportService.addDailyReport(dailyReport3);
         expectedResult.add(dailyReport3);
         localDateTime = LocalDateTime.of(2022, 12, 20, 9, 0, 0).truncatedTo(ChronoUnit.DAYS);
         DailyReport dailyReport4 = new DailyReport(localDateTime, null, 0L, null, null,
                 "Ничего не ел, только пил, по-видимому привыкает к новому месту", "Спал плохо, почти не отходил от моей кровати",
-                "Завтра пойдем гулять во двор", 2L);
+                "Завтра пойдем гулять во двор");
         dailyReportService.addDailyReport(dailyReport4);
         expectedResult.add(dailyReport4);
         uri = getURIBuilder().path("/{id}/reports").buildAndExpand(actualResult.getId()).toUri();

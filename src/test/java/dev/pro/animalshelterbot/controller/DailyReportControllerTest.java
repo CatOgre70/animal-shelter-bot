@@ -33,7 +33,7 @@ public class DailyReportControllerTest {
         LocalDateTime dateTime = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES);
         DailyReport dailyReport = new DailyReport(dateTime, null, 0L, null, null,
                 "Жрал тухлую селедку с помойки", "Блевал, но выглядел счастливым",
-                "Пока не отучил его жрать то, что находит на помойке", 2L);
+                "Пока не отучил его жрать то, что находит на помойке");
         URI uri = getURIBuilder().build().toUri();
         ResponseEntity<DailyReport> response = restTemplate.postForEntity(uri, dailyReport, DailyReport.class);
         Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -46,7 +46,7 @@ public class DailyReportControllerTest {
         LocalDateTime dateTime = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES);
         DailyReport dailyReport = new DailyReport(dateTime, null, 0L, null, null,
                 "Жрал тухлую селедку с помойки", "Блевал, но выглядел счастливым",
-                "Пока не отучил его жрать то, что находит на помойке", 2L);
+                "Пока не отучил его жрать то, что находит на помойке");
         URI uri = getURIBuilder().build().toUri();
         ResponseEntity<DailyReport> response = restTemplate.postForEntity(uri, dailyReport, DailyReport.class);
         Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -68,7 +68,7 @@ public class DailyReportControllerTest {
         LocalDateTime dateTime = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES);
         DailyReport dailyReport = new DailyReport(dateTime, null, 0L, null, null,
                 "Жрал тухлую селедку с помойки", "Блевал, но выглядел счастливым",
-                "Пока не отучил его жрать то, что находит на помойке", 2L);
+                "Пока не отучил его жрать то, что находит на помойке");
         URI uri = getURIBuilder().build().toUri();
         ResponseEntity<DailyReport> response = restTemplate.postForEntity(uri, dailyReport, DailyReport.class);
         Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
@@ -88,7 +88,7 @@ public class DailyReportControllerTest {
         LocalDateTime dateTime = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES);
         DailyReport dailyReport = new DailyReport(dateTime, null, 0L, null, null,
                 "Жрал тухлую селедку с помойки", "Блевал, но выглядел счастливым",
-                "Пока не отучил его жрать то, что находит на помойке", 2L);
+                "Пока не отучил его жрать то, что находит на помойке");
         URI uri = getURIBuilder().build().toUri();
         ResponseEntity<DailyReport> response = restTemplate.postForEntity(uri, dailyReport, DailyReport.class);
         Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);

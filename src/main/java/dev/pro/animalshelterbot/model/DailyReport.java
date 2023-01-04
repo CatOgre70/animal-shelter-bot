@@ -1,7 +1,5 @@
 package dev.pro.animalshelterbot.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -85,7 +83,7 @@ public class DailyReport {
      * DailyReport class constructor for using in the AnimalShelterBotApplication
      */
     public DailyReport(LocalDateTime dateTime, String filePath, Long fileSize, String mediaType, byte[] smallPicture,
-                       String diet, String generalWellBeing, String changeInBehavior, Long animalId) {
+                       String diet, String generalWellBeing, String changeInBehavior) {
         this.id = 0L;
         this.dateTime = dateTime;
         this.filePath = filePath;
