@@ -48,8 +48,11 @@ public enum Messages {
             "Подробнее: https://www.instagram.com/asenka_astana/"),
 
     DOG_ANIMAL_WELCOME("Ну как?! Подходишь и бац! Знакомишься! Подробнее: https://www.instagram.com/asenka_astana/"),
-    CAT_ANIMAL_WELCOME("Ну как?! Подходишь и бац! Знакомишься! Подробнее: https://www.instagram.com/asenka_astana/");
+    CAT_ANIMAL_WELCOME("Ну как?! Подходишь и бац! Знакомишься! Подробнее: https://www.instagram.com/asenka_astana/"),
 
+    YOU_HAVE_NOT_ADOPTED_ANIMAL("У вас пока нет взятого из приюта животного. Обратитесь, пожалуйста, к нашим волонтерам"),
+    YOU_DONT_NEED_TO_SEND_DAILY_REPORT("Прошло уже больше 30 дней с момента того, как вы взяли питомца из приюта. " +
+            "Сдавать ежедневный отчет нет необходимости, спасибо!");
 
     public final String messageText;
 

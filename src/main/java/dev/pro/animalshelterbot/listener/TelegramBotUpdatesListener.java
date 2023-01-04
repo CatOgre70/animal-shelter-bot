@@ -11,9 +11,8 @@ import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.response.GetFileResponse;
 import com.pengrad.telegrambot.response.SendResponse;
 import dev.pro.animalshelterbot.exception.AnimalNotFoundException;
-import dev.pro.animalshelterbot.exception.ChatConfigNotFoundException;
-import dev.pro.animalshelterbot.factory.KeyboardFactory;
 import dev.pro.animalshelterbot.constants.*;
+import dev.pro.animalshelterbot.exception.UserNotFoundException;
 import dev.pro.animalshelterbot.menu.ButtonType;
 import dev.pro.animalshelterbot.menu.Buttons;
 import dev.pro.animalshelterbot.model.Animal;
@@ -103,7 +102,6 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
             Optional<User> userResult = userService.findByChatId(chatId);
             User user;
             ChatConfig chatConfig;
-            Shelter shelter;
 
             if(chatConfigResult.isEmpty() && userResult.isEmpty()) { // New user
                 user = new User(firstName, lastName, nickName, null, null, chatId);
@@ -119,570 +117,568 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
 
             switch(chatState) {
                 case NEW_USER:
-                    sendMessage(chatId, Messages.WELCOME_TO_THE_CHATBOT.messageText);
-                    sendMessage(chatId, Messages.CHOOSE_SHELTER.messageText);
-                    sendMenu(chatId, "Приюты", Buttons.DOG_SHELTER, Buttons.CAT_SHELTER);
-                    chatConfig.setChatState(ChatState.AWAITING_SHELTER);
-                    chatConfigService.editChatConfig(chatConfig);
+                    newUserMenu(chatId, chatConfig);
                     break;
                 case AWAITING_SHELTER:
-                    if(updateType == UpdateType.CALL_BACK_QUERY &&
-                            update.callbackQuery().data().equals(Buttons.DOG_SHELTER.bCallBack)) {
-                        shelter = Shelter.DOG_SHELTER;
-                    } else if(updateType == UpdateType.CALL_BACK_QUERY &&
-                            update.callbackQuery().data().equals(Buttons.CAT_SHELTER.bCallBack)) {
-                        shelter = Shelter.CAT_SHELTER;
-                    } else {
-                        sendMessage(chatId, Messages.CHOOSE_SHELTER1.messageText);
-                        sendMenu(chatId, "Приюты", Buttons.DOG_SHELTER, Buttons.CAT_SHELTER);
-                        break;
-                    }
-                    user.setShelter(shelter);
-                    userService.editUser(user);
-                    chatConfig.setShelter(shelter);
-                    chatConfig.setChatState(ChatState.DEFAULT);
-                    chatConfigService.editChatConfig(chatConfig);
-                    sendMessage(chatId, Messages.SHELTER_CHOSEN.messageText +
-                            chatConfig.getShelter().shelterSpecialization.toLowerCase() +
-                            Messages.SHELTER_CHOSEN1.messageText);
-                    sendMessage(chatId, Messages.CONTEXT_MENU.messageText);
-                    sendMenu(chatId, "Главное меню. Что вы хотите сделать дальше:", Buttons.BACK,
-                            Buttons.SHELTER_INFO, Buttons.ANIMAL_INFO, Buttons.DAILY_REPORT, Buttons.HELP,
-                            Buttons.CALL_VOLUNTEER);
+                    awaitingShelterStatusUpdateProcessing(chatId, update, updateType, user, chatConfig);
                     break;
                 case SHELTER_CHOSEN:
+                case CHAT_WITH_VOLUNTEER:
                     break;
                 case DEFAULT:
-                    if(updateType == UpdateType.CALL_BACK_QUERY &&
-                            update.callbackQuery().data().equals(Buttons.SHELTER_INFO.bCallBack)) {
-                        // Processing Information about shelter button
-                        shelter = chatConfig.getShelter();
-                        chatConfig.setChatState(ChatState.CONSULT_NEW_USER);
-                        chatConfigService.editChatConfig(chatConfig);
-                        sendMessage(chatId, Messages.CONTEXT_MENU.messageText);
-                        if (shelter == Shelter.DOG_SHELTER) {
-                            sendMenu(chatId, "Информация о приюте для собак", Buttons.BACK,
-                                    Buttons.DOG_SHELTER_INFO, Buttons.DOG_SHELTER_ADDRESS, Buttons.DOG_SHELTER_SECURITY,
-                                    Buttons.DOG_SHELTER_SAFETY_TIPS, Buttons.SEND_PHONE_AND_ADDRESS,
-                                    Buttons.HELP, Buttons.CALL_VOLUNTEER);
-                        } else {
-                            sendMenu(chatId, "Информация о приюте для кошек", Buttons.BACK,
-                                    Buttons.CAT_SHELTER_INFO, Buttons.CAT_SHELTER_ADDRESS, Buttons.CAT_SHELTER_SECURITY,
-                                    Buttons.CAT_SHELTER_SAFETY_TIPS, Buttons.SEND_PHONE_AND_ADDRESS,
-                                    Buttons.HELP, Buttons.CALL_VOLUNTEER);
-                        }
-                    } else if(updateType == UpdateType.CALL_BACK_QUERY &&
-                            update.callbackQuery().data().equals(Buttons.ANIMAL_INFO.bCallBack)) {
-                        // Processing How to adopt animal button
-                        shelter = chatConfig.getShelter();
-                        chatConfig.setChatState(ChatState.CONSULT_POTENTIAL_OWNER);
-                        chatConfigService.editChatConfig(chatConfig);
-                        sendMessage(chatId, Messages.CONTEXT_MENU.messageText);
-                        if (shelter == Shelter.DOG_SHELTER) {
-                            sendMenu(chatId, "Информация о том, как взять собаку из приюта", Buttons.BACK,
-                                    Buttons.DOG_ANIMAL_WELCOME, Buttons.DOG_ANIMAL_DOCS, Buttons.DOG_ANIMAL_TRANSPORT,
-                                    Buttons.DOG_ANIMAL_HOME1, Buttons.DOG_ANIMAL_HOME2, Buttons.DOG_ANIMAL_HOME3,
-                                    Buttons.DOG_ANIMAL_FIRST, Buttons.DOG_ANIMAL_PROF, Buttons.DOG_ANIMAL_REJECT,
-                                    Buttons.SEND_PHONE_AND_ADDRESS, Buttons.HELP, Buttons.CALL_VOLUNTEER);
-                        } else {
-                            sendMenu(chatId, "Информация о том, как взять кошку из приюта", Buttons.BACK,
-                                    Buttons.CAT_ANIMAL_WELCOME, Buttons.CAT_ANIMAL_DOCS, Buttons.CAT_ANIMAL_TRANSPORT,
-                                    Buttons.CAT_ANIMAL_HOME1, Buttons.CAT_ANIMAL_HOME2, Buttons.CAT_ANIMAL_HOME3,
-                                    Buttons.CAT_ANIMAL_REJECT,
-                                    Buttons.SEND_PHONE_AND_ADDRESS, Buttons.HELP, Buttons.CALL_VOLUNTEER);
-                        }
-                    } else if(updateType == UpdateType.CALL_BACK_QUERY &&
-                            update.callbackQuery().data().equals(Buttons.DAILY_REPORT.bCallBack)) {
-                        // Processing Send daily report button
-
-                        chatConfig.setChatState(ChatState.KEEPING_a_PET);
-                        chatConfigService.editChatConfig(chatConfig);
-                        sendMessage(chatId, Messages.DAILY_REPORT_MENU_WELCOME.messageText);
-                        sendMessage(chatId, Messages.CONTEXT_MENU.messageText);
-                        sendMenu(chatId, "Части отчета", Buttons.BACK, Buttons.DR_GENERAL_WELL_BEING,
-                                Buttons.DR_DIET, Buttons.DR_CHANGE_IN_BEHAVIOR, Buttons.DR_PHOTO,
-                                Buttons.HELP, Buttons.CALL_VOLUNTEER);
-                    } else if((updateType == UpdateType.CALL_BACK_QUERY &&
-                            update.callbackQuery().data().equals(Buttons.BACK.bCallBack)) ||
-                            (updateType == UpdateType.COMMAND &&
-                            update.message().text().equalsIgnoreCase(Commands.UP.commandText))) {
-                        // Processing "Back to previous Menu" button or /up command
-                        chatConfig.setShelter(null);
-                        chatConfig.setChatState(ChatState.AWAITING_SHELTER);
-                        chatConfigService.editChatConfig(chatConfig);
-                        user.setShelter(null);
-                        userService.editUser(user);
-                        sendMessage(chatId, Messages.CHOOSE_SHELTER1.messageText);
-                        sendMenu(chatId, "Приюты", Buttons.DOG_SHELTER, Buttons.CAT_SHELTER);
-                    } else if((updateType == UpdateType.CALL_BACK_QUERY &&
-                            update.callbackQuery().data().equals(Buttons.HELP.bCallBack)) || (updateType == UpdateType.COMMAND &&
-                            update.message().text().equalsIgnoreCase(Commands.HELP.commandText))) {
-                        // Processing Help button or /help command
-                        sendMessage(chatId, Messages.HELP.messageText);
-                    } else if(updateType == UpdateType.MESSAGE) {
-                        // We are not processing messages at this stage
-                        sendMessage(chatId, Messages.CONTEXT_MENU.messageText);
-                    } else if(updateType == UpdateType.PHOTO) {
-                        // We are not processing photos at this stage
-                        sendMessage(chatId, Messages.CONTEXT_MENU.messageText);
-                    } else if(updateType == UpdateType.COMMAND &&
-                            update.message().text().equalsIgnoreCase(Commands.START.commandText)){
-                        // This is wrong command at this stage
-                        sendMessage(chatId, Messages.WRONG_COMMAND.messageText);
-                        sendMessage(chatId, Messages.CONTEXT_MENU.messageText);
-                    } else if(updateType == UpdateType.COMMAND &&
-                            update.message().text().equalsIgnoreCase(Commands.MENU.commandText)) {
-                        // Processing /menu command
-                        sendMessage(chatId, Messages.CONTEXT_MENU.messageText);
-                        sendMenu(chatId, "Главное меню. Что вы хотите сделать дальше:", Buttons.BACK,
-                                Buttons.SHELTER_INFO, Buttons.ANIMAL_INFO, Buttons.DAILY_REPORT, Buttons.HELP,
-                                Buttons.CALL_VOLUNTEER);
-                    } else {
-                        logger.error("Unrecognized update!");
-                    }
+                    defaultStatusUpdateProcessing(chatId, update, updateType, user, chatConfig);
                     break;
                 case CONSULT_NEW_USER:
-                    if(updateType == UpdateType.CALL_BACK_QUERY &&
-                            update.callbackQuery().data().equals(Buttons.DOG_SHELTER_INFO.bCallBack)) {
-                        // Processing Information about Dog shelter common info button
-                        sendMessage(chatId, Messages.DOG_SHELTER_GENERAL_INFO.messageText);
-                    } else if(updateType == UpdateType.CALL_BACK_QUERY &&
-                            update.callbackQuery().data().equals(Buttons.CAT_SHELTER_INFO.bCallBack)) {
-                        // Processing Information about Cat shelter common info button
-                        sendMessage(chatId, Messages.CAT_SHELTER_GENERAL_INFO.messageText);
-                    } else if((updateType == UpdateType.CALL_BACK_QUERY &&
-                            update.callbackQuery().data().equals(Buttons.BACK.bCallBack)) ||
-                            (updateType == UpdateType.COMMAND &&
-                                    update.message().text().equalsIgnoreCase(Commands.UP.commandText))) {
-                        // Processing "Back to previous Menu" button or /up command
-                        chatConfig.setChatState(ChatState.DEFAULT);
-                        chatConfigService.editChatConfig(chatConfig);
-                        sendMessage(chatId, Messages.CONTEXT_MENU.messageText);
-                        sendMenu(chatId, "Главное меню. Что вы хотите сделать дальше:", Buttons.BACK,
-                                Buttons.SHELTER_INFO, Buttons.ANIMAL_INFO, Buttons.DAILY_REPORT, Buttons.HELP,
-                                Buttons.CALL_VOLUNTEER);
-                    } else if((updateType == UpdateType.CALL_BACK_QUERY &&
-                            update.callbackQuery().data().equals(Buttons.HELP.bCallBack)) ||
-                            (updateType == UpdateType.COMMAND &&
-                            update.message().text().equalsIgnoreCase(Commands.HELP.commandText))) {
-                        // Processing Help button or /help command
-                        sendMessage(chatId, Messages.HELP.messageText);
-                    } else if(updateType == UpdateType.MESSAGE) {
-                        // We are not processing messages at this stage
-                        sendMessage(chatId, Messages.CONTEXT_MENU.messageText);
-                    } else if(updateType == UpdateType.PHOTO) {
-                        // We are not processing photos at this stage
-                        sendMessage(chatId, Messages.CONTEXT_MENU.messageText);
-                    } else if(updateType == UpdateType.COMMAND &&
-                            update.message().text().equalsIgnoreCase(Commands.START.commandText)){
-                        // This is wrong command at this stage
-                        sendMessage(chatId, Messages.WRONG_COMMAND.messageText);
-                        sendMessage(chatId, Messages.CONTEXT_MENU.messageText);
-                    } else if(updateType == UpdateType.COMMAND &&
-                            update.message().text().equalsIgnoreCase(Commands.MENU.commandText)) {
-                        // Processing /menu command
-                        shelter = chatConfig.getShelter();
-                        sendMessage(chatId, Messages.CONTEXT_MENU.messageText);
-                        if (shelter == Shelter.DOG_SHELTER) {
-                            sendMenu(chatId, "Информация о приюте для собак", Buttons.BACK,
-                                    Buttons.DOG_SHELTER_INFO, Buttons.DOG_SHELTER_ADDRESS, Buttons.DOG_SHELTER_SECURITY,
-                                    Buttons.DOG_SHELTER_SAFETY_TIPS, Buttons.SEND_PHONE_AND_ADDRESS,
-                                    Buttons.HELP, Buttons.CALL_VOLUNTEER);
-                        } else {
-                            sendMenu(chatId, "Информация о приюте для кошек", Buttons.BACK,
-                                    Buttons.CAT_SHELTER_INFO, Buttons.CAT_SHELTER_ADDRESS, Buttons.CAT_SHELTER_SECURITY,
-                                    Buttons.CAT_SHELTER_SAFETY_TIPS, Buttons.SEND_PHONE_AND_ADDRESS,
-                                    Buttons.HELP, Buttons.CALL_VOLUNTEER);
-                        }
-                    } else {
-                        logger.error("Unrecognized update!");
-                    }
+                    consultNewUserStatusUpdateProcessing(chatId, update, updateType, chatConfig);
                     break;
                 case CONSULT_POTENTIAL_OWNER:
-                    if(updateType == UpdateType.CALL_BACK_QUERY &&
-                            update.callbackQuery().data().equals(Buttons.DOG_ANIMAL_WELCOME.bCallBack)) {
-                        // Processing How to meet animals at a shelter button
-                        sendMessage(chatId, Messages.DOG_ANIMAL_WELCOME.messageText);
-                    } else if(updateType == UpdateType.CALL_BACK_QUERY &&
-                            update.callbackQuery().data().equals(Buttons.CAT_ANIMAL_WELCOME.bCallBack)) {
-                        // Processing How to meet animals at a shelter button
-                        sendMessage(chatId, Messages.CAT_ANIMAL_WELCOME.messageText);
-                    } else if((updateType == UpdateType.CALL_BACK_QUERY &&
-                            update.callbackQuery().data().equals(Buttons.BACK.bCallBack)) ||
-                            (updateType == UpdateType.COMMAND &&
-                                    update.message().text().equalsIgnoreCase(Commands.UP.commandText))) {
-                        // Processing "Back to previous Menu" button or /up command
-                        chatConfig.setChatState(ChatState.DEFAULT);
-                        chatConfigService.editChatConfig(chatConfig);
-                        sendMessage(chatId, Messages.CONTEXT_MENU.messageText);
-                        sendMenu(chatId, "Главное меню. Что вы хотите сделать дальше:", Buttons.BACK,
-                                Buttons.SHELTER_INFO, Buttons.ANIMAL_INFO, Buttons.DAILY_REPORT, Buttons.HELP,
-                                Buttons.CALL_VOLUNTEER);
-                    } else if((updateType == UpdateType.CALL_BACK_QUERY &&
-                            update.callbackQuery().data().equals(Buttons.HELP.bCallBack)) ||
-                            (updateType == UpdateType.COMMAND &&
-                                    update.message().text().equalsIgnoreCase(Commands.HELP.commandText))) {
-                        // Processing Help button or /help command
-                        sendMessage(chatId, Messages.HELP.messageText);
-                    } else if(updateType == UpdateType.MESSAGE) {
-                        // We are not processing messages at this stage
-                        sendMessage(chatId, Messages.CONTEXT_MENU.messageText);
-                    } else if(updateType == UpdateType.PHOTO) {
-                        // We are not processing photos at this stage
-                        sendMessage(chatId, Messages.CONTEXT_MENU.messageText);
-                    } else if(updateType == UpdateType.COMMAND &&
-                            update.message().text().equalsIgnoreCase(Commands.START.commandText)){
-                        // This is wrong command at this stage
-                        sendMessage(chatId, Messages.WRONG_COMMAND.messageText);
-                        sendMessage(chatId, Messages.CONTEXT_MENU.messageText);
-                    } else if(updateType == UpdateType.COMMAND &&
-                            update.message().text().equalsIgnoreCase(Commands.MENU.commandText)) {
-                        // Processing /menu command
-                        shelter = chatConfig.getShelter();
-                        sendMessage(chatId, Messages.CONTEXT_MENU.messageText);
-                        if (shelter == Shelter.DOG_SHELTER) {
-                            sendMenu(chatId, "Информация о том, как взять собаку из приюта", Buttons.BACK,
-                                    Buttons.DOG_ANIMAL_WELCOME, Buttons.DOG_ANIMAL_DOCS, Buttons.DOG_ANIMAL_TRANSPORT,
-                                    Buttons.DOG_ANIMAL_HOME1, Buttons.DOG_ANIMAL_HOME2, Buttons.DOG_ANIMAL_HOME3,
-                                    Buttons.DOG_ANIMAL_FIRST, Buttons.DOG_ANIMAL_PROF, Buttons.DOG_ANIMAL_REJECT,
-                                    Buttons.SEND_PHONE_AND_ADDRESS, Buttons.HELP, Buttons.CALL_VOLUNTEER);
-                        } else {
-                            sendMenu(chatId, "Информация о том, как взять кошку из приюта", Buttons.BACK,
-                                    Buttons.CAT_ANIMAL_WELCOME, Buttons.CAT_ANIMAL_DOCS, Buttons.CAT_ANIMAL_TRANSPORT,
-                                    Buttons.CAT_ANIMAL_HOME1, Buttons.CAT_ANIMAL_HOME2, Buttons.CAT_ANIMAL_HOME3,
-                                    Buttons.CAT_ANIMAL_REJECT,
-                                    Buttons.SEND_PHONE_AND_ADDRESS, Buttons.HELP, Buttons.CALL_VOLUNTEER);
-                        }
-                    } else {
-                        logger.error("Unrecognized update!");
-                    }
+                    consultPotentialOwnerStatusUpdateProcessing(chatId, update, updateType, chatConfig);
                     break;
                 case KEEPING_a_PET:
-                    if(updateType == UpdateType.CALL_BACK_QUERY &&
-                            update.callbackQuery().data().equals(Buttons.DR_GENERAL_WELL_BEING.bCallBack)) {
-                        // Processing Send general well-being button
-                        chatConfig.setChatState(ChatState.AWAITING_GENERAL_WELL_BEING);
-                        chatConfigService.editChatConfig(chatConfig);
-                        sendMessage(chatId, Messages.SEND_GENERAL_WELL_BEING.messageText);
-                    } else if(updateType == UpdateType.CALL_BACK_QUERY &&
-                            update.callbackQuery().data().equals(Buttons.DR_DIET.bCallBack)) {
-                        // Processing Send diet button
-                        chatConfig.setChatState(ChatState.AWAITING_DIET);
-                        chatConfigService.editChatConfig(chatConfig);
-                        sendMessage(chatId, Messages.SEND_DIET.messageText);
-                    } else if(updateType == UpdateType.CALL_BACK_QUERY &&
-                            update.callbackQuery().data().equals(Buttons.DR_CHANGE_IN_BEHAVIOR.bCallBack)) {
-                        // Processing Send change in behaviour button
-                        chatConfig.setChatState(ChatState.AWAITING_CHANGE_IN_BEHAVIOR);
-                        chatConfigService.editChatConfig(chatConfig);
-                        sendMessage(chatId, Messages.SEND_CHANGE_IN_BEHAVIOR.messageText);
-                    } else if(updateType == UpdateType.CALL_BACK_QUERY &&
-                            update.callbackQuery().data().equals(Buttons.DR_PHOTO.bCallBack)) {
-                        // Processing Send photo button
-                        chatConfig.setChatState(ChatState.AWAITING_PHOTO);
-                        chatConfigService.editChatConfig(chatConfig);
-                        sendMessage(chatId, Messages.SEND_PHOTO.messageText);
-                    } else if((updateType == UpdateType.CALL_BACK_QUERY &&
-                            update.callbackQuery().data().equals(Buttons.BACK.bCallBack)) ||
-                            (updateType == UpdateType.COMMAND &&
-                                    update.message().text().equalsIgnoreCase(Commands.UP.commandText))) {
-                        // Processing "Back to previous menu" button or /up command
-                        chatConfig.setChatState(ChatState.DEFAULT);
-                        chatConfigService.editChatConfig(chatConfig);
-                        sendMessage(chatId, Messages.CONTEXT_MENU.messageText);
-                        sendMenu(chatId, "Главное меню. Что вы хотите сделать дальше:", Buttons.BACK,
-                                Buttons.SHELTER_INFO, Buttons.ANIMAL_INFO, Buttons.DAILY_REPORT, Buttons.HELP,
-                                Buttons.CALL_VOLUNTEER);
-                    } else if((updateType == UpdateType.CALL_BACK_QUERY &&
-                            update.callbackQuery().data().equals(Buttons.HELP.bCallBack)) ||
-                            (updateType == UpdateType.COMMAND &&
-                                    update.message().text().equalsIgnoreCase(Commands.HELP.commandText))) {
-                        // Processing Help button or /help command
-                        sendMessage(chatId, Messages.HELP.messageText);
-                    } else if(updateType == UpdateType.MESSAGE) {
-                        // We are not processing messages at this stage
-                        sendMessage(chatId, Messages.CONTEXT_MENU.messageText);
-                    } else if(updateType == UpdateType.PHOTO) {
-                        // We are not processing photos at this stage
-                        sendMessage(chatId, Messages.CONTEXT_MENU.messageText);
-                    } else if(updateType == UpdateType.COMMAND &&
-                            update.message().text().equalsIgnoreCase(Commands.START.commandText)){
-                        // This is wrong command at this stage
-                        sendMessage(chatId, Messages.WRONG_COMMAND.messageText);
-                        sendMessage(chatId, Messages.CONTEXT_MENU.messageText);
-                    } else if(updateType == UpdateType.COMMAND &&
-                            update.message().text().equalsIgnoreCase(Commands.MENU.commandText)) {
-                        // Processing /menu command
-                        sendMessage(chatId, Messages.DAILY_REPORT_MENU_WELCOME.messageText);
-                        sendMessage(chatId, Messages.CONTEXT_MENU.messageText);
-                        sendMenu(chatId, "Части отчета", Buttons.BACK, Buttons.DR_GENERAL_WELL_BEING,
-                                Buttons.DR_DIET, Buttons.DR_CHANGE_IN_BEHAVIOR, Buttons.DR_PHOTO,
-                                Buttons.HELP, Buttons.CALL_VOLUNTEER);
-                    } else {
-                        logger.error("Unrecognized update!");
-                    }
+                    keepingPetStatusUpdateProcessing(chatId, update, updateType, chatConfig);
                     break;
-                case CHAT_WITH_VOLUNTEER:
                 case AWAITING_GENERAL_WELL_BEING:
-                    if(updateType == UpdateType.COMMAND) {
-                        // We are not processing commands on this stage
-                        sendMessage(chatId, Messages.SEND_GENERAL_WELL_BEING.messageText);
-                    } else if(updateType == UpdateType.MESSAGE) {
-                        // Processing message as a general well-being update
-                        DailyReport currentDailyReport;
-                        Optional<DailyReport> result = dailyReportService.findDailyReportByChatId(chatId);
-                        if(result.isEmpty()) { // new daily report
-                            LocalDateTime localDateTime = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES);
-                            currentDailyReport = new DailyReport(localDateTime, null, null, null,
-                                    null, null, update.message().text(), null, null);
-                            Optional<Animal> animalResult = animalService.getAnimalByChatId(chatId);
-                            if(animalResult.isEmpty()) {
-                                logger.error("Adopted animal of user with such chatId was not found in the database");
-                                throw new AnimalNotFoundException("Adopted animal of user with such chatId " +
-                                        "was not found in the database");
-                            } else {
-                                currentDailyReport.setAnimalId(animalResult.get().getId());
-                            }
-                            dailyReportService.addDailyReport(currentDailyReport);
-                        } else { // Existing daily report
-                            currentDailyReport = result.get();
-                            currentDailyReport.setGeneralWellBeing(update.message().text());
-                            dailyReportService.editDailyReport(currentDailyReport);
-                        }
-                        chatConfig.setChatState(ChatState.KEEPING_a_PET);
-                        chatConfigService.editChatConfig(chatConfig);
-                        sendMessage(chatId, Messages.GENERAL_WELL_BEING_RECEIVED.messageText);
-                    } else if(updateType == UpdateType.PHOTO) {
-                        // We are not processing photos at this stage
-                        sendMessage(chatId, Messages.SEND_GENERAL_WELL_BEING.messageText);
-                    } else if(updateType == UpdateType.CALL_BACK_QUERY) {
-                        // We are not processing callback queries at this stage
-                        sendMessage(chatId, Messages.SEND_GENERAL_WELL_BEING.messageText);
-                    } else {
-                        logger.error("Unrecognized update!");
-                    }
+                    awaitingGeneralWellBeingStatusUpdateProcessing(chatId, update, updateType, chatConfig);
                     break;
                 case AWAITING_DIET:
-                    if(updateType == UpdateType.COMMAND) {
-                        // We are not processing commands on this stage
-                        sendMessage(chatId, Messages.SEND_DIET.messageText);
-                    } else if(updateType == UpdateType.MESSAGE) {
-                        // Processing message as a diet update
-                        DailyReport currentDailyReport;
-                        Optional<DailyReport> result = dailyReportService.findDailyReportByChatId(chatId);
-                        if(result.isEmpty()) { // new daily report
-                            LocalDateTime localDateTime = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES);
-                            currentDailyReport = new DailyReport(localDateTime, null, null, null,
-                                    null, update.message().text(), null, null, null);
-                            Optional<Animal> animalResult = animalService.getAnimalByChatId(chatId);
-                            if(animalResult.isEmpty()) {
-                                logger.error("Adopted animal of user with such chatId was not found in the database");
-                                throw new AnimalNotFoundException("Adopted animal of user with such chatId " +
-                                        "was not found in the database");
-                            } else {
-                                currentDailyReport.setAnimalId(animalResult.get().getId());
-                            }
-                            dailyReportService.addDailyReport(currentDailyReport);
-                        } else { // Existing daily report
-                            currentDailyReport = result.get();
-                            currentDailyReport.setDiet(update.message().text());
-                            dailyReportService.editDailyReport(currentDailyReport);
-                        }
-                        chatConfig.setChatState(ChatState.KEEPING_a_PET);
-                        chatConfigService.editChatConfig(chatConfig);
-                        sendMessage(chatId, Messages.DIET_RECEIVED.messageText);
-                    } else if(updateType == UpdateType.PHOTO) {
-                        // We are not processing photos at this stage
-                        sendMessage(chatId, Messages.SEND_CHANGE_IN_BEHAVIOR.messageText);
-                    } else if(updateType == UpdateType.CALL_BACK_QUERY) {
-                        // We are not processing callback queries at this stage
-                        sendMessage(chatId, Messages.SEND_CHANGE_IN_BEHAVIOR.messageText);
-                    } else {
-                        logger.error("Unrecognized update!");
-                    }
+                    awaitingDietStatusUpdateProcessing(chatId, update, updateType, chatConfig);
                     break;
                 case AWAITING_CHANGE_IN_BEHAVIOR:
-                    if(updateType == UpdateType.COMMAND) {
-                        // We are not processing commands on this stage
-                        sendMessage(chatId, Messages.SEND_CHANGE_IN_BEHAVIOR.messageText);
-                    } else if(updateType == UpdateType.MESSAGE) {
-                        // Processing message as a change in behavior update
-                        DailyReport currentDailyReport;
-                        Optional<DailyReport> result = dailyReportService.findDailyReportByChatId(chatId);
-                        if(result.isEmpty()) { // new daily report
-                            LocalDateTime localDateTime = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES);
-                            currentDailyReport = new DailyReport(localDateTime, null, null, null,
-                                    null, null, null, update.message().text(), null);
-                            Optional<Animal> animalResult = animalService.getAnimalByChatId(chatId);
-                            if(animalResult.isEmpty()) {
-                                logger.error("Adopted animal of user with such chatId was not found in the database");
-                                throw new AnimalNotFoundException("Adopted animal of user with such chatId " +
-                                        "was not found in the database");
-                            } else {
-                                currentDailyReport.setAnimalId(animalResult.get().getId());
-                            }
-                            dailyReportService.addDailyReport(currentDailyReport);
-                        } else { // Existing daily report
-                            currentDailyReport = result.get();
-                            currentDailyReport.setChangeInBehavior(update.message().text());
-                            dailyReportService.editDailyReport(currentDailyReport);
-                        }
-                        chatConfig.setChatState(ChatState.KEEPING_a_PET);
-                        chatConfigService.editChatConfig(chatConfig);
-                        sendMessage(chatId, Messages.CHANGE_IN_BEHAVIOR_RECEIVED.messageText);
-                    } else if(updateType == UpdateType.PHOTO) {
-                        // We are not processing photos at this stage
-                        sendMessage(chatId, Messages.SEND_CHANGE_IN_BEHAVIOR.messageText);
-                    } else if(updateType == UpdateType.CALL_BACK_QUERY) {
-                        // We are not processing callback queries at this stage
-                        sendMessage(chatId, Messages.SEND_CHANGE_IN_BEHAVIOR.messageText);
-                    } else {
-                        logger.error("Unrecognized update!");
-                    }
+                    awaitingChangeInBehaviorStatusUpdateProcessing(chatId, update, updateType, chatConfig);
                     break;
                 case AWAITING_PHOTO:
-                    if(updateType == UpdateType.COMMAND) {
-                        // We are not processing commands on this stage
-                        sendMessage(chatId, Messages.SEND_PHOTO.messageText);
-                    } else if(updateType == UpdateType.MESSAGE) {
-                        // We are not processing messages at this stage
-                        sendMessage(chatId, Messages.SEND_PHOTO.messageText);
-                    } else if(updateType == UpdateType.PHOTO) {
-                        // Processing photo
-                        DailyReport currentDailyReport;
-                        Optional<DailyReport> result = dailyReportService.findDailyReportByChatId(chatId);
-                        if(result.isEmpty()) { // new daily report
-                            LocalDateTime localDateTime = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES);
-                            currentDailyReport = new DailyReport(localDateTime, null, null, null,
-                                    null, null, null, null, null);
-                            Optional<Animal> animalResult = animalService.getAnimalByChatId(chatId);
-                            if(animalResult.isEmpty()) {
-                                logger.error("Adopted animal of user with such chatId was not found in the database");
-                                throw new AnimalNotFoundException("Adopted animal of user with such chatId " +
-                                        "was not found in the database");
-                            } else {
-                                currentDailyReport.setAnimalId(animalResult.get().getId());
-                            }
-                            currentDailyReport = dailyReportService.addDailyReport(currentDailyReport);
-                        } else { // Existing daily report
-                            currentDailyReport = result.get();
-                        }
-                        // Sent photo processing
-                        int photoSizeArrayLength = update.message().photo().length;
-                        String fileId = update.message().photo()[photoSizeArrayLength-1].fileId();
-                        GetFile request = new GetFile(fileId);
-                        GetFileResponse getFileResponse = telegramBot.execute(request);
-                        File file = getFileResponse.file();
-                        String fullPath = telegramBot.getFullFilePath(file);
-                        try {
-                            dailyReportService.downloadAndUploadPhoto(currentDailyReport.getId(), fullPath,
-                                    file.fileSize(), "image/jpeg");
-                        } catch(IOException e) {
-                            logger.error(Arrays.toString(e.getStackTrace()));
-                        }
-                        chatConfig.setChatState(ChatState.KEEPING_a_PET);
-                        chatConfigService.editChatConfig(chatConfig);
-                        sendMessage(chatId, Messages.PHOTO_RECEIVED.messageText);
-                    } else if(updateType == UpdateType.CALL_BACK_QUERY) {
-                        // We are not processing callback queries at this stage
-                        sendMessage(chatId, Messages.SEND_CHANGE_IN_BEHAVIOR.messageText);
-                    } else {
-                        logger.error("Unrecognized update!");
-                    }
+                    awaitingPhotoStatusUpdateProcessing(chatId, update, updateType, chatConfig);
                     break;
-
                 case AWAITING_ADDRESS:
                 case AWAITING_PHONE:
             }
-
         });
         return UpdatesListener.CONFIRMED_UPDATES_ALL;
     }
 
-    /**
-     * commands that the user sends
-     */
-    private void processCommands(Update update, ChatState chatState) {
-        Long chatId = update.message().chat().id();
-        Commands command = Commands.valueOfCommandText(update.message().text());
-        if(command == null) {
-            sendMessage(chatId, Messages.THERE_IS_NO_SUCH_COMMAND.messageText);
-            sendMessage(chatId, Messages.HELP.messageText);
-            return;
-        }
-        if(command == Commands.START) {
-            switch (chatState) {
-                case NEW_USER:
-                    sendMessage(chatId, Messages.WELCOME_TO_THE_CHATBOT.messageText);
-                    sendMessage(chatId, Messages.CHOOSE_SHELTER.messageText);
-                    sendMenu(chatId, "Приюты", Buttons.DOG_SHELTER, Buttons.CAT_SHELTER);
-                    break;
-                case AWAITING_SHELTER:
-                    sendMessage(chatId, Messages.CHOOSE_SHELTER1.messageText);
-                    sendMenu(chatId, "Приюты", Buttons.DOG_SHELTER, Buttons.CAT_SHELTER);
-                case DEFAULT:
-                case CONSULT_NEW_USER:
-                case CONSULT_POTENTIAL_OWNER:
-                case KEEPING_a_PET:
-                case CHAT_WITH_VOLUNTEER:
-                    sendMessage(chatId, Messages.HELP.messageText);
+    private void awaitingPhotoStatusUpdateProcessing(Long chatId, Update update, UpdateType updateType, ChatConfig chatConfig) {
+        if(updateType == UpdateType.COMMAND) {
+            // We are not processing commands on this stage
+            sendMessage(chatId, Messages.SEND_PHOTO.messageText);
+        } else if(updateType == UpdateType.MESSAGE) {
+            // We are not processing messages at this stage
+            sendMessage(chatId, Messages.SEND_PHOTO.messageText);
+        } else if(updateType == UpdateType.PHOTO) {
+            // Processing photo
+            DailyReport currentDailyReport;
+            Optional<DailyReport> result = dailyReportService.findDailyReportByChatId(chatId);
+            if(result.isEmpty()) { // new daily report
+                LocalDateTime localDateTime = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES);
+                currentDailyReport = new DailyReport(localDateTime, null, null, null,
+                        null, null, null, null, null);
+                Optional<Animal> animalResult = animalService.getAnimalByChatId(chatId);
+                if(animalResult.isEmpty()) {
+                    logger.error("Adopted animal of user with such chatId was not found in the database");
+                    throw new AnimalNotFoundException("Adopted animal of user with such chatId " +
+                            "was not found in the database");
+                } else {
+                    currentDailyReport.setAnimalId(animalResult.get().getId());
+                }
+                currentDailyReport = dailyReportService.addDailyReport(currentDailyReport);
+            } else { // Existing daily report
+                currentDailyReport = result.get();
             }
-        } else if(command == Commands.HELP) {
-            sendMessage(chatId, Messages.HELP.messageText);
-        } else if(command == Commands.MENU) {
-            sendMessage(chatId, "Тут будет контекстное меню, а также могла бы быть ваша реклама :)");
+            // Sent photo processing
+            int photoSizeArrayLength = update.message().photo().length;
+            String fileId = update.message().photo()[photoSizeArrayLength-1].fileId();
+            GetFile request = new GetFile(fileId);
+            GetFileResponse getFileResponse = telegramBot.execute(request);
+            File file = getFileResponse.file();
+            String fullPath = telegramBot.getFullFilePath(file);
+            try {
+                dailyReportService.downloadAndUploadPhoto(currentDailyReport.getId(), fullPath,
+                        file.fileSize(), "image/jpeg");
+            } catch(IOException e) {
+                logger.error(Arrays.toString(e.getStackTrace()));
+            }
+            chatConfig.setChatState(ChatState.KEEPING_a_PET);
+            chatConfigService.editChatConfig(chatConfig);
+            sendMessage(chatId, Messages.PHOTO_RECEIVED.messageText);
+        } else if(updateType == UpdateType.CALL_BACK_QUERY) {
+            // We are not processing callback queries at this stage
+            sendMessage(chatId, Messages.SEND_CHANGE_IN_BEHAVIOR.messageText);
+        } else {
+            logger.error("Unrecognized update!");
         }
 
-//        if (!userService.checkByChatId(chatId)) {
-//            if (findCommandByString(incomingMessage) == Commands.START) {
-//                message = new SendMessage(chatId, Constants.REQUEST_START);
-//                userService.addUser(new User(update.message().chat().firstName(), update.message().chat().lastName(), update.message().chat().username(), null, null, update.message().chat().id()));
-//                chatConfigService.addChatConfig(new ChatConfig(chatId, 0L));
-//                SendMessage sendMessage = new SendMessage(chatId, Constants.START_DESCRIPTION);
-//                SendResponse sendResponse = telegramBot.execute(sendMessage); //это кинуть в отдельный метод, т.к. в этом не вызывается или порешать с ошибкой
-//
-//                SendMessage keys = new SendMessage(update.message().chat().id(), Constants.CHOOSE_OPTION);
-//                keys.replyMarkup(KeyboardFactory.startButtons());
-//                SendResponse response1 = telegramBot.execute(keys);
-//            } else if (!incomingMessage.equalsIgnoreCase("/start")) {
-//                SendMessage sendMessage = new SendMessage(chatId, "Вы ошиблись с вводом команды. " + Constants.REQUEST_START);
-//                SendResponse sendResponse = telegramBot.execute(sendMessage);
-//            }
-//        } else statusDeterminant(chatId, update);
     }
 
-    /**
-     * НА ДАННЫЙ МОМЕНТ МЕТОД НЕ ИСПОЛЬЗУЕТСЯ
-     * @param update
-     * @param chatState
-     */
-    private void processMessages(Update update, ChatState chatState) {
-        Long chatId = update.message().chat().id();
-        DailyReport currentDailyReport;
-        if(chatState == ChatState.AWAITING_GENERAL_WELL_BEING) {
+    private void awaitingChangeInBehaviorStatusUpdateProcessing(Long chatId, Update update, UpdateType updateType, ChatConfig chatConfig) {
+        if(updateType == UpdateType.COMMAND) {
+            // We are not processing commands on this stage
+            sendMessage(chatId, Messages.SEND_CHANGE_IN_BEHAVIOR.messageText);
+        } else if(updateType == UpdateType.MESSAGE) {
+            // Processing message as a change in behavior update
+            DailyReport currentDailyReport;
+            Optional<DailyReport> result = dailyReportService.findDailyReportByChatId(chatId);
+            if(result.isEmpty()) { // new daily report
+                LocalDateTime localDateTime = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES);
+                currentDailyReport = new DailyReport(localDateTime, null, null, null,
+                        null, null, null, update.message().text(), null);
+                Optional<Animal> animalResult = animalService.getAnimalByChatId(chatId);
+                if(animalResult.isEmpty()) {
+                    logger.error("Adopted animal of user with such chatId was not found in the database");
+                    throw new AnimalNotFoundException("Adopted animal of user with such chatId " +
+                            "was not found in the database");
+                } else {
+                    currentDailyReport.setAnimalId(animalResult.get().getId());
+                }
+                dailyReportService.addDailyReport(currentDailyReport);
+            } else { // Existing daily report
+                currentDailyReport = result.get();
+                currentDailyReport.setChangeInBehavior(update.message().text());
+                dailyReportService.editDailyReport(currentDailyReport);
+            }
+            chatConfig.setChatState(ChatState.KEEPING_a_PET);
+            chatConfigService.editChatConfig(chatConfig);
+            sendMessage(chatId, Messages.CHANGE_IN_BEHAVIOR_RECEIVED.messageText);
+        } else if(updateType == UpdateType.PHOTO) {
+            // We are not processing photos at this stage
+            sendMessage(chatId, Messages.SEND_CHANGE_IN_BEHAVIOR.messageText);
+        } else if(updateType == UpdateType.CALL_BACK_QUERY) {
+            // We are not processing callback queries at this stage
+            sendMessage(chatId, Messages.SEND_CHANGE_IN_BEHAVIOR.messageText);
+        } else {
+            logger.error("Unrecognized update!");
+        }
+
+    }
+
+    private void awaitingDietStatusUpdateProcessing(Long chatId, Update update, UpdateType updateType, ChatConfig chatConfig) {
+        if(updateType == UpdateType.COMMAND) {
+            // We are not processing commands on this stage
+            sendMessage(chatId, Messages.SEND_DIET.messageText);
+        } else if(updateType == UpdateType.MESSAGE) {
+            // Processing message as a diet update
+            DailyReport currentDailyReport;
+            Optional<DailyReport> result = dailyReportService.findDailyReportByChatId(chatId);
+            if(result.isEmpty()) { // new daily report
+                LocalDateTime localDateTime = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES);
+                currentDailyReport = new DailyReport(localDateTime, null, null, null,
+                        null, update.message().text(), null, null, null);
+                Optional<Animal> animalResult = animalService.getAnimalByChatId(chatId);
+                if(animalResult.isEmpty()) {
+                    logger.error("Adopted animal of user with such chatId was not found in the database");
+                    throw new AnimalNotFoundException("Adopted animal of user with such chatId " +
+                            "was not found in the database");
+                } else {
+                    currentDailyReport.setAnimalId(animalResult.get().getId());
+                }
+                dailyReportService.addDailyReport(currentDailyReport);
+            } else { // Existing daily report
+                currentDailyReport = result.get();
+                currentDailyReport.setDiet(update.message().text());
+                dailyReportService.editDailyReport(currentDailyReport);
+            }
+            chatConfig.setChatState(ChatState.KEEPING_a_PET);
+            chatConfigService.editChatConfig(chatConfig);
+            sendMessage(chatId, Messages.DIET_RECEIVED.messageText);
+        } else if(updateType == UpdateType.PHOTO) {
+            // We are not processing photos at this stage
+            sendMessage(chatId, Messages.SEND_CHANGE_IN_BEHAVIOR.messageText);
+        } else if(updateType == UpdateType.CALL_BACK_QUERY) {
+            // We are not processing callback queries at this stage
+            sendMessage(chatId, Messages.SEND_CHANGE_IN_BEHAVIOR.messageText);
+        } else {
+            logger.error("Unrecognized update!");
+        }
+
+    }
+
+    private void awaitingGeneralWellBeingStatusUpdateProcessing(Long chatId, Update update, UpdateType updateType, ChatConfig chatConfig) {
+        if(updateType == UpdateType.COMMAND) {
+            // We are not processing commands on this stage
+            sendMessage(chatId, Messages.SEND_GENERAL_WELL_BEING.messageText);
+        } else if(updateType == UpdateType.MESSAGE) {
+            // Processing message as a general well-being update
+            DailyReport currentDailyReport;
             Optional<DailyReport> result = dailyReportService.findDailyReportByChatId(chatId);
             if(result.isEmpty()) { // new daily report
                 LocalDateTime localDateTime = LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES);
                 currentDailyReport = new DailyReport(localDateTime, null, null, null,
                         null, null, update.message().text(), null, null);
-                dailyReportService.addDailyReport(currentDailyReport);
-                sendMessage(chatId, Messages.GENERAL_WELL_BEING_RECEIVED.messageText);
-                Optional<ChatConfig> chatConfigResult = chatConfigService.findByChatId(chatId);
-                if(chatConfigResult.isEmpty()) {
-                    throw new ChatConfigNotFoundException("Запись конфигурации чата с таким chatId не найдена!");
+                Optional<Animal> animalResult = animalService.getAnimalByChatId(chatId);
+                if(animalResult.isEmpty()) {
+                    logger.error("Adopted animal of user with such chatId was not found in the database");
+                    throw new AnimalNotFoundException("Adopted animal of user with such chatId " +
+                            "was not found in the database");
                 } else {
-                    chatConfigResult.get().setChatState(ChatState.KEEPING_a_PET);
-                    chatConfigService.editChatConfig(chatConfigResult.get());
+                    currentDailyReport.setAnimalId(animalResult.get().getId());
                 }
+                dailyReportService.addDailyReport(currentDailyReport);
             } else { // Existing daily report
                 currentDailyReport = result.get();
+                currentDailyReport.setGeneralWellBeing(update.message().text());
+                dailyReportService.editDailyReport(currentDailyReport);
             }
+            chatConfig.setChatState(ChatState.KEEPING_a_PET);
+            chatConfigService.editChatConfig(chatConfig);
+            sendMessage(chatId, Messages.GENERAL_WELL_BEING_RECEIVED.messageText);
+        } else if(updateType == UpdateType.PHOTO) {
+            // We are not processing photos at this stage
+            sendMessage(chatId, Messages.SEND_GENERAL_WELL_BEING.messageText);
+        } else if(updateType == UpdateType.CALL_BACK_QUERY) {
+            // We are not processing callback queries at this stage
+            sendMessage(chatId, Messages.SEND_GENERAL_WELL_BEING.messageText);
+        } else {
+            logger.error("Unrecognized update!");
         }
-
 
     }
 
+    private void keepingPetStatusUpdateProcessing(Long chatId, Update update, UpdateType updateType, ChatConfig chatConfig) {
+        if(updateType == UpdateType.CALL_BACK_QUERY &&
+                update.callbackQuery().data().equals(Buttons.DR_GENERAL_WELL_BEING.bCallBack)) {
+            // Processing Send general well-being button
+            chatConfig.setChatState(ChatState.AWAITING_GENERAL_WELL_BEING);
+            chatConfigService.editChatConfig(chatConfig);
+            sendMessage(chatId, Messages.SEND_GENERAL_WELL_BEING.messageText);
+        } else if(updateType == UpdateType.CALL_BACK_QUERY &&
+                update.callbackQuery().data().equals(Buttons.DR_DIET.bCallBack)) {
+            // Processing Send diet button
+            chatConfig.setChatState(ChatState.AWAITING_DIET);
+            chatConfigService.editChatConfig(chatConfig);
+            sendMessage(chatId, Messages.SEND_DIET.messageText);
+        } else if(updateType == UpdateType.CALL_BACK_QUERY &&
+                update.callbackQuery().data().equals(Buttons.DR_CHANGE_IN_BEHAVIOR.bCallBack)) {
+            // Processing Send change in behaviour button
+            chatConfig.setChatState(ChatState.AWAITING_CHANGE_IN_BEHAVIOR);
+            chatConfigService.editChatConfig(chatConfig);
+            sendMessage(chatId, Messages.SEND_CHANGE_IN_BEHAVIOR.messageText);
+        } else if(updateType == UpdateType.CALL_BACK_QUERY &&
+                update.callbackQuery().data().equals(Buttons.DR_PHOTO.bCallBack)) {
+            // Processing Send photo button
+            chatConfig.setChatState(ChatState.AWAITING_PHOTO);
+            chatConfigService.editChatConfig(chatConfig);
+            sendMessage(chatId, Messages.SEND_PHOTO.messageText);
+        } else if((updateType == UpdateType.CALL_BACK_QUERY &&
+                update.callbackQuery().data().equals(Buttons.BACK.bCallBack)) ||
+                (updateType == UpdateType.COMMAND &&
+                        update.message().text().equalsIgnoreCase(Commands.UP.commandText))) {
+            // Processing "Back to previous menu" button or /up command
+            chatConfig.setChatState(ChatState.DEFAULT);
+            chatConfigService.editChatConfig(chatConfig);
+            sendMessage(chatId, Messages.CONTEXT_MENU.messageText);
+            sendMenu(chatId, "Главное меню. Что вы хотите сделать дальше:", Buttons.BACK,
+                    Buttons.SHELTER_INFO, Buttons.ANIMAL_INFO, Buttons.DAILY_REPORT, Buttons.HELP,
+                    Buttons.CALL_VOLUNTEER);
+        } else if((updateType == UpdateType.CALL_BACK_QUERY &&
+                update.callbackQuery().data().equals(Buttons.HELP.bCallBack)) ||
+                (updateType == UpdateType.COMMAND &&
+                        update.message().text().equalsIgnoreCase(Commands.HELP.commandText))) {
+            // Processing Help button or /help command
+            sendMessage(chatId, Messages.HELP.messageText);
+        } else if(updateType == UpdateType.MESSAGE) {
+            // We are not processing messages at this stage
+            sendMessage(chatId, Messages.CONTEXT_MENU.messageText);
+        } else if(updateType == UpdateType.PHOTO) {
+            // We are not processing photos at this stage
+            sendMessage(chatId, Messages.CONTEXT_MENU.messageText);
+        } else if(updateType == UpdateType.COMMAND &&
+                update.message().text().equalsIgnoreCase(Commands.START.commandText)){
+            // This is wrong command at this stage
+            sendMessage(chatId, Messages.WRONG_COMMAND.messageText);
+            sendMessage(chatId, Messages.CONTEXT_MENU.messageText);
+        } else if(updateType == UpdateType.COMMAND &&
+                update.message().text().equalsIgnoreCase(Commands.MENU.commandText)) {
+            // Processing /menu command
+            sendMessage(chatId, Messages.DAILY_REPORT_MENU_WELCOME.messageText);
+            sendMessage(chatId, Messages.CONTEXT_MENU.messageText);
+            sendMenu(chatId, "Части отчета", Buttons.BACK, Buttons.DR_GENERAL_WELL_BEING,
+                    Buttons.DR_DIET, Buttons.DR_CHANGE_IN_BEHAVIOR, Buttons.DR_PHOTO, Buttons.DR_STATUS,
+                    Buttons.HELP, Buttons.CALL_VOLUNTEER);
+        } else if(updateType == UpdateType.CALL_BACK_QUERY &&
+                update.callbackQuery().data().equals(Buttons.DR_STATUS.bCallBack)) {
+            Optional<DailyReport> dailyReportResult = dailyReportService.findDailyReportByChatId(chatId);
+            String drPhoto = "не отправлена";
+            String drGeneralWellBeing = "не отправлен";
+            String drDiet = "не отправлен";
+            String drChangeInBehavior = "не отправлен";
+            if(dailyReportResult.isPresent() && dailyReportResult.get().getGeneralWellBeing() != null) {
+                drGeneralWellBeing = "отправлен";
+            }
+            if(dailyReportResult.isPresent() && dailyReportResult.get().getDiet() != null) {
+                drDiet = "отправлен";
+            }
+            if(dailyReportResult.isPresent() && dailyReportResult.get().getChangeInBehavior() != null) {
+                drChangeInBehavior = "отправлен";
+            }
+            if(dailyReportResult.isPresent() && dailyReportResult.get().getFilePath() != null) {
+                drPhoto = "отправлена";
+            }
+            sendMessage(chatId, "Состояние сегодняшнего отчета:\nОтчет об общем самочувствии питомца - "
+                    + drGeneralWellBeing + "\nОтчет о диете питомца - " + drDiet + "\nОтчет об изменениях в привычках - "
+                    + drChangeInBehavior + "\nФотография питомца - " + drPhoto);
+        } else {
+            logger.error("Unrecognized update!");
+        }
+    }
 
+    private void consultPotentialOwnerStatusUpdateProcessing(Long chatId, Update update, UpdateType updateType, ChatConfig chatConfig) {
+        if(updateType == UpdateType.CALL_BACK_QUERY &&
+                update.callbackQuery().data().equals(Buttons.DOG_ANIMAL_WELCOME.bCallBack)) {
+            // Processing How to meet animals at a shelter button
+            sendMessage(chatId, Messages.DOG_ANIMAL_WELCOME.messageText);
+        } else if(updateType == UpdateType.CALL_BACK_QUERY &&
+                update.callbackQuery().data().equals(Buttons.CAT_ANIMAL_WELCOME.bCallBack)) {
+            // Processing How to meet animals at a shelter button
+            sendMessage(chatId, Messages.CAT_ANIMAL_WELCOME.messageText);
+        } else if((updateType == UpdateType.CALL_BACK_QUERY &&
+                update.callbackQuery().data().equals(Buttons.BACK.bCallBack)) ||
+                (updateType == UpdateType.COMMAND &&
+                        update.message().text().equalsIgnoreCase(Commands.UP.commandText))) {
+            // Processing "Back to previous Menu" button or /up command
+            chatConfig.setChatState(ChatState.DEFAULT);
+            chatConfigService.editChatConfig(chatConfig);
+            sendMessage(chatId, Messages.CONTEXT_MENU.messageText);
+            sendMenu(chatId, "Главное меню. Что вы хотите сделать дальше:", Buttons.BACK,
+                    Buttons.SHELTER_INFO, Buttons.ANIMAL_INFO, Buttons.DAILY_REPORT, Buttons.HELP,
+                    Buttons.CALL_VOLUNTEER);
+        } else if((updateType == UpdateType.CALL_BACK_QUERY &&
+                update.callbackQuery().data().equals(Buttons.HELP.bCallBack)) ||
+                (updateType == UpdateType.COMMAND &&
+                        update.message().text().equalsIgnoreCase(Commands.HELP.commandText))) {
+            // Processing Help button or /help command
+            sendMessage(chatId, Messages.HELP.messageText);
+        } else if(updateType == UpdateType.MESSAGE) {
+            // We are not processing messages at this stage
+            sendMessage(chatId, Messages.CONTEXT_MENU.messageText);
+        } else if(updateType == UpdateType.PHOTO) {
+            // We are not processing photos at this stage
+            sendMessage(chatId, Messages.CONTEXT_MENU.messageText);
+        } else if(updateType == UpdateType.COMMAND &&
+                update.message().text().equalsIgnoreCase(Commands.START.commandText)){
+            // This is wrong command at this stage
+            sendMessage(chatId, Messages.WRONG_COMMAND.messageText);
+            sendMessage(chatId, Messages.CONTEXT_MENU.messageText);
+        } else if(updateType == UpdateType.COMMAND &&
+                update.message().text().equalsIgnoreCase(Commands.MENU.commandText)) {
+            // Processing /menu command
+            Shelter shelter = chatConfig.getShelter();
+            sendMessage(chatId, Messages.CONTEXT_MENU.messageText);
+            if (shelter == Shelter.DOG_SHELTER) {
+                sendMenu(chatId, "Информация о том, как взять собаку из приюта", Buttons.BACK,
+                        Buttons.DOG_ANIMAL_WELCOME, Buttons.DOG_ANIMAL_DOCS, Buttons.DOG_ANIMAL_TRANSPORT,
+                        Buttons.DOG_ANIMAL_HOME1, Buttons.DOG_ANIMAL_HOME2, Buttons.DOG_ANIMAL_HOME3,
+                        Buttons.DOG_ANIMAL_FIRST, Buttons.DOG_ANIMAL_PROF, Buttons.DOG_ANIMAL_REJECT,
+                        Buttons.SEND_PHONE_AND_ADDRESS, Buttons.HELP, Buttons.CALL_VOLUNTEER);
+            } else {
+                sendMenu(chatId, "Информация о том, как взять кошку из приюта", Buttons.BACK,
+                        Buttons.CAT_ANIMAL_WELCOME, Buttons.CAT_ANIMAL_DOCS, Buttons.CAT_ANIMAL_TRANSPORT,
+                        Buttons.CAT_ANIMAL_HOME1, Buttons.CAT_ANIMAL_HOME2, Buttons.CAT_ANIMAL_HOME3,
+                        Buttons.CAT_ANIMAL_REJECT,
+                        Buttons.SEND_PHONE_AND_ADDRESS, Buttons.HELP, Buttons.CALL_VOLUNTEER);
+            }
+        } else {
+            logger.error("Unrecognized update!");
+        }
+    }
+
+    private void consultNewUserStatusUpdateProcessing(Long chatId, Update update, UpdateType updateType, ChatConfig chatConfig) {
+        if(updateType == UpdateType.CALL_BACK_QUERY &&
+                update.callbackQuery().data().equals(Buttons.DOG_SHELTER_INFO.bCallBack)) {
+            // Processing Information about Dog shelter common info button
+            sendMessage(chatId, Messages.DOG_SHELTER_GENERAL_INFO.messageText);
+        } else if(updateType == UpdateType.CALL_BACK_QUERY &&
+                update.callbackQuery().data().equals(Buttons.CAT_SHELTER_INFO.bCallBack)) {
+            // Processing Information about Cat shelter common info button
+            sendMessage(chatId, Messages.CAT_SHELTER_GENERAL_INFO.messageText);
+        } else if((updateType == UpdateType.CALL_BACK_QUERY &&
+                update.callbackQuery().data().equals(Buttons.BACK.bCallBack)) ||
+                (updateType == UpdateType.COMMAND &&
+                        update.message().text().equalsIgnoreCase(Commands.UP.commandText))) {
+            // Processing "Back to previous Menu" button or /up command
+            chatConfig.setChatState(ChatState.DEFAULT);
+            chatConfigService.editChatConfig(chatConfig);
+            sendMessage(chatId, Messages.CONTEXT_MENU.messageText);
+            sendMenu(chatId, "Главное меню. Что вы хотите сделать дальше:", Buttons.BACK,
+                    Buttons.SHELTER_INFO, Buttons.ANIMAL_INFO, Buttons.DAILY_REPORT, Buttons.HELP,
+                    Buttons.CALL_VOLUNTEER);
+        } else if((updateType == UpdateType.CALL_BACK_QUERY &&
+                update.callbackQuery().data().equals(Buttons.HELP.bCallBack)) ||
+                (updateType == UpdateType.COMMAND &&
+                        update.message().text().equalsIgnoreCase(Commands.HELP.commandText))) {
+            // Processing Help button or /help command
+            sendMessage(chatId, Messages.HELP.messageText);
+        } else if(updateType == UpdateType.MESSAGE) {
+            // We are not processing messages at this stage
+            sendMessage(chatId, Messages.CONTEXT_MENU.messageText);
+        } else if(updateType == UpdateType.PHOTO) {
+            // We are not processing photos at this stage
+            sendMessage(chatId, Messages.CONTEXT_MENU.messageText);
+        } else if(updateType == UpdateType.COMMAND &&
+                update.message().text().equalsIgnoreCase(Commands.START.commandText)){
+            // This is wrong command at this stage
+            sendMessage(chatId, Messages.WRONG_COMMAND.messageText);
+            sendMessage(chatId, Messages.CONTEXT_MENU.messageText);
+        } else if(updateType == UpdateType.COMMAND &&
+                update.message().text().equalsIgnoreCase(Commands.MENU.commandText)) {
+            // Processing /menu command
+            Shelter shelter = chatConfig.getShelter();
+            sendMessage(chatId, Messages.CONTEXT_MENU.messageText);
+            if (shelter == Shelter.DOG_SHELTER) {
+                sendMenu(chatId, "Информация о приюте для собак", Buttons.BACK,
+                        Buttons.DOG_SHELTER_INFO, Buttons.DOG_SHELTER_ADDRESS, Buttons.DOG_SHELTER_SECURITY,
+                        Buttons.DOG_SHELTER_SAFETY_TIPS, Buttons.SEND_PHONE_AND_ADDRESS,
+                        Buttons.HELP, Buttons.CALL_VOLUNTEER);
+            } else {
+                sendMenu(chatId, "Информация о приюте для кошек", Buttons.BACK,
+                        Buttons.CAT_SHELTER_INFO, Buttons.CAT_SHELTER_ADDRESS, Buttons.CAT_SHELTER_SECURITY,
+                        Buttons.CAT_SHELTER_SAFETY_TIPS, Buttons.SEND_PHONE_AND_ADDRESS,
+                        Buttons.HELP, Buttons.CALL_VOLUNTEER);
+            }
+        } else {
+            logger.error("Unrecognized update!");
+        }
+    }
+
+    private void defaultStatusUpdateProcessing(Long chatId, Update update, UpdateType updateType, User user, ChatConfig chatConfig) {
+        Shelter shelter;
+        if(updateType == UpdateType.CALL_BACK_QUERY &&
+                update.callbackQuery().data().equals(Buttons.SHELTER_INFO.bCallBack)) {
+            // Processing Information about shelter button
+            shelter = chatConfig.getShelter();
+            chatConfig.setChatState(ChatState.CONSULT_NEW_USER);
+            chatConfigService.editChatConfig(chatConfig);
+            sendMessage(chatId, Messages.CONTEXT_MENU.messageText);
+            if (shelter == Shelter.DOG_SHELTER) {
+                sendMenu(chatId, "Информация о приюте для собак", Buttons.BACK,
+                        Buttons.DOG_SHELTER_INFO, Buttons.DOG_SHELTER_ADDRESS, Buttons.DOG_SHELTER_SECURITY,
+                        Buttons.DOG_SHELTER_SAFETY_TIPS, Buttons.SEND_PHONE_AND_ADDRESS,
+                        Buttons.HELP, Buttons.CALL_VOLUNTEER);
+            } else {
+                sendMenu(chatId, "Информация о приюте для кошек", Buttons.BACK,
+                        Buttons.CAT_SHELTER_INFO, Buttons.CAT_SHELTER_ADDRESS, Buttons.CAT_SHELTER_SECURITY,
+                        Buttons.CAT_SHELTER_SAFETY_TIPS, Buttons.SEND_PHONE_AND_ADDRESS,
+                        Buttons.HELP, Buttons.CALL_VOLUNTEER);
+            }
+        } else if(updateType == UpdateType.CALL_BACK_QUERY &&
+                update.callbackQuery().data().equals(Buttons.ANIMAL_INFO.bCallBack)) {
+            // Processing How to adopt animal button
+            shelter = chatConfig.getShelter();
+            chatConfig.setChatState(ChatState.CONSULT_POTENTIAL_OWNER);
+            chatConfigService.editChatConfig(chatConfig);
+            sendMessage(chatId, Messages.CONTEXT_MENU.messageText);
+            if (shelter == Shelter.DOG_SHELTER) {
+                sendMenu(chatId, "Информация о том, как взять собаку из приюта", Buttons.BACK,
+                        Buttons.DOG_ANIMAL_WELCOME, Buttons.DOG_ANIMAL_DOCS, Buttons.DOG_ANIMAL_TRANSPORT,
+                        Buttons.DOG_ANIMAL_HOME1, Buttons.DOG_ANIMAL_HOME2, Buttons.DOG_ANIMAL_HOME3,
+                        Buttons.DOG_ANIMAL_FIRST, Buttons.DOG_ANIMAL_PROF, Buttons.DOG_ANIMAL_REJECT,
+                        Buttons.SEND_PHONE_AND_ADDRESS, Buttons.HELP, Buttons.CALL_VOLUNTEER);
+            } else {
+                sendMenu(chatId, "Информация о том, как взять кошку из приюта", Buttons.BACK,
+                        Buttons.CAT_ANIMAL_WELCOME, Buttons.CAT_ANIMAL_DOCS, Buttons.CAT_ANIMAL_TRANSPORT,
+                        Buttons.CAT_ANIMAL_HOME1, Buttons.CAT_ANIMAL_HOME2, Buttons.CAT_ANIMAL_HOME3,
+                        Buttons.CAT_ANIMAL_REJECT,
+                        Buttons.SEND_PHONE_AND_ADDRESS, Buttons.HELP, Buttons.CALL_VOLUNTEER);
+            }
+        } else if(updateType == UpdateType.CALL_BACK_QUERY &&
+                update.callbackQuery().data().equals(Buttons.DAILY_REPORT.bCallBack)) {
+            // Processing Send daily report button
+            Optional<User> userResult = userService.findByChatId(chatId);
+            if(userResult.isEmpty()) {
+                logger.error("User with such chat id was not found in the database!");
+                throw new UserNotFoundException("User with such chat id was not found in the database!");
+            } else if(userResult.get().getAdoptedAnimal() == null) {
+                sendMessage(chatId, Messages.YOU_HAVE_NOT_ADOPTED_ANIMAL.messageText);
+                return;
+            } else if(LocalDateTime.now().truncatedTo(ChronoUnit.DAYS).minusDays(30)
+                    .isAfter(userResult.get().getAdoptedAnimal().getAdoptionDate())) {
+                sendMessage(chatId, Messages.YOU_DONT_NEED_TO_SEND_DAILY_REPORT.messageText);
+                return;
+            }
+            chatConfig.setChatState(ChatState.KEEPING_a_PET);
+            chatConfigService.editChatConfig(chatConfig);
+            sendMessage(chatId, Messages.DAILY_REPORT_MENU_WELCOME.messageText);
+            sendMessage(chatId, Messages.CONTEXT_MENU.messageText);
+            sendMenu(chatId, "Части отчета", Buttons.BACK, Buttons.DR_GENERAL_WELL_BEING,
+                    Buttons.DR_DIET, Buttons.DR_CHANGE_IN_BEHAVIOR, Buttons.DR_PHOTO, Buttons.DR_STATUS,
+                    Buttons.HELP, Buttons.CALL_VOLUNTEER);
+        } else if((updateType == UpdateType.CALL_BACK_QUERY &&
+                update.callbackQuery().data().equals(Buttons.BACK.bCallBack)) ||
+                (updateType == UpdateType.COMMAND &&
+                        update.message().text().equalsIgnoreCase(Commands.UP.commandText))) {
+            // Processing "Back to previous Menu" button or /up command
+            chatConfig.setShelter(null);
+            chatConfig.setChatState(ChatState.AWAITING_SHELTER);
+            chatConfigService.editChatConfig(chatConfig);
+            user.setShelter(null);
+            userService.editUser(user);
+            sendMessage(chatId, Messages.CHOOSE_SHELTER1.messageText);
+            sendMenu(chatId, "Приюты", Buttons.DOG_SHELTER, Buttons.CAT_SHELTER);
+        } else if((updateType == UpdateType.CALL_BACK_QUERY &&
+                update.callbackQuery().data().equals(Buttons.HELP.bCallBack)) || (updateType == UpdateType.COMMAND &&
+                update.message().text().equalsIgnoreCase(Commands.HELP.commandText))) {
+            // Processing Help button or /help command
+            sendMessage(chatId, Messages.HELP.messageText);
+        } else if(updateType == UpdateType.MESSAGE) {
+            // We are not processing messages at this stage
+            sendMessage(chatId, Messages.CONTEXT_MENU.messageText);
+        } else if(updateType == UpdateType.PHOTO) {
+            // We are not processing photos at this stage
+            sendMessage(chatId, Messages.CONTEXT_MENU.messageText);
+        } else if(updateType == UpdateType.COMMAND &&
+                update.message().text().equalsIgnoreCase(Commands.START.commandText)){
+            // This is wrong command at this stage
+            sendMessage(chatId, Messages.WRONG_COMMAND.messageText);
+            sendMessage(chatId, Messages.CONTEXT_MENU.messageText);
+        } else if(updateType == UpdateType.COMMAND &&
+                update.message().text().equalsIgnoreCase(Commands.MENU.commandText)) {
+            // Processing /menu command
+            sendMessage(chatId, Messages.CONTEXT_MENU.messageText);
+            sendMenu(chatId, "Главное меню. Что вы хотите сделать дальше:", Buttons.BACK,
+                    Buttons.SHELTER_INFO, Buttons.ANIMAL_INFO, Buttons.DAILY_REPORT, Buttons.HELP,
+                    Buttons.CALL_VOLUNTEER);
+        } else {
+            logger.error("Unrecognized update!");
+        }
+    }
+
+    private void awaitingShelterStatusUpdateProcessing(Long chatId, Update update, UpdateType updateType,
+                                                       User user, ChatConfig chatConfig) {
+        Shelter shelter;
+        if(updateType == UpdateType.CALL_BACK_QUERY &&
+                update.callbackQuery().data().equals(Buttons.DOG_SHELTER.bCallBack)) {
+            shelter = Shelter.DOG_SHELTER;
+        } else if(updateType == UpdateType.CALL_BACK_QUERY &&
+                update.callbackQuery().data().equals(Buttons.CAT_SHELTER.bCallBack)) {
+            shelter = Shelter.CAT_SHELTER;
+        } else {
+            sendMessage(chatId, Messages.CHOOSE_SHELTER1.messageText);
+            sendMenu(chatId, "Приюты", Buttons.DOG_SHELTER, Buttons.CAT_SHELTER);
+            return;
+        }
+        user.setShelter(shelter);
+        userService.editUser(user);
+        chatConfig.setShelter(shelter);
+        chatConfig.setChatState(ChatState.DEFAULT);
+        chatConfigService.editChatConfig(chatConfig);
+        sendMessage(chatId, Messages.SHELTER_CHOSEN.messageText +
+                chatConfig.getShelter().shelterSpecialization.toLowerCase() +
+                Messages.SHELTER_CHOSEN1.messageText);
+        sendMessage(chatId, Messages.CONTEXT_MENU.messageText);
+        sendMenu(chatId, "Главное меню. Что вы хотите сделать дальше:", Buttons.BACK,
+                Buttons.SHELTER_INFO, Buttons.ANIMAL_INFO, Buttons.DAILY_REPORT, Buttons.HELP,
+                Buttons.CALL_VOLUNTEER);
+    }
+
+    /**
+     * Sending menu for new user and changing chatState to ChatState.AWAITING_SHELTER
+     * @param chatId - chat id
+     * @param chatConfig - chat configuration
+     */
+    private void newUserMenu(Long chatId, ChatConfig chatConfig) {
+        sendMessage(chatId, Messages.WELCOME_TO_THE_CHATBOT.messageText);
+        sendMessage(chatId, Messages.CHOOSE_SHELTER.messageText);
+        sendMenu(chatId, "Приюты", Buttons.DOG_SHELTER, Buttons.CAT_SHELTER);
+        chatConfig.setChatState(ChatState.AWAITING_SHELTER);
+        chatConfigService.editChatConfig(chatConfig);
+    }
 
     /**
      * user stage check
@@ -701,22 +697,8 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                 return UpdateType.ERROR;
             }
 
-//            PhotoSize[] incomingMessage = update.message().photo();
-//            Long chatId = update.message().chat().id();
-//            if (!userService.checkByChatId(chatId)) {
-//                SendMessage message = new SendMessage(chatId, "Вы ошиблись с вводом команды. " + Constants.REQUEST_START);
-//                SendResponse response = telegramBot.execute(message);
-//            } else if (chatConfigService.findByChatId(chatId).equals(Constants.KEEPING_a_PET)) {
-//                // проверка наличия текста DailyReport, если есть, то ок, если нет - запрос
-//            } else {
-//                SendMessage message = new SendMessage(chatId, "У Вас нет животного на адаптации, вы не можете направить фотоотчёт." + Constants.CHOOSE_OPTION + Commands.MENU);
-//                SendResponse response = telegramBot.execute(message);
-//            }
         } else if (update.callbackQuery() != null) { // Callback answer processing
             return UpdateType.CALL_BACK_QUERY;
-//            Long chatId = update.message().chat().id();
-//            SendMessage message = new SendMessage(chatId, "Вы ошиблись с вводом команды. " + Constants.REQUEST_START);
-//            SendResponse response = telegramBot.execute(message);
 
         } else {
             return UpdateType.ERROR;
@@ -724,90 +706,9 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
     }
 
     /**
-     * НА ДАННЫЙ МОМЕНТ МЕТОД НЕ ИСПОЛЬЗУЕТСЯ
-     * user menu
-     * param chatId must not be null
-     * param update must not be null
-     * return user response
-     */
-    private SendResponse statusDeterminant(Long chatId, Update update) {
-        Long botStatus = chatConfigService.findByChatId(chatId).get().getChatId();
-        SendMessage message = new SendMessage(chatId, Constants.CHOOSE_OPTION);
-        SendResponse response = telegramBot.execute(message);
-        ChatState bStatus = getBotStatusByLong(botStatus);
-        switch (bStatus) {
-            case DEFAULT:
-                startButtons(update);
-                break;
-            case CONSULT_NEW_USER:
-                consultNewUser(update);
-                break;
-            case CONSULT_POTENTIAL_OWNER:
-                consultPotentialOwner(update);
-                break;
-            case KEEPING_a_PET:
-                keepingPet(update);
-                break;
-            // Не реализовано
-            case CHAT_WITH_VOLUNTEER://либо создать метод
-                message = new SendMessage(chatId, Constants.CALL_VOLUNTEER);
-                response = telegramBot.execute(message);
-                break;
-            default:
-                Exception exception; // не знаю нужно ли цеплять
-        }
-        return response;
-    }
-
-    /**
-     * depending on the status of the chat, we get the status of the bot
-     * @param botStatus
-     * @return bot status
-     */
-    private ChatState getBotStatusByLong(Long botStatus) {
-        for (ChatState s : ChatState.values()) {
-            if(s.equals(botStatus))
-                return s;
-        }
-        return ChatState.DEFAULT;
-    }
-
-    /**
-     * depending on the update, we use the method of keeping pet
-     * @param update
-     */
-    private void keepingPet(Update update) {
-        KeyboardFactory.stageThree();
-    }
-
-    /**
-     * depending on the update, we use the method consult potential Owner
-     * @param update
-     */
-    private void consultPotentialOwner(Update update) {
-        KeyboardFactory.stageTwo();
-    }
-
-    /**
-     * depending on the update, we use the method consult new user
-     * @param update
-     */
-    private void consultNewUser(Update update) {
-        KeyboardFactory.stageOne();
-    }
-
-    /**
-     * depending on the update, we use the method start buttons
-     * @param update
-     */
-    private void startButtons(Update update) {
-        KeyboardFactory.startButtons();
-    }
-
-    /**
      * tdepending on the incoming message, choose what to reply to the user
-     * @param chatId
-     * @param message
+     * @param chatId chat id
+     * @param message message text to send
      * record an event about sent message or an error
      */
     private void sendMessage(Long chatId, String message) {
@@ -824,9 +725,9 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
 
     /**
      * depending on the condition, we give the opportunity to return back to the menu or go to the cattery website
-     * @param chatId
-     * @param menuHeader
-     * @param buttons
+     * @param chatId chat id
+     * @param menuHeader menu header
+     * @param buttons buttons
      * if the message is not sent record an event about a message sent or an error
      */
     private void sendMenu(Long chatId, String menuHeader, Buttons... buttons) {
@@ -850,119 +751,4 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
             logger.error("Response error: response is null");
         }
     }
-
-    /**
-     * НА ДАННЫЙ МОМЕНТ МЕТОД НЕ ИСПОЛЬЗУЕТСЯ
-     * @param update
-     * @param message
-     * @param keyboardMarkup
-     */
-    private void sendMessageWithKeyboard(Update update, String message, InlineKeyboardMarkup keyboardMarkup) {
-        Long chatId = update.message().chat().id();
-        SendResponse response = telegramBot.execute(new SendMessage(chatId, message).replyMarkup(keyboardMarkup));
-        if (response.isOk()) {
-            logger.info("message: {} is sent ", message);
-        } else {
-            logger.info("Response is: {}", response.isOk());
-        }
-    }
 }
-
-
-
-
-//                if (incomingMessage.equalsIgnoreCase(String.valueOf(Commands.MENU))) {
-//                    SendMessage message = new SendMessage(update.message().chat().id(), Constants.CHOOSE_OPTION);
-//                    message.replyMarkup(KeyboardFactory.startButtons());
-//                    SendResponse response = telegramBot.execute(message);
-//                }
-
-//                if (incomingMessage.equalsIgnoreCase(String.valueOf(Commands.HELP))) {
-//                    SendMessage message = new SendMessage(update.message().chat().id(), Arrays.toString(Commands.values()));
-//                    SendResponse response = telegramBot.execute(message);
-
-
-//
-//
-////              try {
-////                    createNotification(update);
-////                    SendResponse response = telegramBot.execute(new SendMessage(chatId, "Your notification saved"));
-////                    answer(response);
-////                    logger.info("Notification saved");
-////                } catch (DataFormatException e) {
-////                    logger.warn("Notification unsaved");
-////                    SendResponse response = telegramBot.execute
-////                            (new SendMessage(chatId,
-////                                    "Incorrect notification text. " +
-////                                            "Enter the notification in the format <dd.MM.yyyy HH:mm Notification text> without quotes and brackets"));
-////                    answer(response);
-////                }
-////            }
-//
-////        });
-////        finally{
-////            {
-//            return UpdatesListener.CONFIRMED_UPDATES_ALL;
-//            }
-//        }
-//
-//    private void answer(SendResponse response) {
-//        if (!response.isOk()) {
-//            logger.warn("Response error code is: {}", response.errorCode());
-//        } else {
-//            logger.info("Response is: {}", response.isOk());
-//        }
-//    }
-//
-//    public void requestDefinition() {
-//
-//    }
-//
-//    public List<String> requestParsing(String text) throws DataFormatException {
-//        Matcher matcher = pattern.matcher(text);
-//        if (matcher.matches()) {
-//            String dateTime = matcher.group(1);
-//            String notification = matcher.group(3);
-//            return List.of(dateTime, notification);
-//        } else {
-//            logger.warn("Incorrect data format");
-//            throw new DataFormatException("Incorrect data format");
-//        }
-//    }
-//
-//    public void createNotification(Update update) throws DataFormatException {
-//        String message = update.message().text();
-//        Long chatId = update.message().chat().id();
-//        List<String> timeAndText = new ArrayList<>(requestParsing(message));
-//        String time = timeAndText.get(0);
-//        String text = timeAndText.get(1);
-//        LocalDateTime localDateTime = LocalDateTime.parse(time, DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm"));
-//        NotificationTask notificationTask = new NotificationTask(chatId, text, localDateTime);
-//        notificationTaskRepository.save(notificationTask);
-//        logger.info("Notification save {}", notificationTask);
-//    }
-
-//    public List<String> requestParsing(String text) throws DataFormatException {
-//        Matcher matcher = pattern.matcher(text);
-//        if (matcher.matches()) {
-//            String dateTime = matcher.group(1);
-//            String notification = matcher.group(3);
-//            return List.of(dateTime, notification);
-//        } else {
-//            logger.warn("Incorrect data format");
-//            throw new DataFormatException("Incorrect data format");
-//        }
-//    }
-
-//    public void createNotification(Update update) throws DataFormatException {
-//        String message = update.message().text();
-//        Long chatId = update.message().chat().id();
-//        List<String> timeAndText = new ArrayList<>(requestParsing(message));
-//        String time = timeAndText.get(0);
-//        String text = timeAndText.get(1);
-//        LocalDateTime localDateTime = LocalDateTime.parse(time, DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm"));
-//        NotificationTask notificationTask = new NotificationTask(chatId, text, localDateTime);
-//        notificationTaskRepository.save(notificationTask);
-//        logger.info("Notification save {}", notificationTask);
-//    }
-//}

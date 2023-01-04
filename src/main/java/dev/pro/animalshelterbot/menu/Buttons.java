@@ -65,7 +65,8 @@ public enum Buttons {
     DR_GENERAL_WELL_BEING("Отправить описание общего самочувствия питомца", "DRGeneralWellBeing", ButtonType.CALLBACK, null),
     DR_DIET("Отправить описание питания питомца", "DRDiet", ButtonType.CALLBACK, null),
     DR_CHANGE_IN_BEHAVIOR("Отправить описание изменений в привычках", "DRChangeInBehavior", ButtonType.CALLBACK, null),
-    DR_PHOTO("Отправить фото питомца", "DRPhoto", ButtonType.CALLBACK, null);
+    DR_PHOTO("Отправить фото питомца", "DRPhoto", ButtonType.CALLBACK, null),
+    DR_STATUS("Состояние сегодняшнего отчета", "DRStatus", ButtonType.CALLBACK, null);
 
     public final String bText, bCallBack, url;
     public final ButtonType bType;
