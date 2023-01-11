@@ -114,6 +114,12 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                 chatConfig = chatConfigResult.get();
                 chatState = chatConfig.getChatState();
             }
+            // Checking that user is volunteer or not
+            if(user.isVolunteer()) {
+                sendMessage(chatId, Messages.YOU_ARE_VOLUNTEER_NOW1.messageText + "@" + user.getNickName()
+                        + Messages.YOU_ARE_VOLUNTEER_NOW2);
+                return;
+            }
 
             switch(chatState) {
                 case NEW_USER:
@@ -150,10 +156,80 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                     awaitingPhotoStatusUpdateProcessing(chatId, update, updateType, chatConfig);
                     break;
                 case AWAITING_ADDRESS:
+                    awaitingAddressStatusUpdateProcessing(chatId, update, updateType, chatConfig);
+                    break;
                 case AWAITING_PHONE:
+                    awaitingPhoneStatusUpdateProcessing(chatId, update, updateType, chatConfig);
+                    break;
             }
         });
         return UpdatesListener.CONFIRMED_UPDATES_ALL;
+    }
+
+    private void sendSignalToVolunteers(Long chatId, Update update, UpdateType updateType, ChatConfig chatConfig) {
+
+    }
+
+    private void awaitingAddressStatusUpdateProcessing(Long chatId, Update update, UpdateType updateType, ChatConfig chatConfig) {
+        if(updateType == UpdateType.COMMAND) {
+            // We are not processing commands on this stage
+            sendMessage(chatId, Messages.SEND_ADDRESS.messageText);
+        } else if(updateType == UpdateType.MESSAGE) {
+            // Processing message as address update
+            Optional<User> userResult = userService.findByChatId(chatId);
+            if(userResult.isEmpty()) { // user with such chatId was not found in the database
+                logger.error("User with such chatId was not found in the database");
+                throw new UserNotFoundException("User with such chatId was not found in the database");
+            } else { // Existing user
+                User user =  userResult.get();
+                user.setAddress(update.message().text());
+                userService.editUser(user);
+            }
+            chatConfig.setChatState(chatConfig.getPreviousChatState());
+            chatConfig.setPreviousChatState(ChatState.ZERO_STATE);
+            chatConfigService.editChatConfig(chatConfig);
+            sendMessage(chatId, Messages.ADDRESS_SENT.messageText);
+        } else if(updateType == UpdateType.PHOTO) {
+            // We are not processing photos at this stage
+            sendMessage(chatId, Messages.SEND_ADDRESS.messageText);
+        } else if(updateType == UpdateType.CALL_BACK_QUERY) {
+            // We are not processing callback queries at this stage
+            sendMessage(chatId, Messages.SEND_ADDRESS.messageText);
+        } else {
+            logger.error("Unrecognized update!");
+        }
+
+    }
+
+    private void awaitingPhoneStatusUpdateProcessing(Long chatId, Update update, UpdateType updateType, ChatConfig chatConfig) {
+        if(updateType == UpdateType.COMMAND) {
+            // We are not processing commands on this stage
+            sendMessage(chatId, Messages.SEND_PHONE.messageText);
+        } else if(updateType == UpdateType.MESSAGE) {
+            // Processing message as a phone number update
+            Optional<User> userResult = userService.findByChatId(chatId);
+            if(userResult.isEmpty()) { // user with such chatId was not found in the database
+                logger.error("User with such chatId was not found in the database");
+                throw new UserNotFoundException("User with such chatId was not found in the database");
+            } else { // Existing user
+                User user =  userResult.get();
+                user.setMobilePhone(update.message().text());
+                userService.editUser(user);
+            }
+            chatConfig.setChatState(ChatState.AWAITING_ADDRESS);
+            chatConfigService.editChatConfig(chatConfig);
+            sendMessage(chatId, Messages.PHONE_SENT.messageText);
+            sendMessage(chatId, Messages.SEND_ADDRESS.messageText);
+        } else if(updateType == UpdateType.PHOTO) {
+            // We are not processing photos at this stage
+            sendMessage(chatId, Messages.SEND_PHONE.messageText);
+        } else if(updateType == UpdateType.CALL_BACK_QUERY) {
+            // We are not processing callback queries at this stage
+            sendMessage(chatId, Messages.SEND_PHONE.messageText);
+        } else {
+            logger.error("Unrecognized update!");
+        }
+
     }
 
     private void awaitingPhotoStatusUpdateProcessing(Long chatId, Update update, UpdateType updateType, ChatConfig chatConfig) {
@@ -532,6 +608,13 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                         Buttons.CAT_SHELTER_SAFETY_TIPS, Buttons.SEND_PHONE_AND_ADDRESS,
                         Buttons.HELP, Buttons.CALL_VOLUNTEER);
             }
+        } else if (updateType == UpdateType.CALL_BACK_QUERY &&
+                update.callbackQuery().data().equals(Buttons.SEND_PHONE_AND_ADDRESS.bCallBack)) {
+            // Processing send phone and address button
+            sendMessage(chatId, Messages.SEND_PHONE.messageText);
+            chatConfig.setPreviousChatState(ChatState.CONSULT_NEW_USER);
+            chatConfig.setChatState(ChatState.AWAITING_PHONE);
+            chatConfigService.editChatConfig(chatConfig);
         } else {
             logger.error("Unrecognized update!");
         }
@@ -616,6 +699,10 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                 update.message().text().equalsIgnoreCase(Commands.HELP.commandText))) {
             // Processing Help button or /help command
             sendMessage(chatId, Messages.HELP.messageText);
+        } else if((updateType == UpdateType.CALL_BACK_QUERY &&
+                update.callbackQuery().data().equals(Buttons.CALL_VOLUNTEER.bCallBack)) || (updateType == UpdateType.COMMAND &&
+                update.message().text().equalsIgnoreCase(Commands.CALL_VOLUNTEERS.commandText))) {
+            sendSignalToVolunteers(chatId, update, updateType, chatConfig);
         } else if(updateType == UpdateType.MESSAGE) {
             // We are not processing messages at this stage
             sendMessage(chatId, Messages.CONTEXT_MENU.messageText);
