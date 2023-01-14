@@ -223,4 +223,7 @@ public class AnimalService {
         }
     }
 
+    public List<Animal> getAllAdoptedAnimals() {
+        return animalRepository.getAllAdoptedAnimals();
+    }
 }

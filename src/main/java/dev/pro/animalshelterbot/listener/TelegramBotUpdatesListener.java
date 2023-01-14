@@ -116,8 +116,8 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
             }
             // Checking that user is volunteer or not
             if(user.isVolunteer()) {
-                sendMessage(chatId, Messages.YOU_ARE_VOLUNTEER_NOW1.messageText + "@" + user.getNickName()
-                        + Messages.YOU_ARE_VOLUNTEER_NOW2);
+                sendMessage(chatId, Messages.YOU_ARE_VOLUNTEER_NOW1.messageText + "@" + user.getNickName() + " "
+                        + Messages.YOU_ARE_VOLUNTEER_NOW2.messageText);
                 return;
             }
 

@@ -17,6 +17,8 @@ import java.util.Optional;
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
 
+    Optional<User> findById(Long id);
+
     @Query(value = "SELECT * FROM users WHERE (users.first_name ILIKE CONCAT('%',:firstNameSub,'%') " +
             "AND users.second_name ILIKE CONCAT('%',:secondNameSub,'%') " +
             "AND users.nick_name ILIKE CONCAT('%',:nickNameSub,'%'))", nativeQuery = true)
@@ -25,4 +27,5 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByChatId(Long chatId);
 
     boolean existsByChatId(Long chatId);
+
 }
