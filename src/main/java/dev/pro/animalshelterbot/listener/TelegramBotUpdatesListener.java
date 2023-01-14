@@ -167,7 +167,21 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
     }
 
     private void sendSignalToVolunteers(Long chatId, Update update, UpdateType updateType, ChatConfig chatConfig) {
-
+        Optional<User> userResult = userService.findByChatId(chatId);
+        if(userResult.isEmpty()) {
+            logger.error("User with such chatId was not found in the database");
+            throw new UserNotFoundException("User with such chatId was not found in the database");
+        }
+        User user = userResult.get();
+        List<User> volunteers = userService.getAllVolunteers();
+        String message = "Пользователь @" + user.getNickName()
+                + " которого зовут " + user.getFirstName() + " " + user.getSecondName()
+                + " просил связаться с ним волонтеров. " +
+                "Используйте, пожалуйста, для этого прямой чат с пользователем в Telegram";
+        for (User volunteer : volunteers) {
+            sendMessage(volunteer.getChatId(), message);
+        }
+        sendMessage(chatId, Messages.VOLUNTEERS_CALLED.messageText);
     }
 
     private void awaitingAddressStatusUpdateProcessing(Long chatId, Update update, UpdateType updateType, ChatConfig chatConfig) {
@@ -475,21 +489,26 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
             String drGeneralWellBeing = "не отправлен";
             String drDiet = "не отправлен";
             String drChangeInBehavior = "не отправлен";
-            if(dailyReportResult.isPresent() && dailyReportResult.get().getGeneralWellBeing() != null) {
+            if (dailyReportResult.isPresent() && dailyReportResult.get().getGeneralWellBeing() != null) {
                 drGeneralWellBeing = "отправлен";
             }
-            if(dailyReportResult.isPresent() && dailyReportResult.get().getDiet() != null) {
+            if (dailyReportResult.isPresent() && dailyReportResult.get().getDiet() != null) {
                 drDiet = "отправлен";
             }
-            if(dailyReportResult.isPresent() && dailyReportResult.get().getChangeInBehavior() != null) {
+            if (dailyReportResult.isPresent() && dailyReportResult.get().getChangeInBehavior() != null) {
                 drChangeInBehavior = "отправлен";
             }
-            if(dailyReportResult.isPresent() && dailyReportResult.get().getFilePath() != null) {
+            if (dailyReportResult.isPresent() && dailyReportResult.get().getFilePath() != null) {
                 drPhoto = "отправлена";
             }
             sendMessage(chatId, "Состояние сегодняшнего отчета:\nОтчет об общем самочувствии питомца - "
                     + drGeneralWellBeing + "\nОтчет о диете питомца - " + drDiet + "\nОтчет об изменениях в привычках - "
                     + drChangeInBehavior + "\nФотография питомца - " + drPhoto);
+        } else if((updateType == UpdateType.CALL_BACK_QUERY &&
+                update.callbackQuery().data().equals(Buttons.CALL_VOLUNTEER.bCallBack) ||
+                (updateType == UpdateType.COMMAND &&
+                        update.message().text().equals(Commands.CALL_VOLUNTEERS.commandText))) ) {
+            sendSignalToVolunteers(chatId, update, updateType, chatConfig);
         } else {
             logger.error("Unrecognized update!");
         }
@@ -550,6 +569,11 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                         Buttons.CAT_ANIMAL_REJECT,
                         Buttons.SEND_PHONE_AND_ADDRESS, Buttons.HELP, Buttons.CALL_VOLUNTEER);
             }
+        } else if((updateType == UpdateType.CALL_BACK_QUERY &&
+                update.callbackQuery().data().equals(Buttons.CALL_VOLUNTEER.bCallBack) ||
+                (updateType == UpdateType.COMMAND &&
+                        update.message().text().equals(Commands.CALL_VOLUNTEERS.commandText))) ) {
+            sendSignalToVolunteers(chatId, update, updateType, chatConfig);
         } else {
             logger.error("Unrecognized update!");
         }
@@ -615,6 +639,11 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
             chatConfig.setPreviousChatState(ChatState.CONSULT_NEW_USER);
             chatConfig.setChatState(ChatState.AWAITING_PHONE);
             chatConfigService.editChatConfig(chatConfig);
+        } else if((updateType == UpdateType.CALL_BACK_QUERY &&
+                update.callbackQuery().data().equals(Buttons.CALL_VOLUNTEER.bCallBack) ||
+                (updateType == UpdateType.COMMAND &&
+                        update.message().text().equals(Commands.CALL_VOLUNTEERS.commandText))) ) {
+            sendSignalToVolunteers(chatId, update, updateType, chatConfig);
         } else {
             logger.error("Unrecognized update!");
         }
@@ -721,6 +750,11 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
             sendMenu(chatId, "Главное меню. Что вы хотите сделать дальше:", Buttons.BACK,
                     Buttons.SHELTER_INFO, Buttons.ANIMAL_INFO, Buttons.DAILY_REPORT, Buttons.HELP,
                     Buttons.CALL_VOLUNTEER);
+        } else if((updateType == UpdateType.CALL_BACK_QUERY &&
+                update.callbackQuery().data().equals(Buttons.CALL_VOLUNTEER.bCallBack) ||
+                (updateType == UpdateType.COMMAND &&
+                        update.message().text().equals(Commands.CALL_VOLUNTEERS.commandText))) ) {
+            sendSignalToVolunteers(chatId, update, updateType, chatConfig);
         } else {
             logger.error("Unrecognized update!");
         }

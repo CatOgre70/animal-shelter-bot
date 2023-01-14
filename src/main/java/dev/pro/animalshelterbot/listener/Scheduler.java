@@ -3,11 +3,11 @@ package dev.pro.animalshelterbot.listener;
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.response.SendResponse;
+import dev.pro.animalshelterbot.constants.Messages;
 import dev.pro.animalshelterbot.model.Animal;
 import dev.pro.animalshelterbot.model.DailyReport;
 import dev.pro.animalshelterbot.repository.DailyReportRepository;
 import dev.pro.animalshelterbot.service.AnimalService;
-import dev.pro.animalshelterbot.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -31,21 +31,19 @@ import java.util.List;
 public class Scheduler {
 
     private final Logger logger = LoggerFactory.getLogger(TelegramBotUpdatesListener.class);
-    private final UserService userService;
     private final AnimalService animalService;
     private final TelegramBot telegramBot;
 
     private final DailyReportRepository dailyReportRepository;
 
-    public Scheduler(UserService userService, AnimalService animalService, TelegramBot telegramBot, DailyReportRepository dailyReportRepository) {
-        this.userService = userService;
+    public Scheduler(AnimalService animalService, TelegramBot telegramBot, DailyReportRepository dailyReportRepository) {
         this.animalService = animalService;
         this.telegramBot = telegramBot;
         this.dailyReportRepository = dailyReportRepository;
     }
 
 
-    @Scheduled(cron = "0 0 11 * * *" )
+    @Scheduled(cron = "0 0 10 * * *" )
     public void sendNotification() {
         List<Animal> adoptedAnimals = animalService.getAllAdoptedAnimals();
         LocalDateTime today = LocalDateTime.now().truncatedTo(ChronoUnit.DAYS);
@@ -67,10 +65,13 @@ public class Scheduler {
                 LocalDate today1 = today.toLocalDate();
                 Period period = Period.between(lastReportDate.get(i), today1);
                 if(period.getDays() > 2) {
-                    sendMessage(adoptedAnimals.get(i).getOwner().getChatId(), "Прошло больше двух дней с момента последнего отчета! Вы нарушили договор об адаптации животного! Я вызываю волонтеров!");
+                    sendMessage(adoptedAnimals.get(i).getOwner().getChatId(),
+                            Messages.DR_HOW_MANY_DAYS_LEFT.messageText);
                 } else {
                     period = Period.between(today1, adoptionDate1);
-                    sendMessage(adoptedAnimals.get(i).getOwner().getChatId(), "Прошло дней: " + period.getDays() + ". Новый день - новый отчет!");
+                    sendMessage(adoptedAnimals.get(i).getOwner().getChatId(),
+                            Messages.DR_HOW_MANY_DAYS_LEFT.messageText + period.getDays()
+                            + Messages.DR_NEW_DAY_NEW_REPORT.messageText);
                 }
             }
         }

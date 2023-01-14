@@ -125,4 +125,8 @@ public class UserService {
         logger.info("Method \"findByThreeSubstrings()\" was called");
         return userRepository.findByThreeSubstrings(firstName, secondName, nickName);
     }
+
+    public List<User> getAllVolunteers() {
+        return userRepository.findAllVolunteers();
+    }
 }
