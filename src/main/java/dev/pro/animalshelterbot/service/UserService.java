@@ -1,5 +1,6 @@
 package dev.pro.animalshelterbot.service;
 
+import dev.pro.animalshelterbot.model.Animal;
 import dev.pro.animalshelterbot.model.User;
 import dev.pro.animalshelterbot.repository.UserRepository;
 import org.slf4j.Logger;
@@ -8,6 +9,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -16,7 +18,6 @@ import java.util.Optional;
 @Service
 public class UserService {
     private final UserRepository userRepository;
-
 
 
     public UserService(UserRepository userRepository) {

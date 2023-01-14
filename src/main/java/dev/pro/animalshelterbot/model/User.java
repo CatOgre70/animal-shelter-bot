@@ -52,13 +52,21 @@ public class User {
     private Long chatId;
 
     /**
-     * List of this user adopted animals
+     * Adopted pet/animal
      */
     @JsonIgnoreProperties("owner")
     @OneToOne(mappedBy = "owner")
     private Animal adoptedAnimal;
 
+    /**
+     * Shelter chosen by user
+     */
     private Shelter shelter;
+
+    /**
+     * Is this user a volunteer or not
+     */
+    private boolean isVolunteer;
 
     /**
      * User class empty constructor for Spring JPA and Hibernate
@@ -71,6 +79,7 @@ public class User {
         this.address = null;
         this.mobilePhone = null;
         this.chatId = 0L;
+        this.isVolunteer = false;
     }
 
     /**
@@ -84,6 +93,7 @@ public class User {
         this.address = address;
         this.mobilePhone = mobilePhone;
         this.chatId = chatId;
+        this.isVolunteer = false;
     }
 
     public Long getId() {
@@ -156,6 +166,14 @@ public class User {
 
     public void setShelter(Shelter shelter) {
         this.shelter = shelter;
+    }
+
+    public boolean isVolunteer() {
+        return isVolunteer;
+    }
+
+    public void setVolunteer(boolean volunteer) {
+        isVolunteer = volunteer;
     }
 
     @Override

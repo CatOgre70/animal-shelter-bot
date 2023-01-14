@@ -26,4 +26,6 @@ public interface AnimalRepository extends JpaRepository<Animal, Long> {
             "AND animals.color ILIKE CONCAT('%',:colorSub,'%'))", nativeQuery = true)
     List<Animal> getAnimalBySubstringsAndKind(String nameSub, int animalKind, String breedSub, String colorSub);
 
+    @Query(value = "SELECT * FROM animals WHERE animals.owner_id is not null", nativeQuery = true)
+    List<Animal> getAllAdoptedAnimals();
 }
