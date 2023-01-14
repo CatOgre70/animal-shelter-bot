@@ -28,4 +28,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     boolean existsByChatId(Long chatId);
 
+    @Query(value = "SELECT * FROM users WHERE users.is_volunteer IS true", nativeQuery = true)
+    List<User> findAllVolunteers();
 }

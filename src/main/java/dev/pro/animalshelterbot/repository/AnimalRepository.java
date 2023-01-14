@@ -1,6 +1,5 @@
 package dev.pro.animalshelterbot.repository;
 
-import dev.pro.animalshelterbot.constants.AnimalKind;
 import dev.pro.animalshelterbot.model.Animal;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
