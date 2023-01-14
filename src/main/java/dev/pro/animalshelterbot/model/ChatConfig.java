@@ -34,6 +34,8 @@ public class ChatConfig {
      */
     private ChatState chatState;
 
+    private ChatState previousChatState;
+
     private Shelter shelter;
 
     /**
@@ -43,6 +45,7 @@ public class ChatConfig {
         this.id = 0L;
         this.chatId = 0L;
         this.chatState = null;
+        this.previousChatState = null;
     }
 
     /**
@@ -53,6 +56,7 @@ public class ChatConfig {
         this.chatId = chatId;
         this.chatState = chatState;
         this.shelter = shelter;
+        this.previousChatState = ChatState.ZERO_STATE;
     }
 
 
@@ -78,6 +82,14 @@ public class ChatConfig {
 
     public void setChatState(ChatState chatState) {
         this.chatState = chatState;
+    }
+
+    public ChatState getPreviousChatState() {
+        return previousChatState;
+    }
+
+    public void setPreviousChatState(ChatState previousChatState) {
+        this.previousChatState = previousChatState;
     }
 
     public Shelter getShelter() {

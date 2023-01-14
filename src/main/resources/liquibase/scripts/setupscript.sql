@@ -76,13 +76,20 @@ ALTER TABLE daily_reports ADD COLUMN media_type text;
 
 -- changeset vasilydemin:8
 UPDATE animals SET owner_id = 1 WHERE name = 'Sharik';
-UPDATE animals SET adoption_date = timestamp '2022-12-09 9:00:00.000' WHERE name = 'Sharik';
+UPDATE animals SET adoption_date = timestamp '2023-01-07 9:00:00.000' WHERE name = 'Sharik';
 INSERT INTO daily_reports (date_time, diet, general_well_being, change_in_behavior, animal_id)
-VALUES (timestamp '2022-12-12 14:15:00.000', 'Оптяь жрал тухлую селедку на помойке', 'Потом блевал, но выглядел довольным',
+VALUES (timestamp '2023-01-11 14:15:00.000', 'Оптяь жрал тухлую селедку на помойке', 'Потом блевал, но выглядел довольным',
         'Надо приучить его не есть с помойки, а также не убегать от меня во время прогулки', 2),
-       (timestamp '2022-12-11 15:45:00.000', 'Жрал тухлую селедку на помойке', 'Потом блевал, но выглядел страшно довольным',
+       (timestamp '2023-01-10 15:45:00.000', 'Жрал тухлую селедку на помойке', 'Потом блевал, но выглядел страшно довольным',
         'Никак не приучу его не есть с помойки, а также не убегать от меня во время прогулки', 2),
-       (timestamp '2022-12-10 19:00:00.000', 'Ел корм, купленный в зоомагазине по рекомендациям лучших собаководов',
+       (timestamp '2023-01-09 19:00:00.000', 'Ел корм, купленный в зоомагазине по рекомендациям лучших собаководов',
         'Спал, гулял нормально, выглядит хорошо', 'Попробую отпусть его завтра с поводка', 2),
-       (timestamp '2022-12-09 12:00:00.000', 'Ничего не ел, только пил, по-видимому привыкает к новому месту',
+       (timestamp '2023-01-08 12:00:00.000', 'Ничего не ел, только пил, по-видимому привыкает к новому месту',
         'Спал плохо, почти не отходил от моей кровати', 'Завтра пойдем гулять во двор', 2);
+
+-- changeset vasilydemin:9
+ALTER TABLE chat_config ADD COLUMN previous_chat_state integer default 14;
+
+-- changeset vasilydemin:10
+ALTER TABLE users ADD COLUMN is_volunteer boolean default false;
+
