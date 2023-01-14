@@ -57,13 +57,7 @@ public class TelegramBotUpdatesListenerTest {
     private ChatConfigService chatConfigService;
 
     @MockBean
-    private DailyReportService dailyReportService;
-
-    @MockBean
     private UserService userService;
-
-    @MockBean
-    private AnimalService animalService;
 
     @MockBean
     private TelegramBot telegramBot;
