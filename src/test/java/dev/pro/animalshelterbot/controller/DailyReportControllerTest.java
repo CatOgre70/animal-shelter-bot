@@ -1,10 +1,12 @@
 package dev.pro.animalshelterbot.controller;
 
+import com.pengrad.telegrambot.TelegramBot;
 import dev.pro.animalshelterbot.model.DailyReport;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.http.HttpStatus;
@@ -24,6 +26,9 @@ public class DailyReportControllerTest {
 
     @LocalServerPort
     private int port;
+
+    @MockBean
+    private TelegramBot telegramBot;
 
     @Autowired
     private TestRestTemplate restTemplate;
