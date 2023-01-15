@@ -68,7 +68,7 @@ public class Scheduler {
                     sendMessage(adoptedAnimals.get(i).getOwner().getChatId(),
                             Messages.DR_HOW_MANY_DAYS_LEFT.messageText);
                 } else {
-                    period = Period.between(today1, adoptionDate1);
+                    period = Period.between(adoptionDate1, today1);
                     sendMessage(adoptedAnimals.get(i).getOwner().getChatId(),
                             Messages.DR_HOW_MANY_DAYS_LEFT.messageText + period.getDays()
                             + Messages.DR_NEW_DAY_NEW_REPORT.messageText);
