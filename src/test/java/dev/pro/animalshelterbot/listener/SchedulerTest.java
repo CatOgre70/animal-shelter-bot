@@ -7,16 +7,12 @@ import dev.pro.animalshelterbot.constants.Messages;
 import dev.pro.animalshelterbot.model.Animal;
 import dev.pro.animalshelterbot.model.DailyReport;
 import dev.pro.animalshelterbot.model.User;
-import dev.pro.animalshelterbot.repository.AnimalRepository;
 import dev.pro.animalshelterbot.repository.DailyReportRepository;
 import dev.pro.animalshelterbot.service.AnimalService;
-import dev.pro.animalshelterbot.service.ChatConfigService;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,16 +36,16 @@ import static org.mockito.ArgumentMatchers.any;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class SchedulerTest {
 
-    @Mock
+    @MockBean
     private AnimalService animalService;
 
-    @Mock
+    @MockBean
     private DailyReportRepository dailyReportRepository;
 
-    @Mock
+    @MockBean
     private TelegramBot telegramBot;
 
-    @InjectMocks
+    @Autowired
     private Scheduler scheduler;
 
     @LocalServerPort
@@ -71,7 +67,7 @@ public class SchedulerTest {
         LocalDate adoptionDate1 = LocalDateTime.of(2023, 1, 7, 9, 0)
                 .truncatedTo(ChronoUnit.DAYS).toLocalDate();
         LocalDate today1 = dateTime.toLocalDate();
-        Period period = Period.between(today1, adoptionDate1);
+        Period period = Period.between(adoptionDate1, today1.plusDays(1));
         DailyReport dailyReport = new DailyReport(dateTime, null, 0L, null, null,
                 "Жрал тухлую селедку с помойки", "Блевал, но выглядел счастливым",
                 "Пока не отучил его жрать то, что находит на помойке", 2L);
@@ -86,9 +82,9 @@ public class SchedulerTest {
 
         Assertions.assertThat(actual.getParameters().get("chat_id")).isEqualTo(1234567890L);
         Assertions.assertThat(actual.getParameters().get("text"))
-                .isEqualTo(Messages.DR_MORE_THAN_TWO_FAYS.messageText);
+                .isEqualTo(Messages.DR_HOW_MANY_DAYS_LEFT.messageText + period.getDays()
+                        + Messages.DR_NEW_DAY_NEW_REPORT.messageText);
 
     }
-
 
 }
