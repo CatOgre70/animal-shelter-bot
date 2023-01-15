@@ -1,5 +1,6 @@
 package dev.pro.animalshelterbot.service;
 
+import com.pengrad.telegrambot.TelegramBot;
 import dev.pro.animalshelterbot.constants.ChatState;
 import dev.pro.animalshelterbot.constants.Shelter;
 import dev.pro.animalshelterbot.model.ChatConfig;
@@ -7,6 +8,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
@@ -20,6 +22,9 @@ public class ChatConfigServiceTest {
 
     @LocalServerPort
     private int port;
+
+    @MockBean
+    private TelegramBot telegramBot;
 
     @Autowired
     private ChatConfigService chatConfigService;
