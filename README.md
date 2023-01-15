@@ -7,17 +7,17 @@ customers, who would like to adopt animals from the shelter.
 To start application please use jar file from this repository. Last version is 0.5.1. Command line for starting jar 
 file: 
 
-java -jar -D"telegram.bot.token=<TelegramBotTocken>" -D"spring.datasource.username=<database user name>" 
-    -D"spring.datasource.password=<database user password>" 
-    -D"spring.datasource.url=jdbc:postgresql://<database server IP address>/<database name>"
+java -jar -D"telegram.bot.token={TelegramBotToken}" -D"spring.datasource.username={database user name}" 
+    -D"spring.datasource.password={database user password}" 
+    -D"spring.datasource.url=jdbc:postgresql://{database server IP address}/{database name}"
     animal-shelter-telegram-bot-0.5.1.jar
 
 You can also define environment variables in your operating system:
 
-telegram.bot.token=<TelegramBotTocken> 
-spring.datasource.username=<database user name>
-spring.datasource.password=<database user password>
-spring.datasource.url=jdbc:postgresql://<database server IP address>/<database name>
+telegram.bot.token={TelegramBotToken} 
+spring.datasource.username={database user name}
+spring.datasource.password={database user password}
+spring.datasource.url=jdbc:postgresql://{database server IP address}/{database name}
 
 Command line to start application in this case will be 
 
