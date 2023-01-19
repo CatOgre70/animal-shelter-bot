@@ -59,6 +59,7 @@ public enum Messages {
     SEND_ADDRESS("Укажите, пожалуйста, ваш почтовый адрес:"),
     ADDRESS_SENT("Надо же, в каком прекрасном месте вы живете. Записал туда же, спасибо!"),
 
+    THANKS_YOU_ARE_VOLUNTEER_NOW("Спасибо! Вы теперь волонтер!"),
     YOU_ARE_VOLUNTEER_NOW1("You are in the army now! Приветствую, "),
     YOU_ARE_VOLUNTEER_NOW2(" У нас нет пока новой инфрмации для тебя!"),
 

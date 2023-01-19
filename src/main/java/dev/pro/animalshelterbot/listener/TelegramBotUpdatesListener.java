@@ -509,6 +509,18 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                 (updateType == UpdateType.COMMAND &&
                         update.message().text().equals(Commands.CALL_VOLUNTEERS.commandText))) ) {
             sendSignalToVolunteers(chatId, update, updateType, chatConfig);
+        } else if (updateType == UpdateType.COMMAND &&
+                update.message().text().equalsIgnoreCase(Commands.TO_BE_VOLUNTEER.commandText)) {
+            Optional<User> useResult = userService.findByChatId(chatId);
+            if(useResult.isEmpty()) {
+                logger.error("User with such chatId was not found in the database!");
+                throw new UserNotFoundException("User with such chatId was not found in the database!");
+            } else {
+                User user = useResult.get();
+                user.setVolunteer(true);
+                userService.editUser(user);
+                sendMessage(chatId, Messages.THANKS_YOU_ARE_VOLUNTEER_NOW.messageText);
+            }
         } else {
             logger.error("Unrecognized update!");
         }
@@ -574,6 +586,25 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                 (updateType == UpdateType.COMMAND &&
                         update.message().text().equals(Commands.CALL_VOLUNTEERS.commandText))) ) {
             sendSignalToVolunteers(chatId, update, updateType, chatConfig);
+        } else if (updateType == UpdateType.CALL_BACK_QUERY &&
+                update.callbackQuery().data().equals(Buttons.SEND_PHONE_AND_ADDRESS.bCallBack)) {
+            // Processing send phone and address button
+            sendMessage(chatId, Messages.SEND_PHONE.messageText);
+            chatConfig.setPreviousChatState(ChatState.CONSULT_POTENTIAL_OWNER);
+            chatConfig.setChatState(ChatState.AWAITING_PHONE);
+            chatConfigService.editChatConfig(chatConfig);
+        } else if (updateType == UpdateType.COMMAND &&
+                update.message().text().equalsIgnoreCase(Commands.TO_BE_VOLUNTEER.commandText)) {
+            Optional<User> useResult = userService.findByChatId(chatId);
+            if(useResult.isEmpty()) {
+                logger.error("User with such chatId was not found in the database!");
+                throw new UserNotFoundException("User with such chatId was not found in the database!");
+            } else {
+                User user = useResult.get();
+                user.setVolunteer(true);
+                userService.editUser(user);
+                sendMessage(chatId, Messages.THANKS_YOU_ARE_VOLUNTEER_NOW.messageText);
+            }
         } else {
             logger.error("Unrecognized update!");
         }
@@ -644,6 +675,18 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                 (updateType == UpdateType.COMMAND &&
                         update.message().text().equals(Commands.CALL_VOLUNTEERS.commandText))) ) {
             sendSignalToVolunteers(chatId, update, updateType, chatConfig);
+        } else if (updateType == UpdateType.COMMAND &&
+                update.message().text().equalsIgnoreCase(Commands.TO_BE_VOLUNTEER.commandText)) {
+            Optional<User> useResult = userService.findByChatId(chatId);
+            if(useResult.isEmpty()) {
+                logger.error("User with such chatId was not found in the database!");
+                throw new UserNotFoundException("User with such chatId was not found in the database!");
+            } else {
+                User user = useResult.get();
+                user.setVolunteer(true);
+                userService.editUser(user);
+                sendMessage(chatId, Messages.THANKS_YOU_ARE_VOLUNTEER_NOW.messageText);
+            }
         } else {
             logger.error("Unrecognized update!");
         }
@@ -755,6 +798,17 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                 (updateType == UpdateType.COMMAND &&
                         update.message().text().equals(Commands.CALL_VOLUNTEERS.commandText))) ) {
             sendSignalToVolunteers(chatId, update, updateType, chatConfig);
+        } else if (updateType == UpdateType.COMMAND &&
+                update.message().text().equalsIgnoreCase(Commands.TO_BE_VOLUNTEER.commandText)) {
+            Optional<User> useResult = userService.findByChatId(chatId);
+            if(useResult.isEmpty()) {
+                logger.error("User with such chatId was not found in the database!");
+                throw new UserNotFoundException("User with such chatId was not found in the database!");
+            } else {
+                user.setVolunteer(true);
+                userService.editUser(user);
+                sendMessage(chatId, Messages.THANKS_YOU_ARE_VOLUNTEER_NOW.messageText);
+            }
         } else {
             logger.error("Unrecognized update!");
         }
