@@ -4,7 +4,9 @@ import dev.pro.animalshelterbot.constants.AnimalKind;
 import dev.pro.animalshelterbot.exception.AnimalNotFoundException;
 import dev.pro.animalshelterbot.model.Animal;
 import dev.pro.animalshelterbot.model.DailyReport;
+import dev.pro.animalshelterbot.model.User;
 import dev.pro.animalshelterbot.service.AnimalService;
+import dev.pro.animalshelterbot.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -28,9 +30,11 @@ import java.util.Optional;
 public class AnimalController {
 
     private final AnimalService animalService;
+    private final UserService userService;
 
-    public AnimalController (AnimalService animalService) {
+    public AnimalController (AnimalService animalService, UserService userService) {
         this.animalService = animalService;
+        this.userService = userService;
     }
 
     private final Logger logger = LoggerFactory.getLogger(AnimalController.class);
@@ -162,6 +166,35 @@ public class AnimalController {
     public ResponseEntity<Animal> editAnimal(@RequestBody Animal animal) {
         Optional<Animal> animal1 = animalService.editAnimal(animal);
         return animal1.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+    }
+
+    @Operation (
+            summary = "setting animal owner",
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "returns an animal with modified parameters",
+                            content = @Content(
+                                    mediaType  = MediaType.APPLICATION_JSON_VALUE,
+                                    array = @ArraySchema(schema = @Schema(implementation = Animal.class))
+
+                            )
+                    )
+            },
+            tags = "Animals"
+    )
+    @PutMapping("/{animalId}/setowner")
+    public ResponseEntity<Animal> setOwner(@RequestParam Long userId, @PathVariable Long animalId) {
+        Optional<Animal> animalResult = animalService.getAnimalById(animalId);
+        Optional <User> userResult = userService.findUser(userId);
+        if(animalResult.isEmpty() || userResult.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        } else {
+            Animal animal = animalResult.get();
+            animal.setOwner(userResult.get());
+            return ResponseEntity.ok(animalService.editAnimal(animal).get());
+        }
+
     }
 
     @Operation (
