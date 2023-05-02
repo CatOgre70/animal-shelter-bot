@@ -2,10 +2,7 @@ package dev.pro.animalshelterbot.factory;
 
 import com.pengrad.telegrambot.model.request.InlineKeyboardButton;
 import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
-import dev.pro.animalshelterbot.constants.Commands;
 import dev.pro.animalshelterbot.constants.Constants;
-
-import java.util.Collection;
 
 /**
  * Class that implements the built-in keyboard in the start menu
